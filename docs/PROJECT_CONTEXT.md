@@ -56,6 +56,8 @@
   - `docs/LAUNCH_CHECKLIST.md`
 - 已新增 60 秒 demo 文案与分镜：
   - `docs/DEMO_SCRIPT.md`
+- 已新增安装排障指南：
+  - `docs/INSTALLATION_TROUBLESHOOTING.md`
 
 ## 已验证
 
@@ -83,6 +85,7 @@
 - 新增：`docs/PROJECT_CONTEXT.md`
 - 新增：`docs/LAUNCH_CHECKLIST.md`
 - 新增：`docs/DEMO_SCRIPT.md`
+- 新增：`docs/INSTALLATION_TROUBLESHOOTING.md`
 
 提交前建议再跑一次验证命令，并检查 `git diff`。
 
@@ -106,6 +109,7 @@
    - 标题建议：《我为什么给 Codex 做了一个迭代管理 skill》
 
 更细的发布前步骤见 `docs/LAUNCH_CHECKLIST.md`。
+安装失败或脚本跑不通时，先看 `docs/INSTALLATION_TROUBLESHOOTING.md`。
 
 ## 产品判断
 

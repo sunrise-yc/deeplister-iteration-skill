@@ -108,6 +108,8 @@ macOS / Linux 默认位置通常是：
 
 安装后，重启 Codex 或重新开启会话，让 Codex 重新发现这个 skill。
 
+如果 Codex 没识别到 skill、脚本跑不起来，先看 [`docs/INSTALLATION_TROUBLESHOOTING.md`](docs/INSTALLATION_TROUBLESHOOTING.md)。
+
 ## 使用方式
 
 在 DeepLister 项目里，对 Codex 说：
@@ -269,6 +271,8 @@ macOS / Linux:
 ```
 
 Restart Codex or start a new session so the skill can be discovered.
+
+If Codex cannot discover the skill or the script does not run, see [`docs/INSTALLATION_TROUBLESHOOTING.md`](docs/INSTALLATION_TROUBLESHOOTING.md).
 
 ## Usage
 

@@ -15,18 +15,15 @@ This roadmap keeps the project focused on one product promise:
 
 ## Now
 
-- Make the GitHub repository easier to understand in the first 30 seconds.
-- Add Issue templates so real users can report install problems, bugs, feature ideas, and use cases.
-- Add a clear first-run path for copying or creating `docs/迭代记录.md`.
 - Upload `assets/social-preview.png` as the GitHub social preview image.
 - Record one short demo GIF or video from `docs/DEMO_SCRIPT.md`.
+- Publish the launch foundation branch so the README, Issue templates, screenshots, and docs are visible on GitHub.
 
 ## Next
 
 - Add `--record-path` as a friendlier alias for the existing `--record` option.
-- Add an install troubleshooting section for Windows, macOS, and Linux.
-- Add a short demo script that shows: issue pool -> recommended next task -> iteration log update.
 - Add a guide for adapting the skill to a different project name.
+- Collect the first installation and README feedback through GitHub Issues.
 
 ## Later
 
