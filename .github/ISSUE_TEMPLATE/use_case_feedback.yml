@@ -1,0 +1,42 @@
+name: User story / 使用场景反馈
+description: Share how you tried to use the skill and where it helped or failed.
+title: "[Use case]: "
+labels: ["user-feedback", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This project improves fastest when real usage is recorded.
+
+        You can write in English or Chinese.
+  - type: textarea
+    id: project_type
+    attributes:
+      label: What kind of project did you try it on?
+      placeholder: "Personal AI app, product prototype, school project, open-source tool, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: helped
+    attributes:
+      label: What did it help with?
+      placeholder: "It helped me choose the next task / keep an iteration log / reduce context explaining..."
+    validations:
+      required: true
+  - type: textarea
+    id: failed
+    attributes:
+      label: Where did it not help?
+      placeholder: "It picked the wrong task / the README was unclear / my record format did not parse..."
+    validations:
+      required: true
+  - type: textarea
+    id: first_run
+    attributes:
+      label: Could you complete the first run?
+      description: If not, where did you get stuck?
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: What would make it more useful?
+      description: One small improvement is enough.
