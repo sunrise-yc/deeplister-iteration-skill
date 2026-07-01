@@ -6,6 +6,35 @@
 
 如果这个小工具对你有帮助，欢迎点个 Star。小项目也需要一点星光。
 
+## 快速开始
+
+1. 把 `deeplister-iteration/` 文件夹复制到你的 Codex skills 目录。
+2. 重启 Codex 或新开一个会话，让 Codex 重新发现这个 skill。
+3. 在你的 DeepLister 项目里准备 `docs/迭代记录.md`。如果还没有，可以先参考 [`examples/deeplister-iteration-record.example.md`](examples/deeplister-iteration-record.example.md)。
+4. 对 Codex 说：
+
+```text
+Use $deeplister-iteration to pick the next DeepLister task.
+```
+
+中文也可以：
+
+```text
+用 deeplister-iteration 看一下下一步该做什么，并在做完后更新迭代记录。
+```
+
+如果想先确认文档能不能被脚本读到，可以在 DeepLister 项目根目录运行：
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\deeplister-iteration\scripts\iteration_snapshot.py" --project-root .
+```
+
+你应该看到问题数量、未解决数量、推荐下一步任务和最近一次迭代记录。
+
+运行结果大概长这样：
+
+![Snapshot output example](assets/snapshot-output.png)
+
 ## 它解决什么问题
 
 在一个产品原型持续迭代时，很多重要信息会散在聊天记录、README、临时笔记和代码改动里。时间一久，下一步该做什么就会变模糊。
@@ -36,6 +65,15 @@
 
 ```text
 deeplister-iteration-skill/
+  .github/
+    ISSUE_TEMPLATE/
+      bug_report.yml
+      feature_request.yml
+      installation_problem.yml
+      use_case_feedback.yml
+  assets/
+    snapshot-output.png
+    social-preview.png
   deeplister-iteration/
     SKILL.md
     agents/
@@ -46,7 +84,9 @@ deeplister-iteration-skill/
       iteration_snapshot.py
   examples/
     deeplister-iteration-record.example.md
+  CHANGELOG.md
   README.md
+  ROADMAP.md
   LICENSE
 ```
 
@@ -67,6 +107,8 @@ macOS / Linux 默认位置通常是：
 ```
 
 安装后，重启 Codex 或重新开启会话，让 Codex 重新发现这个 skill。
+
+如果 Codex 没识别到 skill、脚本跑不起来，先看 [`docs/INSTALLATION_TROUBLESHOOTING.md`](docs/INSTALLATION_TROUBLESHOOTING.md)。
 
 ## 使用方式
 
@@ -121,6 +163,27 @@ docs/迭代记录.md
 
 可以参考 [`examples/deeplister-iteration-record.example.md`](examples/deeplister-iteration-record.example.md)。
 
+## 普通 prompt 和 skill 的区别
+
+普通 prompt 更像“每次临时交代一遍”：你要告诉 Codex 去哪里看任务、怎么判断优先级、做完后怎么记录。时间久了，很容易漏步骤。
+
+这个 skill 更像“把固定工作流写成规则”：Codex 每次被调用时都会先看迭代记录和问题池，再按优先级选任务，最后提醒自己把结果写回文档。
+
+用产品经理的话说，它不是在做更强的项目管理系统，而是在解决一个更小、更高频的问题：让早期项目每次迭代都有一个清楚的下一步。
+
+## 反馈与路线图
+
+如果你试用时遇到问题，欢迎开 Issue：
+
+- 安装失败或 Codex 识别不到 skill：使用 `Installation problem` 模板。
+- 脚本或推荐结果看起来不对：使用 `Bug report` 模板。
+- 想要新能力：使用 `Feature request` 模板。
+- 想分享真实使用体验：使用 `User story / use case` 模板。
+
+项目节奏可以看 [`ROADMAP.md`](ROADMAP.md)，每次重要变化会记录在 [`CHANGELOG.md`](CHANGELOG.md)。
+
+如果你想快速了解一次完整使用流程，可以看 [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)。它是 60 秒 demo 的分镜和旁白草稿。
+
 ## 设计原则
 
 - **轻量优先**：早期项目先用一个 Markdown 文档，不急着上复杂系统。
@@ -138,11 +201,7 @@ docs/迭代记录.md
 
 ## 后续方向
 
-- 支持自定义迭代记录路径。
-- 支持更多状态字段，比如 `进行中`、`阻塞`、`已验证`。
-- 输出更稳定的 JSON，方便接入其他自动化流程。
-- 增加一个命令，用于自动追加标准迭代记录模板。
-- 做成更通用的 `local-iteration-tracker`，让其他项目也能直接复用。
+后续计划会持续更新在 [`ROADMAP.md`](ROADMAP.md)。当前最重要的是让新用户能看懂、装上、跑通，并愿意反馈真实问题。
 
 ## English
 
@@ -151,6 +210,29 @@ docs/迭代记录.md
 It is not a project management platform. Think of it as a small workflow guardrail: check the issue pool first, prefer high-risk product tasks, verify the change, and write the result back to the iteration record.
 
 If this project helps you, a GitHub Star would be appreciated.
+
+## Quick Start
+
+1. Copy the `deeplister-iteration/` folder into your Codex skills directory.
+2. Restart Codex or start a new session so the skill can be discovered.
+3. Make sure your DeepLister project has `docs/迭代记录.md`. You can start from [`examples/deeplister-iteration-record.example.md`](examples/deeplister-iteration-record.example.md).
+4. Ask Codex:
+
+```text
+Use $deeplister-iteration to pick the next DeepLister task.
+```
+
+To check whether the record can be read, run this from the DeepLister project root:
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\deeplister-iteration\scripts\iteration_snapshot.py" --project-root .
+```
+
+You should see issue counts, unresolved counts, the recommended next task, and the latest iteration entry.
+
+Example output:
+
+![Snapshot output example](assets/snapshot-output.png)
 
 ## What It Solves
 
@@ -190,6 +272,8 @@ macOS / Linux:
 
 Restart Codex or start a new session so the skill can be discovered.
 
+If Codex cannot discover the skill or the script does not run, see [`docs/INSTALLATION_TROUBLESHOOTING.md`](docs/INSTALLATION_TROUBLESHOOTING.md).
+
 ## Usage
 
 Inside a DeepLister project, ask Codex:
@@ -221,6 +305,20 @@ docs/迭代记录.md
 ```
 
 See [`examples/deeplister-iteration-record.example.md`](examples/deeplister-iteration-record.example.md) for a complete example.
+
+## Prompt vs Skill
+
+A normal prompt is a one-off instruction: you explain where Codex should look, how it should prioritize work, and how it should update the log.
+
+This skill turns that repeated workflow into a reusable rule. It asks Codex to check the iteration record, pick from the issue pool, respect priority, and write back what changed.
+
+## Feedback and Roadmap
+
+Use the GitHub Issue templates for installation problems, bugs, feature requests, or real use-case feedback.
+
+See [`ROADMAP.md`](ROADMAP.md) for planned work and [`CHANGELOG.md`](CHANGELOG.md) for notable changes.
+
+See [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) for a 60-second first-run demo script.
 
 ## Design Principles
 

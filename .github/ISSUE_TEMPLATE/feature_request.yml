@@ -1,0 +1,42 @@
+name: Feature request / 功能建议
+description: Suggest an improvement or new capability.
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the user pain before describing the feature.
+      placeholder: "When I use this skill in my own project, I need..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would you like the skill or script to do?
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Use the product priority language from the README.
+      options:
+        - P0 - blocks first successful use
+        - P1 - makes regular use smoother
+        - P2 - improves demo, docs, or polish
+        - P3 - long-term expansion
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workaround or simpler version that might be enough?
+  - type: textarea
+    id: context
+    attributes:
+      label: Extra context
+      description: Links, examples, screenshots, or related projects.

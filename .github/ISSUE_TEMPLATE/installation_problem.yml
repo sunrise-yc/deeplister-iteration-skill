@@ -1,0 +1,56 @@
+name: Installation problem / 安装问题
+description: Report trouble installing or enabling the skill.
+title: "[Install]: "
+labels: ["installation", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying deeplister-iteration-skill.
+
+        If the skill cannot be installed, discovered by Codex, or run for the first time, use this form.
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system / 操作系统
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: codex_version
+    attributes:
+      label: Codex version or environment
+      description: If you know it, paste the Codex app/CLI version or describe where you are using it.
+      placeholder: "Codex desktop app, Codex CLI, etc."
+  - type: textarea
+    id: steps
+    attributes:
+      label: What did you try?
+      description: Paste the exact install path, command, or prompt you used.
+      placeholder: |
+        1. Copied deeplister-iteration/ to ...
+        2. Restarted Codex
+        3. Asked Codex ...
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: What happened?
+      description: Paste any error message or explain what Codex did instead.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      placeholder: "I expected Codex to discover the skill and read docs/迭代记录.md."
+  - type: textarea
+    id: extra
+    attributes:
+      label: Extra context
+      description: Screenshots, terminal output, or anything that may help.
