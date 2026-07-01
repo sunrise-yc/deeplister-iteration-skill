@@ -1,0 +1,51 @@
+name: Bug report / Bug 反馈
+description: Report behavior that looks broken or incorrect.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when the skill or snapshot script runs, but the result looks wrong.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is the bug in one or two sentences?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Created docs/迭代记录.md with ...
+        2. Ran ...
+        3. Saw ...
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      description: What should have happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: sample_record
+    attributes:
+      label: Minimal iteration record sample
+      description: If possible, paste a small Markdown sample that reproduces the issue. Remove private details.
+      render: markdown
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "OS, Python version, Codex environment, repository layout."
