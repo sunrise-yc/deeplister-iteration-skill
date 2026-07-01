@@ -12,6 +12,7 @@
 - [x] README 增加脚本输出截图。
 - [x] README 解释普通 prompt 和 skill 的区别。
 - [x] README 链接路线图和更新记录。
+- [x] 增加安装排障指南：`docs/INSTALLATION_TROUBLESHOOTING.md`。
 - [x] 增加 `ROADMAP.md`。
 - [x] 增加 `CHANGELOG.md`。
 - [x] 增加 `PROMOTION_PLAN.md`。
@@ -134,8 +135,7 @@ for path in sorted(Path('.github/ISSUE_TEMPLATE').glob('*.yml')):
 
 ## 8. 当前最推荐下一步
 
-1. 跑一遍提交前验证。
-2. 提交当前门面优化改动。
-3. 上传 social preview。
-4. 设置 GitHub topics。
-5. 按 `docs/DEMO_SCRIPT.md` 录 demo 或做 GIF。
+1. 上传 social preview。
+2. 设置 GitHub topics。
+3. 按 `docs/DEMO_SCRIPT.md` 录 demo 或做 GIF。
+4. 发第一条中文短帖，收集第一批真实反馈。

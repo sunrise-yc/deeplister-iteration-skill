@@ -15,6 +15,7 @@ This project uses lightweight version notes instead of a formal release process 
 - Added a script-output screenshot at `assets/snapshot-output.png` and linked it from the README.
 - Added `docs/PROJECT_CONTEXT.md` and `docs/LAUNCH_CHECKLIST.md` to keep project handoff and launch tasks clear.
 - Added `docs/DEMO_SCRIPT.md` with a 60-second first-run demo storyboard, narration, and reusable launch copy.
+- Added `docs/INSTALLATION_TROUBLESHOOTING.md` for first-run install and script issues.
 
 ## 0.1.0 - 2026-07-01
 
