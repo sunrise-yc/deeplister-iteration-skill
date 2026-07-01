@@ -1,0 +1,4 @@
+interface:
+  display_name: "DeepLister Iteration"
+  short_description: "Pick DeepLister tasks and update iteration logs"
+  default_prompt: "Use $deeplister-iteration to pick the next DeepLister task and update the iteration record."
