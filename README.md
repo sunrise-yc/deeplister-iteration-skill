@@ -1,6 +1,6 @@
 # deeplister-iteration-skill
 
-一个给 Codex 使用的轻量迭代管理 skill。它帮 Codex 在做 DeepLister 项目时，快速找到下一步任务，并在每次迭代后更新 `docs/迭代记录.md`。
+一个给 Codex 使用的轻量迭代管理 skill。它适合第一次做大项目的小白：任务很多、很杂、很乱，不知道下一步该先做什么。这个 skill 帮 Codex 在做 DeepLister 项目时，快速找到下一步任务，并在每次迭代后更新 `docs/迭代记录.md`。
 
 它不是项目管理平台，也不是自动开发工具。它更像一个很小的“迭代习惯插件”：提醒 Codex 先看问题池、优先处理高风险任务、完成后把变更和验证写回文档。
 
@@ -21,6 +21,7 @@
 ## 适合谁用
 
 - 正在用 Codex 做个人项目或产品原型的人。
+- 第一次做大项目、容易被任务数量和复杂度压住的新手。
 - 希望用一个 Markdown 文件管理迭代，而不是一上来就用 Notion、Jira 或 GitHub Projects 的人。
 - 项目还在早期，但已经开始需要记录问题、决策、优先级和下一步方向的人。
 - 想给自己的 Codex 做一个项目专属工作流的人。
@@ -145,7 +146,7 @@ docs/迭代记录.md
 
 ## English
 
-`deeplister-iteration-skill` is a lightweight Codex skill for keeping DeepLister iterations organized. It helps Codex choose the next task from a local Markdown issue pool and update `docs/迭代记录.md` after each meaningful change.
+`deeplister-iteration-skill` is a lightweight Codex skill for keeping DeepLister iterations organized. It is especially useful for beginners working on their first larger project, where the task list feels long, messy, and hard to prioritize. It helps Codex choose the next task from a local Markdown issue pool and update `docs/迭代记录.md` after each meaningful change.
 
 It is not a project management platform. Think of it as a small workflow guardrail: check the issue pool first, prefer high-risk product tasks, verify the change, and write the result back to the iteration record.
 
@@ -166,6 +167,7 @@ This skill helps Codex:
 ## Who It Is For
 
 - People building personal projects or product prototypes with Codex.
+- Beginners working on their first large project and feeling overwhelmed by scattered tasks.
 - Projects that want a simple Markdown workflow before adopting Notion, Jira, Linear, or GitHub Projects.
 - Early-stage apps that need issue tracking, decisions, priorities, and next-step notes.
 - Anyone creating a project-specific Codex workflow.
