@@ -30,7 +30,7 @@ Codex reads it together with Git diff data to display questions, history, direct
 | VL-002 | Show Git diff statistics visually | operator | resolved | Git can provide added/deleted lines through `git diff --numstat` | vibe-lens/scripts/lens_snapshot.py, vibe-lens/assets/report_template.html |
 | VL-003 | Keep first use automatic | operator | resolved | Manual file creation is too much friction for beginners | vibe-lens/scripts/lens_snapshot.py |
 | VL-004 | Sync public docs and examples to Vibe Lens | agent | resolved | Public docs, examples, issue templates, and images now use Vibe Lens positioning | README.md, docs/, examples/, assets/ |
-| VL-005 | Rename GitHub remote and local checkout path | agent | open | Local remote and checkout folder may still carry the old `deeplister-iteration-skill` name | GitHub settings, local remote |
+| VL-005 | Rename GitHub repository, remote, and local checkout path | agent | open | Draft PR #2 exists, but the repository and checkout folder still carry the old `deeplister-iteration-skill` name | GitHub settings, local remote |
 | VL-006 | Design second-stage interactive platform later | operator | open | Markdown is not enough for task arrangement and conflict advice | ROADMAP.md |
 
 ## Active Work
@@ -38,6 +38,7 @@ Codex reads it together with Git diff data to display questions, history, direct
 | Session | Task | Files Or Areas | Status | Notes |
 |---|---|---|---|---|
 | 2026-07-02 | Reposition as Vibe Lens review sandbox | vibe-lens/, README.md, docs/, examples/, tests/ | completed | GitHub remote rename remains an external follow-up |
+| 2026-07-02 | Publish Vibe Lens branch and draft PR | GitHub branch, PR #2 | completed | Branch `codex/vibe-lens-review-sandbox` pushed; draft PR opened against `main` |
 
 ## Follow-up Flow Notes
 
@@ -49,6 +50,24 @@ Codex reads it together with Git diff data to display questions, history, direct
 | Agent sees old `Priority` fields | Agent may treat them as commands | The skill may oversteer decisions | Treat priority as legacy metadata and separate facts from Agent judgment |
 
 ## Iteration Log
+
+### 2026-07-02: Publish Vibe Lens draft PR
+Goal:
+- Continue the unfinished GitHub synchronization work after the local commit.
+- Keep the publication evidence in the Vibe Lens source record.
+
+Evidence:
+- Local branch `codex/vibe-lens-review-sandbox` tracks `origin/codex/vibe-lens-review-sandbox`.
+- Draft PR #2 was opened at `https://github.com/sunrise-yc/deeplister-iteration-skill/pull/2`.
+- The repository still uses the old public name `deeplister-iteration-skill`.
+
+Verification:
+- `git push -u origin codex/vibe-lens-review-sandbox` succeeded.
+- GitHub connector returned draft PR #2 with head SHA `543936096e443021578dc34b1cf8eda6c8f49f51`.
+
+Unfinished:
+- Rename the GitHub repository to `vibe-lens-skill`.
+- Update the local checkout folder and remote URL after the repository is renamed.
 
 ### 2026-07-02: Reposition as Vibe Lens review sandbox
 Goal:
