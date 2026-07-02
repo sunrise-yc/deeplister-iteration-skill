@@ -8,7 +8,7 @@ body:
     attributes:
       label: What problem would this solve?
       description: Describe the user pain before describing the feature.
-      placeholder: "When I use this skill in my own project, I need..."
+      placeholder: "When I use this skill in my own vibe-coding project, I need..."
     validations:
       required: true
   - type: textarea
@@ -19,15 +19,18 @@ body:
     validations:
       required: true
   - type: dropdown
-    id: priority
+    id: product_area
     attributes:
-      label: Priority
-      description: Use the product priority language from the README.
+      label: Product area
+      description: Which part of Vibe Lens would this improve?
       options:
-        - P0 - blocks first successful use
-        - P1 - makes regular use smoother
-        - P2 - improves demo, docs, or polish
-        - P3 - long-term expansion
+        - First-run setup
+        - Source record parsing
+        - Git diff statistics
+        - HTML review report
+        - Evidence or verification trail
+        - Conflict signals
+        - Future interactive platform
     validations:
       required: true
   - type: textarea

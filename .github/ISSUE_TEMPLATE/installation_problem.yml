@@ -1,14 +1,14 @@
 name: Installation problem / 安装问题
-description: Report trouble installing or enabling the skill.
+description: Report trouble installing, enabling, or initializing the skill.
 title: "[Install]: "
 labels: ["installation", "needs-triage"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for trying deeplister-iteration-skill.
+        Thanks for trying vibe-lens-skill.
 
-        If the skill cannot be installed, discovered by Codex, or run for the first time, use this form.
+        Use this form if the skill cannot be installed, discovered by Codex, or initialized with `--init`.
   - type: dropdown
     id: os
     attributes:
@@ -32,9 +32,10 @@ body:
       label: What did you try?
       description: Paste the exact install path, command, or prompt you used.
       placeholder: |
-        1. Copied deeplister-iteration/ to ...
+        1. Copied vibe-lens/ to ...
         2. Restarted Codex
-        3. Asked Codex ...
+        3. Ran the --init command
+        4. Asked Codex ...
     validations:
       required: true
   - type: textarea
@@ -48,7 +49,7 @@ body:
     id: expected
     attributes:
       label: What did you expect?
-      placeholder: "I expected Codex to discover the skill and read docs/迭代记录.md."
+      placeholder: "I expected Codex to discover the skill and create/read docs/iteration-record.md or generate the HTML report."
   - type: textarea
     id: extra
     attributes:

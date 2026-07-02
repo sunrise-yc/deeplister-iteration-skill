@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vibe Lens Report</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --ink: #17202a;
+      --muted: #677489;
+      --line: #dfe5ee;
+      --blue: #2563eb;
+      --green: #159957;
+      --orange: #d97706;
+      --red: #dc2626;
+      --shadow: 0 10px 28px rgba(20, 31, 50, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    header {
+      padding: 28px 24px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+    main { max-width: 1160px; margin: 0 auto; padding: 24px; }
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 28px; }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    h3 { font-size: 15px; }
+    p { margin: 6px 0 0; color: var(--muted); }
+    .meta { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .two { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .metric .label { color: var(--muted); font-size: 12px; }
+    .metric .value { font-size: 25px; font-weight: 720; margin-top: 4px; }
+    .bar {
+      height: 11px;
+      background: #e8edf4;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      margin: 12px 0;
+    }
+    .bar span { display: block; height: 100%; }
+    .added { background: var(--green); }
+    .deleted { background: var(--red); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 8px; text-align: left; vertical-align: top; font-size: 13px; }
+    th { color: var(--muted); font-size: 12px; font-weight: 650; }
+    tr:last-child td { border-bottom: 0; }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #edf3ff;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 650;
+    }
+    .list { display: grid; gap: 10px; }
+    .item { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fbfcfe; }
+    .item-title { font-weight: 700; }
+    .item-sub { color: var(--muted); font-size: 13px; margin-top: 4px; word-break: break-word; }
+    .timeline { border-left: 3px solid var(--line); padding-left: 14px; display: grid; gap: 12px; }
+    .timeline .point { position: relative; }
+    .timeline .point::before {
+      content: "";
+      position: absolute;
+      left: -22px;
+      top: 5px;
+      width: 10px;
+      height: 10px;
+      background: var(--blue);
+      border-radius: 50%;
+    }
+    .empty { color: var(--muted); font-size: 13px; padding: 10px 0; }
+    .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 12px; color: #344256; }
+    @media (max-width: 860px) {
+      .grid, .two { grid-template-columns: 1fr; }
+      main { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Vibe Lens</h1>
+    <p>Review sandbox for current questions, historical questions, code diff, direction, evidence, and conflict signals. It displays information; it does not rank or arrange tasks.</p>
+    <div class="meta" id="meta"></div>
+  </header>
+  <main>
+    <section class="grid" id="overview"></section>
+
+    <section class="two">
+      <div class="card">
+        <h2>Current Questions</h2>
+        <div id="currentQuestions" class="list"></div>
+      </div>
+      <div class="card">
+        <h2>Code Diff</h2>
+        <div id="diffSummary"></div>
+        <div id="diffFiles"></div>
+      </div>
+    </section>
+
+    <section class="two">
+      <div class="card">
+        <h2>Iteration Direction</h2>
+        <div id="direction"></div>
+      </div>
+      <div class="card">
+        <h2>Evidence Chain</h2>
+        <div id="evidence"></div>
+      </div>
+    </section>
+
+    <section class="two">
+      <div class="card">
+        <h2>Historical Questions</h2>
+        <div id="historicalQuestions"></div>
+      </div>
+      <div class="card">
+        <h2>Conflict Signals</h2>
+        <div id="conflicts" class="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const data = __LENS_DATA__;
+
+    const byId = (id) => document.getElementById(id);
+    const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[ch]));
+    const field = (row, names, fallback = "") => {
+      for (const name of names) {
+        if (row && row[name]) return row[name];
+      }
+      return fallback;
+    };
+
+    byId("meta").textContent = `${data.record} | generated ${data.generated_at}`;
+
+    byId("overview").innerHTML = [
+      ["Total questions", data.issue_count],
+      ["Open questions", data.open_question_count],
+      ["Tracked files changed", data.git_diff.changed_file_count],
+      ["Code churn", `+${data.git_diff.total_added} / -${data.git_diff.total_deleted}`],
+    ].map(([label, value]) => `
+      <div class="card metric">
+        <div class="label">${esc(label)}</div>
+        <div class="value">${esc(value)}</div>
+      </div>
+    `).join("");
+
+    const current = data.open_questions || [];
+    byId("currentQuestions").innerHTML = current.length ? current.map((row) => `
+      <div class="item">
+        <div><span class="tag">${esc(field(row, ["ID", "编号"], "-"))}</span></div>
+        <div class="item-title">${esc(field(row, ["Issue", "Question", "问题"], "Untitled question"))}</div>
+        <div class="item-sub">Status: ${esc(field(row, ["Status", "状态"], "unknown"))}</div>
+        <div class="item-sub">Evidence: ${esc(field(row, ["Evidence", "Impact", "影响"], "not recorded"))}</div>
+        <div class="item-sub">Files: ${esc(field(row, ["Related Files", "Files Or Areas", "关联文件", "涉及文件"], "not recorded"))}</div>
+      </div>
+    `).join("") : `<div class="empty">No open questions recorded.</div>`;
+
+    const diff = data.git_diff || {};
+    const total = Math.max(1, (diff.total_added || 0) + (diff.total_deleted || 0));
+    byId("diffSummary").innerHTML = `
+      <div class="bar">
+        <span class="added" style="width:${((diff.total_added || 0) / total) * 100}%"></span>
+        <span class="deleted" style="width:${((diff.total_deleted || 0) / total) * 100}%"></span>
+      </div>
+      <p>Git reports ${esc(diff.total_added || 0)} added and ${esc(diff.total_deleted || 0)} deleted lines in ${esc(diff.changed_file_count || 0)} tracked files.</p>
+      ${(diff.untracked_files || []).length ? `<p>Untracked: ${esc(diff.untracked_files.join(", "))}</p>` : ""}
+    `;
+    byId("diffFiles").innerHTML = (diff.files || []).length ? `
+      <table>
+        <thead><tr><th>File</th><th>Added</th><th>Deleted</th></tr></thead>
+        <tbody>
+          ${diff.files.map((file) => `
+            <tr><td class="mono">${esc(file.path)}</td><td>${esc(file.added ?? "binary")}</td><td>${esc(file.deleted ?? "binary")}</td></tr>
+          `).join("")}
+        </tbody>
+      </table>
+    ` : `<div class="empty">No tracked file diff in the selected range.</div>`;
+
+    const headings = data.iteration_direction?.headings || [];
+    byId("direction").innerHTML = headings.length ? `
+      <div class="timeline">
+        ${headings.map((title) => `<div class="point"><div class="item-title">${esc(title)}</div></div>`).join("")}
+      </div>
+    ` : `<div class="empty">No iteration direction entries recorded.</div>`;
+
+    byId("evidence").innerHTML = `
+      <div class="item">
+        <div class="item-title">Latest iteration</div>
+        <div class="item-sub">${esc(data.latest_iteration || "none")}</div>
+      </div>
+      <div class="item">
+        <div class="item-title">Follow-up flow notes</div>
+        <div class="item-sub">${esc(data.follow_up_case_count)} recorded cases</div>
+      </div>
+      <div class="item">
+        <div class="item-title">Git diff range</div>
+        <div class="item-sub">${esc(diff.range || "none")}</div>
+      </div>
+    `;
+
+    byId("historicalQuestions").innerHTML = (data.issues || []).length ? `
+      <table>
+        <thead><tr><th>ID</th><th>Question</th><th>Status</th></tr></thead>
+        <tbody>
+          ${data.issues.map((row) => `
+            <tr>
+              <td>${esc(field(row, ["ID", "编号"], "-"))}</td>
+              <td>${esc(field(row, ["Issue", "Question", "问题"], "Untitled"))}</td>
+              <td>${esc(field(row, ["Status", "状态"], "unknown"))}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    ` : `<div class="empty">No historical questions recorded.</div>`;
+
+    const conflicts = data.conflict_signals || [];
+    byId("conflicts").innerHTML = conflicts.length ? conflicts.map((signal) => `
+      <div class="item">
+        <div class="item-title">${esc(signal.area)}</div>
+        <div class="item-sub">${esc(signal.signal)}: ${esc(signal.sessions)}</div>
+      </div>
+    `).join("") : `<div class="empty">No conflict signals detected from Active Work.</div>`;
+  </script>
+</body>
+</html>
