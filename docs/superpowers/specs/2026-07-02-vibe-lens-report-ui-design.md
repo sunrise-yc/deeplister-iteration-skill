@@ -1,168 +1,212 @@
-# Vibe Lens Report UI Design
+# Vibe Lens 报告界面设计规格
 
-Date: 2026-07-02
+日期：2026-07-02
 
-## Purpose
+## 1. 产品定位
 
-This spec captures the approved direction for the Vibe Lens HTML report UI. The report is a review sandbox: it shows facts, evidence, code changes, direction, and conflict signals. It must not rank tasks, assign priority, or imply what the operator must do next.
+Vibe Lens 的 HTML 报告是一个“复盘沙盘”，不是任务管理器。
 
-The approved base direction is the evidence-board layout from the visual companion session. The accepted tooltip design is the v4 tooltip sketch: a compact numeric band plus the v5-style explanatory text.
+它的职责是把事实展示清楚：当前问题、历史问题、证据、代码差异、迭代方向、潜在冲突线索。它不能替用户或 Agent 做优先级排序，也不能给任务加权重、下判断、安排执行顺序。
 
-## Language
+大白话说：它像一块项目态势看板，负责“把现场摆出来”，不负责“替人拍板”。
 
-The report should support Chinese and English.
+## 2. 当前已确认的视觉版本
 
-- Provide a visible language switch in the report header.
-- Interface labels, section titles, empty states, and tooltips should switch language.
-- User-authored record content can remain in the language in which it was written.
-- The default language can be inferred later, but the UI must allow manual switching.
+当前确认版由三部分合成：
 
-## Overall Layout
+- 主界面采用视觉草图 v8：证据看板布局，保留 v5 的主要交互。
+- 悬浮框采用 tooltip v4：数字区紧凑，百分比颜色跟对应数字一致，解释文字保留 v5 语气。
+- 悬浮框边界采用 v3 CSS-contained 规则：悬浮框不能跑出界面，靠右元素向左收，靠左元素向右展开。
 
-Use the evidence-board layout.
+这份规格只确认界面和交互方向，不代表已经允许进入正式实现。实现前还需要单独写实现计划。
 
-The page should contain:
+## 3. 语言支持
 
-- Header with product name, short positioning text, generated time, and language switch.
-- Overview metrics: current questions, historical questions, changed files, and code churn.
-- Legend explaining visual symbols.
-- Current questions/tasks.
-- Code Diff section with a donut chart and file-level diff table.
-- Iteration Direction section.
-- Evidence Chain / Conflict Signals section.
-- Historical questions can remain lower on the page or in a compact table.
+报告需要支持中文和英文。
 
-The report should stay neutral. It can show status, evidence, code churn, and incomplete information, but it must not present those as priority or scheduling advice.
+- 页面顶部提供可见的语言切换。
+- 界面标签、板块标题、空状态、悬浮框说明都要能切换语言。
+- 用户自己写进记录里的内容，可以保留原语言，不强行翻译。
+- 默认语言可以后续再定，但用户必须能手动切换。
 
-## Visual Semantics
+## 4. 页面结构
 
-### Global Code Diff Donut
+页面采用“证据看板”布局，信息密度要比普通落地页高，但不要压迫。
 
-The large donut chart represents project-level Git diff totals.
+页面应包含：
 
-- Green = added lines.
-- Red = deleted lines.
-- Center text shows the concise total, for example `+2324 / -1633`.
-- Hover opens a compact tooltip with exact added/deleted values and percentages.
+- 顶部栏：产品名、定位短句、生成时间、语言切换。
+- 总览数据：当前问题数、历史问题数、变更文件数、代码变化量。
+- 图例区：解释颜色和视觉符号。
+- 当前问题 / 任务：展示当前仍未关闭或正在讨论的问题。
+- Code Diff / 代码差异：展示项目级代码变化和文件级变化。
+- 迭代方向：展示项目方向如何变化。
+- 证据链 / 冲突线索：展示结论来源，以及是否有会话或文件范围重叠。
+- 历史问题：可以放在页面下方，或作为紧凑表格展示。
 
-The donut explains change volume, not quality.
+所有信息都要保持中立。可以展示状态、证据、代码变化和缺失信息，但不能把它们包装成“优先级”或“下一步安排”。
 
-### Question Item Mini Donut
+## 5. 视觉语义
 
-Each question/task item can have a small donut on the left.
+### 5.1 全项目代码差异圆环
 
-The small donut represents code diff associated with that specific question, when such association is available.
+大的圆环图表示整个项目的 Git diff 统计。
 
-- Green = added lines related to the question.
-- Red = deleted lines related to the question.
-- Gray = no associated code diff or not enough data.
-- It must not represent priority, risk, or task importance.
+- 绿色表示新增行。
+- 红色表示删除行。
+- 圆心显示简短总量，例如 `+2324 / -1633`。
+- 鼠标悬浮时显示精确数值和百分比。
 
-Hover opens the compact tooltip described below.
+这个圆环只说明“代码变化量”，不说明“改得好不好”。
 
-### Evidence Completeness Bar
+### 5.2 问题条目小圆环
 
-Use the term "证据完整度条" in Chinese and "Evidence meter" in English.
+每个问题 / 任务条目左侧可以有一个小圆环。
 
-This is a clean horizontal bar under the question text. Do not use diagonal stripe textures.
+这个小圆环表示“该问题关联的代码差异”，前提是当前数据能建立这种关联。
 
-The bar summarizes how much review material exists for a question:
+- 绿色表示与该问题相关的新增行。
+- 红色表示与该问题相关的删除行。
+- 灰色表示暂无关联代码差异，或数据不足。
+- 它不能表示优先级、风险、重要程度或任务价值。
 
-- The issue is recorded.
-- Evidence exists.
-- Related code exists.
-- Some information is still missing.
+如果暂时无法精确知道某个问题对应哪些文件，报告可以显示“暂无关联”或“关联不足”，不要编造映射关系。
 
-The bar is informational only. It must not be described as task completion progress or priority.
+### 5.3 证据完整度条
 
-## Tooltip Design
+中文名称使用“证据完整度条”，英文名称使用 “Evidence meter”。
 
-Accepted tooltip style: v4 "percent matches main number color".
+它是问题文字下方的一条干净水平进度样式，不使用斜纹、条纹、闪烁或装饰纹理。
 
-Each tooltip has two zones:
+它表示复盘材料是否充分，例如：
 
-1. Numeric data band.
-2. Explanatory text area.
+- 问题是否已经记录。
+- 是否有证据。
+- 是否有关联代码。
+- 是否仍有缺失信息。
 
-### Numeric Data Band
+它只是信息完整度，不是任务完成度，也不是优先级。
 
-The data band should be compact: one to two rows only.
+## 6. 悬浮框设计
 
-It should contain numbers and percentages, not long labels. Related percentages should use the same color as their main number.
+悬浮框采用已确认的 tooltip v4 样式。
 
-Example for a mini code-diff donut:
+每个悬浮框分为两个区域：
 
-- Green data block: `+689` with `100%`.
-- Red data block: `-0` with `0%`.
-- Neutral data block: `4` with `files`.
+- 数字区。
+- 解释文字区。
 
-Example for an evidence meter:
+### 6.1 数字区
 
-- Blue data block: `1/1` with `25%`.
-- Green data block: `1/2` with `25%`.
-- Orange data block: `1/3` with `8%`.
-- Gray data block: `42%` with `todo`.
-- Gray data block: `58%` with `total`.
+数字区要紧凑，只保留一到两行。
 
-The exact counts can evolve when the data model improves, but the tooltip structure should remain compact.
+数字区只放数字、比例、简短单位，不放长解释文字。百分比颜色必须和对应主数字保持一致。
 
-### Explanatory Text Area
+代码差异小圆环示例：
 
-Keep the v5-style natural-language explanation below the numeric band.
+- 绿色块：`+689` 和 `100%`。
+- 红色块：`-0` 和 `0%`。
+- 中性块：`4` 和 `files`。
 
-Examples:
+证据完整度条示例：
+
+- 蓝色块：`1/1` 和 `25%`。
+- 绿色块：`1/2` 和 `25%`。
+- 橙色块：`1/3` 和 `8%`。
+- 灰色块：`42%` 和 `todo`。
+- 灰色块：`58%` 和 `total`。
+
+这些具体数字可以随着数据模型升级而变化，但结构要保持紧凑。
+
+### 6.2 解释文字区
+
+解释文字区保留 v5 的自然语言表达。
+
+示例：
 
 - `关联代码差异：较多。涉及脚本、HTML 模板、测试和文档。`
 - `证据完整度：问题已记录；有 PR 合并证据；缺少仓库改名完成证据。`
 
-The text should explain what the numbers mean in plain language. It should not add scheduling advice.
+解释文字要说清楚数字是什么意思，但不能加入任务调度建议。
 
-## Section Title Hover
+### 6.3 防越界规则
 
-Large section titles should support hover explanations.
+悬浮框必须留在可见界面内。
 
-Add hover explanations to:
+规则如下：
 
-- Legend.
-- Current Questions / Tasks.
-- Code Diff.
-- Iteration Direction.
-- Evidence Chain / Conflict Signals.
+- 默认向下展开，避免遮住上方内容。
+- 靠左元素向右展开。
+- 靠右元素向左收。
+- 右侧代码差异圆环、图例最后一项等边缘元素，必须使用向内展开规则。
+- 移动端或窄屏上，悬浮框宽度要收缩，不能横向溢出。
 
-These tooltips should explain the section's meaning and boundary. They should be short and beginner-friendly.
+这条规则来自当前已确认的 v3 CSS-contained 草图。
 
-Examples:
+## 7. 大板块标题悬浮说明
 
-- Code Diff: "来自 Git diff 的事实统计。绿色是新增行，红色是删除行；不评价改动好坏。"
-- Current Questions / Tasks: "展示当前仍未关闭的问题。顺序来自记录，不自动排序，不代表优先级。"
-- Evidence Chain / Conflict Signals: "证据链解释结论从哪里来；冲突线索提示多个会话或文件区域是否重叠。它只提示，不调度。"
+大的板块标题需要支持鼠标悬浮解释。
 
-## Interaction Rules
+需要支持的板块：
 
-- Keep detailed numbers out of the main text area when they would make the item visually noisy.
-- Use hover for precision details.
-- Use color consistently between charts, numeric bands, and percentages.
-- Do not rely on color alone for essential meaning in the final implementation; use titles, labels, and tooltips for accessibility.
-- On mobile or touch screens, hover content should be available by tap or focus.
+- 图例 / 鼠标悬浮可解释含义。
+- 当前问题 / 任务。
+- Code Diff / 代码差异。
+- 迭代方向。
+- 证据链 / 冲突线索。
 
-## Implementation Boundary
+说明文字要短、清楚、适合代码新手理解。
 
-This spec is design-only. It does not authorize implementation yet.
+示例：
 
-Before implementation, create a plan that covers:
+- Code Diff / 代码差异：`来自 Git diff 的事实统计。绿色是新增行，红色是删除行；不评价改动好坏。`
+- 当前问题 / 任务：`展示当前仍未关闭的问题。顺序来自记录，不自动排序，不代表优先级。`
+- 证据链 / 冲突线索：`证据链解释结论从哪里来；冲突线索提示多个会话或文件区域是否重叠。它只提示，不调度。`
 
-- How language strings will be represented.
-- How tooltip data will be derived from the snapshot JSON.
-- How question-to-file diff association will be represented when exact mapping is unavailable.
-- How keyboard focus and touch behavior will expose tooltip content.
-- Which existing tests need updates.
+## 8. 交互规则
 
-## Out of Scope For This Iteration
+- 主文字区域不要塞太多数值，避免条目变乱。
+- 精确数值放在悬浮框里。
+- 圆环、证据完整度条、图例、大板块标题都要能交互。
+- 颜色在圆环、进度条、数字区之间要保持一致。
+- 最终实现不能只依赖颜色表达含义，需要配合标题、标签或悬浮说明，方便可访问性。
+- 移动端或触屏设备上，悬浮内容要能通过点击或键盘焦点看到。
 
-- Task ranking.
-- Priority scoring.
-- Automatic scheduling.
-- A full relationship map between questions, files, and evidence.
-- A second-stage task arrangement platform.
+## 9. 数据来源与限制
 
-The relationship map remains a later design topic.
+代码差异统计可以从 Git diff 获得，这在 Codex 环境里相对准确，因为 Git 本身能直接给出文件级新增 / 删除行统计。
+
+但“某个问题具体关联了哪些代码差异”不一定天然准确。除非记录文档或快照数据里已经把问题和文件建立了关系，否则系统只能展示：
+
+- 全项目代码差异。
+- 文件级代码差异。
+- 已明确关联到问题的代码差异。
+- 暂无明确关联的提示。
+
+不能为了视觉完整而编造问题和文件的对应关系。
+
+## 10. 实现边界
+
+这份规格仍然是设计规格，不是实现计划。
+
+正式实现前，需要再写一份实现计划，至少说明：
+
+- 语言字符串如何组织。
+- 悬浮框数据如何从 snapshot JSON 中生成。
+- 问题和文件差异的关联数据如何表示。
+- 关联不明确时怎么展示。
+- 键盘焦点和触屏如何打开悬浮信息。
+- 哪些测试需要更新。
+
+## 11. 本阶段不做
+
+本阶段不做以下内容：
+
+- 任务优先级排序。
+- 权重打分。
+- 自动调度。
+- 自动决定下一步做什么。
+- 完整的问题、文件、证据关系图谱。
+- 第二阶段的任务编排平台。
+
+第二阶段平台是后续单独设计的问题，不塞进这次 HTML 报告界面里。
