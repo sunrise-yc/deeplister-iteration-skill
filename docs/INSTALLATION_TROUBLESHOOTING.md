@@ -1,166 +1,167 @@
-# 安装排障指南
+# Installation Troubleshooting
 
-更新时间：2026-07-01
+Updated: 2026-07-02
 
-这份文档给第一次安装 `deeplister-iteration-skill` 的用户使用。目标是帮你快速判断：文件放对了吗？Codex 识别到了吗？脚本能跑吗？
+This guide is for first-time users of `vibe-lens-skill`.
 
-## 1. 正确的安装位置
+## 1. Correct Install Location
 
-把整个 `deeplister-iteration/` 文件夹复制到 Codex skills 目录。
+Copy the whole `vibe-lens/` folder into your Codex skills directory.
 
-Windows 通常是：
+Windows:
 
 ```text
-C:\Users\<你的用户名>\.codex\skills\deeplister-iteration
+C:\Users\<your-user>\.codex\skills\vibe-lens
 ```
 
-macOS / Linux 通常是：
+macOS / Linux:
 
 ```text
-~/.codex/skills/deeplister-iteration
+~/.codex/skills/vibe-lens
 ```
 
-注意：最终目录里应该直接看到这些文件和文件夹：
+The final folder should directly contain:
 
 ```text
-deeplister-iteration/
+vibe-lens/
   SKILL.md
   agents/
+  assets/
   references/
   scripts/
 ```
 
-如果路径变成了下面这样，就多套了一层文件夹，Codex 可能识别不到：
+If the path looks like this, there is one folder too many and Codex may not discover the skill:
 
 ```text
-~/.codex/skills/deeplister-iteration-skill/deeplister-iteration/SKILL.md
+~/.codex/skills/vibe-lens-skill/vibe-lens/SKILL.md
 ```
 
-## 2. Codex 没有识别到 skill
+## 2. Codex Does Not Discover The Skill
 
-先检查 3 件事：
+Check:
 
-1. `SKILL.md` 是否在 `deeplister-iteration/` 文件夹第一层。
-2. 是否重启了 Codex，或新开了一个 Codex 会话。
-3. 你说的是不是准确的 skill 名：
+1. `SKILL.md` is directly inside `vibe-lens/`.
+2. Codex was restarted, or a new Codex session was opened.
+3. The prompt uses the correct skill name:
 
 ```text
-Use $deeplister-iteration to pick the next DeepLister task.
+Use $vibe-lens to inspect the project record, Git diff, current questions, historical questions, iteration direction, and evidence trail without ranking or arranging tasks.
 ```
 
-中文也可以：
+## 3. No Source Record Exists
 
-```text
-用 deeplister-iteration 看一下下一步该做什么。
-```
-
-如果还是识别不到，先把安装路径截图或复制到 Issue 里，用 `Installation problem` 模板反馈。
-
-## 3. 脚本跑不起来
-
-先确认你是在目标项目根目录运行命令。比如你的 DeepLister 项目里应该有：
-
-```text
-docs/迭代记录.md
-```
-
-然后运行：
+Do not create the file by hand. Run the initializer:
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\deeplister-iteration\scripts\iteration_snapshot.py" --project-root .
+python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --init
 ```
 
-如果你只是想测试这个仓库里的示例，可以在 `deeplister-iteration-skill` 仓库根目录运行：
-
-```powershell
-$env:PYTHONIOENCODING='utf-8'; python deeplister-iteration\scripts\iteration_snapshot.py --project-root . --record examples\deeplister-iteration-record.example.md
-```
-
-正常输出里应该看到：
+This creates:
 
 ```text
-Issues: 2 total, 2 unresolved
-Recommended next task:
-  - DL-001 [P0] 追问判断过度依赖关键词和长度
+docs/iteration-record.md
 ```
 
-## 4. 中文显示乱码
+The generated file includes guardrails that explain which headings should not be renamed and why the lens should not rank work.
 
-Windows 终端有时会用本地编码，中文可能显示不稳定。
+## 4. Snapshot Script Does Not Run
 
-可以先运行：
+Make sure you are in the target project root, then run:
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root .
+```
+
+To test this repository's example:
+
+```powershell
+$env:PYTHONIOENCODING='utf-8'; python vibe-lens\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md
+```
+
+Expected output should include:
+
+```text
+Questions: 3 total, 2 open
+Code diff:
+Latest iteration:
+```
+
+## 5. HTML Report Does Not Appear
+
+Generate it explicitly:
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --html
+```
+
+By default this writes:
+
+```text
+docs/vibe-lens-report.html
+```
+
+Open that file in a browser. The first version is static HTML, not a hosted web app.
+
+## 6. Chinese Text Looks Broken In Windows Terminal
+
+Sometimes the Windows terminal displays UTF-8 text with the wrong local encoding. First try:
 
 ```powershell
 $env:PYTHONIOENCODING='utf-8'
 ```
 
-然后再运行 snapshot 脚本。
+Then run the snapshot command again.
 
-如果只是终端显示乱码，但 README 或 Markdown 文件本身正常，一般不是文件坏了，而是终端编码显示问题。
+If the Markdown file itself looks normal in your editor, this is usually a terminal display issue, not file corruption.
 
-## 5. 找不到 `docs/迭代记录.md`
+## 7. Git Diff Numbers Look Unexpected
 
-这个 skill 默认读取：
+Vibe Lens reads Git data. The numbers depend on the selected boundary.
+
+Default behavior:
+
+- If the repo has commits, compare the working tree against `HEAD`.
+- Show untracked files separately.
+- Show binary files without pretending line counts are available.
+
+To use a different boundary, pass `--diff-ref`:
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --diff-ref main
+```
+
+## 8. Legacy Records
+
+The script still reads:
 
 ```text
 docs/迭代记录.md
 ```
 
-如果你的项目还没有这个文件，可以先复制示例：
-
-```text
-examples/deeplister-iteration-record.example.md
-```
-
-复制到你的项目里，并改名为：
-
-```text
-docs/迭代记录.md
-```
-
-最小结构至少要包含：
+It also understands older columns such as:
 
 ```md
-# DeepLister 迭代记录
-
-## 问题池
-
+| ID | Issue | Impact | Priority | Status | Next Step |
 | 编号 | 问题 | 影响 | 优先级 | 状态 | 下一步 |
-|---|---|---|---|---|---|
-| DL-001 | 示例问题 | 为什么重要 | P0 | 待处理 | 下一步动作 |
-
-## 迭代记录
 ```
 
-## 6. 推荐任务不符合预期
+`Priority` is displayed only as legacy metadata. It is not used to rank tasks.
 
-当前推荐逻辑比较简单：
+## 9. What To Include In A GitHub Issue
 
-1. 读取 `## 问题池` 下的 Markdown 表格。
-2. 排除状态是 `已解决`、`完成`、`done`、`closed`、`resolved` 的任务。
-3. 按优先级排序，默认 `P0` 最高。
-4. 同优先级时，按编号排序。
+If you are still stuck, include:
 
-所以如果推荐结果不对，先检查：
+- Operating system: Windows / macOS / Linux
+- Codex surface: desktop app, CLI, IDE, or other
+- Install path
+- Command you ran
+- Terminal error or screenshot
+- A privacy-safe sample of `docs/iteration-record.md`
 
-- `优先级` 是否写成了 `P0`、`P1`、`P2` 这类格式。
-- `状态` 是否写错。
-- 表格列名是否还是：`编号 | 问题 | 影响 | 优先级 | 状态 | 下一步`。
+Use:
 
-## 7. 开 Issue 时请带上这些信息
-
-如果你还是卡住，可以开 Issue。为了更快定位问题，建议带上：
-
-- 操作系统：Windows / macOS / Linux
-- Codex 使用环境：桌面版、CLI，或其他
-- 你的安装路径
-- 你运行的命令
-- 终端报错或截图
-- 一小段去掉隐私信息的 `docs/迭代记录.md` 示例
-
-对应模板：
-
-- 安装失败：`Installation problem`
-- 脚本或推荐结果错误：`Bug report`
-- 想要新能力：`Feature request`
-- 想分享真实使用体验：`User story / use case`
+- `Installation problem` for setup issues.
+- `Bug report` for script, parsing, or report-generation issues.
+- `Feature request` for new capabilities.
+- `User story / use case` for real workflow feedback.

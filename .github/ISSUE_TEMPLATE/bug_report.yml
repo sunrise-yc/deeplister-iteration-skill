@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this when the skill or snapshot script runs, but the result looks wrong.
+        Use this when the skill, lens snapshot script, Git diff stats, or HTML report runs, but the result looks wrong.
   - type: textarea
     id: summary
     attributes:
@@ -19,7 +19,7 @@ body:
     attributes:
       label: Steps to reproduce
       placeholder: |
-        1. Created docs/迭代记录.md with ...
+        1. Created docs/iteration-record.md with ...
         2. Ran ...
         3. Saw ...
     validations:
@@ -41,7 +41,7 @@ body:
   - type: textarea
     id: sample_record
     attributes:
-      label: Minimal iteration record sample
+      label: Minimal lens record sample
       description: If possible, paste a small Markdown sample that reproduces the issue. Remove private details.
       render: markdown
   - type: textarea
