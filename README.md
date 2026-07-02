@@ -1,114 +1,29 @@
-# vibe-lens-skill
+# DL-vibe-lens-skill
 
-A Codex skill for turning messy vibe-coding projects into a visual review sandbox.
+一个给 Codex 用的复盘沙盘 Skill。
 
-When an AI-assisted project reaches the middle stage, questions scatter across chats, docs, code diffs, and half-finished ideas. Several AI coding sessions can also touch the same files with different assumptions. `vibe-lens` gives Codex a neutral way to inspect the project record, Git diff, current questions, historical questions, iteration direction, and evidence trail.
+当 vibe coding 项目进入中后期，问题会散在聊天、文档、代码 diff 和半成品想法里；如果同时开多个 AI coding 对话，还可能出现文件重叠、方向不一致、上下文互相打架。`vibe-lens` 做的事很克制：把这些信息展示出来，让操作者和 Agent 看清局面。
 
-中文大白话：这是一个给 vibe coding 项目用的“复盘沙盘”。它把问题、历史、代码改动、方向和验证证据展示出来，帮人和 Agent 看清局面。它不是项目经理，不替你排优先级，也不默认安排任务。
+它不是项目经理，不替你排优先级，也不默认安排任务。
 
-## Quick Start
+![安装快闪照](assets/quickstart-01-install.svg)
 
-1. Copy the `vibe-lens/` folder into your Codex skills directory.
-2. Restart Codex or start a new session so the skill can be discovered.
-3. Inside your project, initialize the source record:
+## 它解决什么问题
 
-```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --init
-```
+- 当前有哪些问题还没处理清楚？
+- 过去提过哪些问题，哪些已经解决？
+- 这轮到底改了多少代码，新增和删除分别是多少？
+- 项目迭代方向有没有发生转向？
+- 结论有没有证据，验证过没有？
+- 多个 AI 对话是否碰到了相同文件或区域？
 
-4. Generate a text snapshot:
+`vibe-lens` 的答案不是“你下一步必须做什么”，而是“现在局面长什么样”。
 
-```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root .
-```
+## 3 步开始用
 
-5. Generate the visual sandbox:
+### 1. 安装 Skill
 
-```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --html
-```
-
-6. Ask Codex:
-
-```text
-Use $vibe-lens to inspect the project record, Git diff, current questions, historical questions, iteration direction, and evidence trail without ranking or arranging tasks.
-```
-
-The default source record is:
-
-```text
-docs/iteration-record.md
-```
-
-Manual file setup is intentionally not required. If the file is missing, run `--init`.
-
-## What It Shows
-
-- Current questions raised by the operator or Agent.
-- Historical questions from the source record.
-- Git diff statistics: added/deleted lines, changed files, and untracked files.
-- Iteration direction from recent log entries.
-- Evidence and verification trails.
-- Conflict signals from active sessions touching the same files or areas.
-
-## What It Does Not Do
-
-- It does not automatically rank tasks.
-- It does not assign weights.
-- It does not tell the operator what must happen next.
-- It does not replace tests, code review, or product judgment.
-- It does not replace Jira, Linear, Notion, or a full planning system.
-
-If the user explicitly asks for advice, Codex can still make an Agent judgment. That advice should be labeled as judgment, separate from the Vibe Lens evidence.
-
-## Why Git Diff Stats Are Accurate
-
-Code-change statistics come from Git, not from AI guessing.
-
-`vibe-lens` reads commands such as:
-
-```powershell
-git diff --numstat
-git diff --name-status
-git status --short
-```
-
-This is accurate for tracked text files when the range is clear. The main product question is not whether Codex can count lines; Git already does that. The important part is defining the boundary: current working tree, since `HEAD`, or a specific Git ref/range.
-
-Binary files, generated files, untracked files, and rename detection are shown separately when possible.
-
-## How It Works
-
-`docs/iteration-record.md` is the lightweight source record. The HTML report is the review surface.
-
-The record can contain:
-
-- `## Issue Pool`: current and historical questions.
-- `## Active Work`: sessions and touched files or areas.
-- `## Follow-up Flow Notes`: patterns, evidence gaps, and workflow observations.
-- `## Iteration Log`: direction changes, evidence, code changes, verification, and unfinished uncertainty.
-
-The helper script can print text, JSON, or HTML:
-
-```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root .
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --json
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --html
-```
-
-The script still reads legacy records at `docs/迭代记录.md`, and it keeps compatibility with older `vibe-iteration` style records.
-
-## Installation
-
-Copy this folder:
-
-```text
-vibe-lens/
-```
-
-to your Codex skills directory.
-
-Windows:
+把仓库里的 `vibe-lens/` 文件夹复制到 Codex skills 目录：
 
 ```text
 C:\Users\<your-user>\.codex\skills\vibe-lens
@@ -120,23 +35,98 @@ macOS / Linux:
 ~/.codex/skills/vibe-lens
 ```
 
-The final folder should contain:
+复制后重启 Codex，或新开一个对话，让 Codex 发现 `$vibe-lens`。
 
-```text
-vibe-lens/
-  SKILL.md
-  agents/
-  assets/
-  references/
-  scripts/
+### 2. 初始化记录文件
+
+第一次使用不要手动建文件，直接运行：
+
+![初始化快闪照](assets/quickstart-02-init.svg)
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --init
 ```
 
-If Codex cannot discover the skill or the script does not run, see [docs/INSTALLATION_TROUBLESHOOTING.md](docs/INSTALLATION_TROUBLESHOOTING.md).
-
-## Project Structure
+这会生成：
 
 ```text
-vibe-lens-skill/
+docs/iteration-record.md
+```
+
+这个 Markdown 是数据源，里面会写当前问题、活跃工作、证据和迭代记录。不要改掉这些二级标题：
+
+```md
+## Issue Pool
+## Active Work
+## Follow-up Flow Notes
+## Iteration Log
+```
+
+你可以改里面的内容、增删行、加新章节，但不要把这几个标题改名。
+
+### 3. 生成复盘沙盘
+
+![报告快闪照](assets/quickstart-03-report.svg)
+
+命令行查看：
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root .
+```
+
+生成 HTML 可视化报告：
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --html
+```
+
+默认输出：
+
+```text
+docs/vibe-lens-report.html
+```
+
+也可以直接让 Codex 调用：
+
+```text
+Use $vibe-lens to initialize or inspect this project, generate the visual sandbox, and show questions, Git diff, evidence, conflict signals, and iteration path without ranking tasks.
+```
+
+## HTML 报告能看什么
+
+- `总览数据`：当前问题、历史问题、变更文件、代码变化。
+- `当前问题 / 任务`：当前仍需要看见的问题；超过三条时，列表内部滚动，不撑大主页。
+- `代码差异`：用圆环展示新增/删除比例，数据来自 Git。
+- `沙盘演示`：用更像复盘的方式，把问题、证据、代码变化、缺口放在一起。
+- `证据链 / 冲突线索`：展示结论来源，以及多个会话是否碰到同一文件区域。
+- `迭代路径`：主页只看大阶段；详情页可以展开关键节点。
+- `中英文切换`：报告默认中文，可切换英文。
+- `对话入口设置`：可以选择 agent 是否在使用 Vibe Lens 后，在回复末尾显示一个简约入口。
+
+代码差异来自 Git，不是 AI 猜的。脚本会读取：
+
+```powershell
+git diff --numstat
+git diff --name-status
+git status --short
+```
+
+## 项目边界
+
+`vibe-lens` 不做这些事：
+
+- 不自动给任务排优先级。
+- 不给任务加权重。
+- 不告诉操作者“必须先做哪个”。
+- 不替代测试、代码审查、Jira、Linear、Notion。
+- 不把 Markdown 记录当成最终产品界面；HTML 报告才是第一阶段展示面。
+
+如果用户明确让 Agent 给建议，Agent 可以给判断，但必须把“事实展示”和“Agent 判断”分开说。
+
+## 项目结构
+
+```text
+DL-vibe-lens-skill/
   vibe-lens/
     SKILL.md
     agents/openai.yaml
@@ -151,28 +141,20 @@ vibe-lens-skill/
     test_lens_snapshot.py
 ```
 
-This repository dogfoods its own workflow through [docs/iteration-record.md](docs/iteration-record.md). That file is the current source record for the project.
+这个仓库自己也在使用 Vibe Lens，数据源就是 [docs/iteration-record.md](docs/iteration-record.md)。
 
-## Related Tools And Lessons
+## 后续优化方向
 
-- [OpenAI Codex Agent Skills](https://developers.openai.com/codex/skills): keep `SKILL.md` focused and move deterministic behavior into scripts.
-- [KKKKhazix/khazix-skills](https://github.com/KKKKhazix/khazix-skills): useful reference for the pattern “Skill triggers script, script produces an HTML report.”
-- [Vibe Kanban](https://github.com/BloopAI/vibe-kanban): parallel AI work needs visible active work.
-- [Task Master](https://github.com/eyaltoledano/claude-task-master): first use should be initialized by command, not by hand-built files.
-- [Archon](https://github.com/coleam00/Archon): verification evidence matters; otherwise records become diaries.
+这些先记下来，不塞进第一阶段：
 
-More comparison and Chinese learning notes are in [docs/RELATED_WORK.md](docs/RELATED_WORK.md).
+- 详细迭代路径图：关键节点可展开/关闭，总控开关控制全部展开、全部收起、只看主线、显示放弃路径。
+- 更完整的沙盘演示页：展示问题、证据、代码变化、路径转向之间的关系。
+- 第二阶段平台：允许操作者在平台上编排问题/任务；Agent 可以只给冲突判断和编排建议，但不能把建议伪装成事实。
+- GitHub Issues / PR 集成。
+- Notion、Airtable 或其他记录系统导入。
+- 更适合小红书传播的演示视频和封面图。
 
-## Current Limits
-
-- Parses simple Markdown tables only.
-- Generates a static HTML report; the interactive platform is a later stage.
-- Does not sync to GitHub Issues, Notion, Jira, or Linear yet.
-- Keeps legacy DeepLister and `vibe-iteration` compatibility, but the public direction is now `vibe-lens`.
-
-## Verification
-
-Run:
+## 验证命令
 
 ```powershell
 python -m unittest tests.test_lens_snapshot
@@ -182,6 +164,6 @@ python vibe-lens\scripts\lens_snapshot.py --project-root . --html --output docs\
 python vibe-lens\scripts\lens_snapshot.py --project-root .
 ```
 
-## License
+## 许可证
 
 MIT

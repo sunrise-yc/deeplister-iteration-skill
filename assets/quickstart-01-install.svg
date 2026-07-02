@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="420" viewBox="0 0 980 420" role="img" aria-labelledby="title desc">
+  <title id="title">Vibe Lens 安装快闪照</title>
+  <desc id="desc">展示如何复制 vibe-lens 文件夹到 Codex skills 目录。</desc>
+  <rect width="980" height="420" rx="18" fill="#eef2f7"/>
+  <rect x="40" y="42" width="900" height="336" rx="14" fill="#fff" stroke="#dbe3ee"/>
+  <text x="76" y="92" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="30" font-weight="800" fill="#111827">1. 安装 Skill</text>
+  <text x="76" y="128" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="18" fill="#64748b">把仓库里的 vibe-lens/ 文件夹复制到 Codex skills 目录。</text>
+  <rect x="76" y="164" width="828" height="150" rx="10" fill="#111827"/>
+  <circle cx="102" cy="190" r="6" fill="#ef4444"/>
+  <circle cx="124" cy="190" r="6" fill="#f59e0b"/>
+  <circle cx="146" cy="190" r="6" fill="#22c55e"/>
+  <text x="100" y="230" font-family="Consolas, monospace" font-size="20" fill="#e5e7eb">Windows:</text>
+  <text x="100" y="262" font-family="Consolas, monospace" font-size="19" fill="#93c5fd">C:\Users\&lt;you&gt;\.codex\skills\vibe-lens</text>
+  <text x="100" y="296" font-family="Consolas, monospace" font-size="20" fill="#e5e7eb">macOS / Linux: ~/.codex/skills/vibe-lens</text>
+  <text x="76" y="348" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="16" fill="#475569">完成后重启 Codex 或开启新对话，让系统发现 $vibe-lens。</text>
+</svg>

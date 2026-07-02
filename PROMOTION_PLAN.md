@@ -1,98 +1,77 @@
-# vibe-lens-skill Promotion Plan
+# 推广计划
 
-Goal: turn `vibe-lens-skill` from a personal workflow into a small open-source tool that other AI builders can understand, install, try, and critique.
+目标：把 `DL-vibe-lens-skill` 从个人工作流，包装成别人能看懂、能安装、能试用、能反馈的小型开源工具。
 
-## Core Positioning
+## 核心定位
 
-One sentence:
+一句话：
 
-> A Codex skill that turns messy vibe-coding projects into a visual review sandbox: current questions, historical questions, Git diff stats, iteration direction, evidence, and conflict signals.
+> 一个 Codex Skill，把混乱的 vibe-coding 项目变成复盘沙盘：当前问题、历史问题、Git diff、迭代路径、证据链和冲突线索都能看见。
 
-Do not market it as a full project-management system. The useful promise is smaller and sharper:
+不要把它宣传成完整项目管理系统。它的承诺要小而清楚：
 
-- Not a Jira / Linear / Notion replacement.
-- Not an automatic priority engine.
-- A local source record plus visual HTML review surface.
-- A way to review code changes and project direction after AI-assisted work.
-- A way to make parallel AI-session overlap visible without scheduling the work.
+- 不是 Jira / Linear / Notion 替代品。
+- 不是自动优先级引擎。
+- 是“本地记录文件 + HTML 可视化报告”。
+- 帮你复盘 AI 写代码后的问题和代码变化。
+- 让多个 AI 对话的重叠区域变得可见，但不替你调度。
 
-## Audience
+## 目标用户
 
-- Solo builders using Codex or similar AI coding agents.
-- Beginners building their first larger AI product.
-- People who like vibe coding but hit the messy middle: too many questions, fragmented context, hard-to-review code changes.
-- Users who are not ready for a heavy PM tool but need a clearer review surface than chat memory.
+- 使用 Codex 或类似 AI coding agent 的独立开发者。
+- 第一次做较大 AI 项目的代码新手。
+- 喜欢 vibe coding，但项目到中后期开始乱的人。
+- 不想上重型项目管理工具，只想先看清局面的人。
 
-## Key Message
-
-中文：
+## 核心文案
 
 ```text
 vibe coding 一开始很爽，但项目到中后期会乱：问题散在聊天、文档和代码里，多个 AI 对话还可能互相冲突。
 
-vibe-lens 把项目记录和 Git diff 变成一个复盘沙盘：当前问题、历史问题、代码增删、迭代方向、证据链和冲突线索都能看见。
+Vibe Lens 把项目记录和 Git diff 变成一个复盘沙盘：当前问题、历史问题、代码增删、迭代路径、证据链和冲突线索都能看见。
 
 它展示局面，不替你排优先级。
 ```
 
-English:
+## RedSkill / 小红书表达重点
 
-```text
-Vibe coding is fast at the start, but the middle gets messy.
-
-vibe-lens turns a project record plus Git diff into a visual review sandbox.
-
-It shows the board. It does not rank the work.
-```
-
-## First Two-Week Plan
-
-| Day | Action | Output |
-|---|---|---|
-| 1 | Finish rename and first-run UX | `vibe-lens`, `--init`, README |
-| 2 | Refresh social preview and screenshots | New images with correct name |
-| 3 | Record 60-second demo | Show `--init -> snapshot -> HTML report` |
-| 4 | Publish GitHub repo update | README, issue templates, roadmap |
-| 5 | Write Chinese story post | Why vibe coding needs a review sandbox |
-| 6 | Write technical tutorial | How the skill reads Markdown and Git diff |
-| 7 | Ask for install feedback | GitHub Issues and small communities |
-| 8-14 | Fix first feedback | Release small updates |
-
-## Platform Notes
-
-### GitHub
-
-Make the README answer four questions quickly:
-
-1. What pain does it solve?
-2. How do I install it?
-3. How do I create the first source record without manual setup?
-4. What does the HTML report show?
-
-### X / Twitter
-
-Lead with the problem:
-
-```text
-I built a tiny Codex skill for the messy middle of vibe coding.
-
-It turns a project record + Git diff into a visual review sandbox:
-current questions, historical questions, added/deleted code stats, direction, evidence, and conflict signals.
-
-It shows the board. It does not rank the work.
-```
-
-### 中文平台
-
-Good titles:
+标题备选：
 
 - 《vibe coding 到中后期为什么会乱？我做了一个复盘沙盘》
 - 《不用 Jira，先把 AI 写代码后的问题和代码差异看清楚》
 - 《AI 写代码越来越快，但项目复盘不能只靠聊天记录》
+- 《给 Codex 加一个复盘沙盘：看清问题、代码差异和迭代路径》
+
+首图建议：
+
+- 标题：`Vibe Lens：AI 写代码后的复盘沙盘`
+- 副标题：`当前问题 / 历史问题 / 代码差异 / 证据链 / 迭代路径`
+- 视觉：报告界面截图 + Git diff 圆环 + 迭代路径线。
+
+正文结构：
+
+1. 先讲痛点：项目中后期问题散、上下文乱、多个 AI 对话可能冲突。
+2. 再讲做法：`docs/iteration-record.md` 记录事实，Git 提供代码差异，HTML 展示沙盘。
+3. 给三步实操：安装、`--init`、`--html`。
+4. 明确边界：它不排序、不安排任务。
+5. 引导反馈：欢迎提真实使用场景和改进建议。
+
+## 两周计划
+
+| 天数 | 动作 | 产出 |
+|---|---|---|
+| 1 | 完成封装和 README | `vibe-lens/`、中文 README、快闪照 |
+| 2 | 刷新社交预览图 | 正确项目名和核心界面 |
+| 3 | 录 60 秒演示 | 展示 `--init -> snapshot -> HTML report` |
+| 4 | 推送 GitHub | README、Roadmap、排错文档 |
+| 5 | 写小红书故事帖 | 为什么 vibe coding 需要复盘沙盘 |
+| 6 | 写技术说明帖 | 它如何读取 Markdown 和 Git diff |
+| 7 | 收集安装反馈 | GitHub Issues / 小范围社群 |
+| 8-14 | 修第一波反馈 | 小版本更新 |
 
 ## 产品学习闭环
 
-每次真实使用之后，记录这 5 个问题：
+每次真实使用后记录 5 个问题：
 
 1. 当前问题和历史问题是否更容易看清？
 2. Git diff 可视化是否帮助复盘代码变化？
@@ -100,4 +79,4 @@ Good titles:
 4. 冲突线索有没有帮助发现多对话重叠？
 5. 哪些地方仍然让 Agent 误以为它应该排优先级？
 
-先把这些发现写进 `docs/iteration-record.md`，等结论稳定后，再提炼到 README 或 ROADMAP。
+先把发现写进 `docs/iteration-record.md`，等结论稳定后，再提炼到 README 或 ROADMAP。

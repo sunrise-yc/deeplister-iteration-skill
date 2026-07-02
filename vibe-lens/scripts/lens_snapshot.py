@@ -273,8 +273,10 @@ def record_template(today: date | None = None) -> str:
     current_date = (today or date.today()).isoformat()
     return f"""# Vibe Lens Record
 
-This file is the lightweight source record for Vibe Lens.
-Vibe Lens turns this record plus Git diff data into a visual review sandbox.
+这是 Vibe Lens 的数据源文件。
+脚本会把这里的记录和 Git diff 数据合在一起，生成一个可视化复盘沙盘。
+
+大白话：这里不是任务裁判，不替你排优先级；它负责把当前问题、历史问题、代码差异、证据和迭代路径展示出来。
 
 ## Guardrails
 
@@ -283,52 +285,53 @@ Vibe Lens turns this record plus Git diff data into a visual review sandbox.
 - Do not rank issues or tell the operator what must be done first from this file alone.
 - Treat `Priority` as legacy descriptive metadata only; the lens displays it but does not use it as a decision rule.
 - You can freely edit row content, add new rows, and add extra sections.
+- 中文提示：上面这几个 `##` 二级标题不要改名，也不要把 `## Issue Pool` 里的表格搬到别的地方。你可以改表格内容、增加行、增加自己的说明段落。
 
 ## Current Product Direction
 
-- Positioning: a review sandbox for messy vibe-coding projects.
-- Main user: builders and beginner AI product managers who need to see questions, code changes, direction, and evidence in one place.
-- Current focus: show information clearly; do not arrange work or impose weights.
+- 定位：给中后期开始变乱的 vibe-coding 项目做复盘沙盘。
+- 使用者：独立开发者、代码新手、正在学习 AI 产品经理的人，以及使用 AI coding agent 的人。
+- 当前重点：展示信息，不安排任务，不施加权重。
 
 ## Issue Pool
 
 | ID | Issue | Source | Status | Evidence | Related Files |
 |---|---|---|---|---|---|
-| VL-001 | First review question | operator | open | Replace this starter row with a real question | docs/iteration-record.md |
+| VL-001 | 第一个需要复盘的问题 | operator | open | 把这一行替换成真实问题 | docs/iteration-record.md |
 
 ## Active Work
 
 | Session | Task | Files Or Areas | Status | Notes |
 |---|---|---|---|---|
-| {current_date} | Bootstrap Vibe Lens record | docs/iteration-record.md | in progress | Replace this row after the first real work item is complete |
+| {current_date} | 初始化 Vibe Lens 记录 | docs/iteration-record.md | in progress | 第一次真实工作完成后，可以替换这一行 |
 
 ## Follow-up Flow Notes
 
 | Scenario | Current Behavior | Issue | Improvement |
 |---|---|---|---|
-| Multiple AI chats work on the same project | Each chat may hold a different mental model | Parallel edits can conflict | Show active work and touched areas as neutral signals |
+| 多个 AI 对话同时改一个项目 | 每个对话可能持有不同上下文 | 并行修改容易冲突 | 把活跃工作和涉及区域作为中性线索展示 |
 
 ## Iteration Log
 
-### {current_date}: Initialize Vibe Lens record
+### {current_date}: 初始化 Vibe Lens 记录
 Goal:
-- Create a local source record that can feed a visual review sandbox.
+- 创建能喂给可视化复盘沙盘的数据源文件。
 
 Discovered Issues:
-- Manual setup is friction for first-time users.
+- 手动建文件对第一次使用的人来说太麻烦。
 
 Decisions:
 - Use `docs/iteration-record.md` as the default input record.
-- Keep Markdown as the source record, not the final viewing platform.
+- Markdown 只作为数据源，最终展示面是 HTML 报告。
 
 Completed:
-- Initialized the Vibe Lens record.
+- 初始化 Vibe Lens 记录。
 
 Verification:
-- Run the lens snapshot script and confirm it can read this file.
+- 运行 lens snapshot 脚本，确认它能读这个文件。
 
 Unfinished:
-- Replace the starter rows with project-specific questions and evidence.
+- 把示例行替换成当前项目真实的问题和证据。
 """
 
 

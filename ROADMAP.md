@@ -1,67 +1,60 @@
-# Roadmap
+# 路线图
 
-This roadmap keeps the project focused on one product promise:
+`DL-vibe-lens-skill` 只守住一个产品承诺：
 
-> Show the state of a messy vibe-coding project as a visual review sandbox without ranking or arranging the work.
+> 把混乱的 vibe-coding 项目展示成复盘沙盘，但不替操作者排序、不替操作者安排任务。
 
-## Product Principles
+## 产品原则
 
-- Show facts before judgment.
-- Keep Agent advice separate from evidence.
-- Use Git for code-change statistics instead of AI guessing.
-- Keep first use automatic through `--init`.
-- Keep Markdown as the source record and HTML as the review surface.
+- 先展示事实，再讨论判断。
+- Agent 建议必须和证据分开。
+- 代码差异统计来自 Git，不靠 AI 猜。
+- 第一次使用必须能用 `--init` 自动生成记录文件。
+- Markdown 是数据源，HTML 是第一阶段展示面。
 
-## Stage 1: Review Sandbox
+## 第一阶段：复盘沙盘
 
-Current focus:
+当前要交付的能力：
 
-- Rename the public project direction from `vibe-iteration` to `vibe-lens`.
-- Generate `docs/iteration-record.md` automatically.
-- Read current and historical questions from the source record.
-- Collect Git diff statistics: added lines, deleted lines, changed files, and untracked files.
-- Generate a static HTML report with:
-  - project overview;
-  - current questions;
-  - historical questions;
-  - code diff visualization;
-  - iteration direction;
-  - evidence and verification trail;
-  - conflict signals.
-- Keep legacy DeepLister and `vibe-iteration` records readable.
+- 自动生成 `docs/iteration-record.md`。
+- 从记录文件读取当前问题、历史问题和活跃工作。
+- 收集 Git diff：新增行、删除行、变更文件、未跟踪文件。
+- 生成中文默认、可切英文的 HTML 报告。
+- 报告主页展示：
+  - 总览数据；
+  - 当前问题 / 任务；
+  - 代码差异圆环；
+  - 沙盘演示入口；
+  - 证据链 / 冲突线索；
+  - 迭代路径入口。
+- 详情页展示总览、完整沙盘和详尽迭代路径。
+- 保留 DeepLister 和旧 `vibe-iteration` 记录兼容。
 
-## Stage 1.5: Better Evidence
+## 第一阶段后续优化
 
-Next:
+这些先记下来，不在当前封装里硬塞：
 
-- Add clearer examples for evidence and verification fields.
-- Improve conflict-signal display for multiple active AI sessions.
-- Add optional diff range selection examples.
-- Refresh screenshots and social preview to use the `vibe-lens` name.
-- Collect first install and report-generation feedback through GitHub Issues.
+- 详细迭代路径图：关键节点点击展开/关闭。
+- 路径总控开关：全部展开、全部收起、只看主线、显示放弃路径。
+- 更强的证据完整度展示：把证据、验证、相关文件分开展示。
+- 更清晰的多会话冲突线索：展示哪些会话碰到了同一文件或区域。
+- 可选 diff 范围说明：工作区、某个分支、某个 commit range。
+- 小红书传播素材：封面图、短视频脚本、实操截图。
 
-## Stage 2: Interactive Platform
+## 第二阶段：交互平台
 
-Later:
+第二阶段才考虑：
 
-- Add a local interactive platform instead of only static HTML.
-- Allow filtering by status, source, file area, and iteration.
-- Let the operator arrange questions visually.
-- Let Agent suggestions appear in a separate layer from facts.
-- Detect possible conflicts from overlapping files, dependencies, and contradictory assumptions.
-- Require evidence links for every Agent arrangement suggestion.
+- 本地交互平台，而不是只有静态 HTML。
+- 让操作者在平台上拖拽、整理问题/任务。
+- Agent 可以判断冲突并给编排建议，但建议必须单独标注。
+- 支持按状态、来源、文件区域、迭代阶段筛选。
+- 支持 GitHub Issues / PR、Notion、Airtable 等外部数据源。
 
-## Integrations To Consider
+## 第一阶段明确不做
 
-- GitHub Issues and PR data.
-- Notion or Airtable exports.
-- Data Analytics dashboard rendering for richer charts.
-- Figma or static design artifacts for product-review presentations.
-
-## Not Planned For Stage 1
-
-- Automatic priority ranking.
-- Automatic task scheduling.
-- Team permissions, due dates, or assignments.
-- Jira, Linear, or Notion replacement.
-- Automatic code review or testing replacement.
+- 自动优先级排序。
+- 自动任务调度。
+- 团队权限、截止时间、负责人。
+- Jira / Linear / Notion 替代品。
+- 自动代码审查或测试替代品。

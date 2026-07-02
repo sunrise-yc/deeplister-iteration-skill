@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="420" viewBox="0 0 980 420" role="img" aria-labelledby="title desc">
+  <title id="title">Vibe Lens 报告快闪照</title>
+  <desc id="desc">展示生成 HTML 复盘沙盘报告。</desc>
+  <rect width="980" height="420" rx="18" fill="#eef2f7"/>
+  <rect x="40" y="42" width="900" height="336" rx="14" fill="#fff" stroke="#dbe3ee"/>
+  <text x="76" y="92" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="30" font-weight="800" fill="#111827">3. 生成可视化复盘沙盘</text>
+  <text x="76" y="128" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="18" fill="#64748b">报告默认中文，可切英文；总览、沙盘、迭代路径都能点进详情。</text>
+  <rect x="76" y="164" width="420" height="160" rx="10" fill="#111827"/>
+  <text x="102" y="212" font-family="Consolas, monospace" font-size="17" fill="#e5e7eb">python ...\lens_snapshot.py \</text>
+  <text x="130" y="244" font-family="Consolas, monospace" font-size="17" fill="#93c5fd">--project-root . --html</text>
+  <text x="102" y="292" font-family="Consolas, monospace" font-size="17" fill="#a7f3d0">HTML report: docs/vibe-lens-report.html</text>
+  <rect x="540" y="154" width="330" height="182" rx="12" fill="#f8fafc" stroke="#dbe3ee"/>
+  <rect x="562" y="178" width="126" height="56" rx="8" fill="#fff" stroke="#dbe3ee"/>
+  <rect x="704" y="178" width="126" height="56" rx="8" fill="#fff" stroke="#dbe3ee"/>
+  <text x="582" y="202" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="13" fill="#64748b">当前问题</text>
+  <text x="582" y="224" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="23" font-weight="800" fill="#111827">2</text>
+  <text x="724" y="202" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="13" fill="#64748b">代码变化</text>
+  <text x="724" y="224" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="22" font-weight="800" fill="#111827">+2324</text>
+  <circle cx="625" cy="284" r="30" fill="none" stroke="#159957" stroke-width="15"/>
+  <path d="M625 254 A30 30 0 0 1 653 294" fill="none" stroke="#dc2626" stroke-width="15"/>
+  <path d="M700 282 H820" stroke="#334155" stroke-width="5" stroke-linecap="round"/>
+  <path d="M760 282 H820" stroke="#dc2626" stroke-width="5" stroke-dasharray="8 8" stroke-linecap="round"/>
+  <text x="76" y="358" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="16" fill="#475569">打开这个 HTML，就能看到问题、代码差异、证据链和迭代路径。</text>
+</svg>

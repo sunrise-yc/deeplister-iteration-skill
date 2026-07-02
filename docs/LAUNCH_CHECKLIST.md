@@ -1,14 +1,14 @@
-# Launch Checklist
+# 发布清单
 
-Use this checklist before publishing `vibe-lens-skill`.
+发布 `DL-vibe-lens-skill` 前，用这份清单过一遍。
 
-## Repository
+## 仓库
 
-- [ ] Rename GitHub repository to `vibe-lens-skill`.
-- [ ] Update local remote URL after the GitHub rename.
-- [ ] Set repository description:
+- [ ] GitHub 仓库名是 `DL-vibe-lens-skill`。
+- [ ] 本地 remote 指向新仓库地址。
+- [ ] 仓库简介写清楚：
   `A Codex skill that turns messy vibe-coding projects into a visual review sandbox.`
-- [ ] Set topics:
+- [ ] 仓库 topics 包含：
   - `codex`
   - `codex-skill`
   - `ai-agent`
@@ -17,18 +17,19 @@ Use this checklist before publishing `vibe-lens-skill`.
   - `review`
   - `git-diff`
   - `dashboard`
-- [ ] Refresh social preview image so it says `vibe-lens`.
+- [ ] README 首屏能说明痛点和三步使用方法。
+- [ ] README 有实操快闪照。
 
-## First-Run UX
+## 第一次使用
 
-- [ ] Install folder is `vibe-lens/`.
-- [ ] Prompt uses `$vibe-lens`.
-- [ ] `--init` creates `docs/iteration-record.md`.
-- [ ] Missing-record error tells users to run `--init`.
-- [ ] README does not ask users to manually create the source record.
-- [ ] README explains that Vibe Lens does not rank or arrange tasks.
+- [ ] 安装目录是 `vibe-lens/`。
+- [ ] 触发提示词使用 `$vibe-lens`。
+- [ ] `--init` 能创建 `docs/iteration-record.md`。
+- [ ] 缺记录文件时，错误信息会提示运行 `--init`。
+- [ ] README 不要求用户手动创建记录文件。
+- [ ] README 说明 Vibe Lens 不排序、不安排任务。
 
-## Verification
+## 验证
 
 ```powershell
 python -m unittest tests.test_lens_snapshot
@@ -39,21 +40,21 @@ python vibe-lens\scripts\lens_snapshot.py --project-root .
 git diff --check
 ```
 
-## Demo
+## 演示
 
-- [ ] Show messy project context.
-- [ ] Run `--init`.
-- [ ] Open `docs/iteration-record.md`.
-- [ ] Run lens snapshot script.
-- [ ] Generate HTML report.
-- [ ] Explain Git diff statistics.
-- [ ] Show that facts and Agent judgment are separate.
+- [ ] 展示一个中后期变乱的 vibe-coding 项目。
+- [ ] 运行 `--init`。
+- [ ] 打开 `docs/iteration-record.md`。
+- [ ] 运行 snapshot 命令。
+- [ ] 生成 HTML 报告。
+- [ ] 解释代码差异来自 Git。
+- [ ] 展示事实和 Agent 判断是分开的。
 
-## Release Notes
+## 发布说明
 
-- [ ] Explain rename from `vibe-iteration` to `vibe-lens`.
-- [ ] Mention legacy DeepLister and `docs/迭代记录.md` compatibility.
-- [ ] Mention `--init`.
-- [ ] Mention Git diff statistics.
-- [ ] Mention static HTML review sandbox.
-- [ ] Mention this repository dogfoods `docs/iteration-record.md`.
+- [ ] 说明项目定位：复盘沙盘，不是任务管理器。
+- [ ] 提到旧 `docs/迭代记录.md` 兼容。
+- [ ] 提到 `--init`。
+- [ ] 提到 Git diff 统计。
+- [ ] 提到中文默认、可切英文的 HTML 报告。
+- [ ] 提到本仓库自己也用 `docs/iteration-record.md` 做复盘。

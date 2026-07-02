@@ -1,78 +1,80 @@
-# Demo Script
+# 演示脚本
 
-This 60-second demo is for first-time viewers of `vibe-lens-skill`.
+这是一份 60 秒演示脚本，用来给第一次看到 `DL-vibe-lens-skill` 的人快速讲明白它。
 
-## Goal
+## 演示目标
 
-Show one clear loop:
+让观众看到一条完整链路：
 
-1. A vibe-coding project has too many scattered questions.
-2. Run `--init` once to create `docs/iteration-record.md`.
-3. Run the lens snapshot to read current questions, historical questions, active work, and Git diff.
-4. Generate the HTML review sandbox.
-5. Show that Vibe Lens displays evidence but does not rank tasks.
+1. vibe-coding 项目到了中后期，问题开始散乱。
+2. 运行 `--init` 自动创建 `docs/iteration-record.md`。
+3. 运行 snapshot，读取当前问题、历史问题、活跃工作和 Git diff。
+4. 生成 HTML 复盘沙盘。
+5. 强调 Vibe Lens 展示证据，不替人排优先级。
 
-## Timeline
+## 时间线
 
-| Time | Visual | Narration |
+| 时间 | 画面 | 旁白 |
 |---|---|---|
-| 0-8s | Show messy notes, chats, or a long issue list | Vibe coding is fast at the start, but the middle gets messy: questions scatter across chats, docs, and code changes. |
-| 8-18s | Run `--init` | Users should not hand-build a special Markdown file. One command creates the source record. |
-| 18-28s | Open `docs/iteration-record.md` | This is the source record: questions, active work, follow-up notes, and iteration log. |
-| 28-40s | Run snapshot script | The script reads the record and Git diff. It shows what exists; it does not pick a winner. |
-| 40-52s | Generate and open HTML report | The HTML report is the review sandbox: current questions, history, code diff, direction, evidence, and conflict signals. |
-| 52-60s | Show guardrail text | Vibe Lens separates facts from Agent judgment. If you ask for advice, that advice is labeled separately. |
+| 0-8 秒 | 展示一堆聊天、TODO、代码 diff | vibe coding 一开始很快，但项目到中后期会乱：问题散在聊天、文档和代码里。 |
+| 8-18 秒 | 运行 `--init` | 用户不应该手动搭结构化 Markdown，一个命令就生成记录文件。 |
+| 18-28 秒 | 打开 `docs/iteration-record.md` | 这里是数据源：问题池、活跃工作、追问记录、迭代日志。 |
+| 28-40 秒 | 运行 snapshot | 脚本读取记录和 Git diff，只展示事实，不挑“赢家”。 |
+| 40-52 秒 | 打开 HTML 报告 | 报告是复盘沙盘：当前问题、历史问题、代码差异、证据链和迭代路径。 |
+| 52-60 秒 | 展示边界说明 | Vibe Lens 把事实和 Agent 判断分开。你可以问建议，但建议不会伪装成事实。 |
 
-## Commands
+## 命令
 
-Initialize:
+初始化：
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --init
 ```
 
-Snapshot:
+查看文本快照：
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root .
 ```
 
-HTML report:
+生成 HTML：
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --html
 ```
 
-Example prompt:
+触发提示词：
 
 ```text
-Use $vibe-lens to inspect the project record, Git diff, current questions, historical questions, iteration direction, and evidence trail without ranking or arranging tasks.
+Use $vibe-lens to initialize or inspect this project, generate the visual sandbox, and show questions, Git diff, evidence, conflict signals, and iteration path without ranking tasks.
 ```
 
-## Short Narration
+## 短旁白
 
 ```text
-I built a Codex skill for the messy middle of vibe coding.
+我做了一个 Codex Skill，专门处理 vibe coding 的“中后期混乱”。
 
-When a project grows, questions scatter across chats, docs, and code changes. If several AI sessions run at once, they can also touch the same files with different assumptions.
+项目一大，问题会散在聊天、文档和代码 diff 里。如果同时开几个 AI 对话，还可能互相改到同一片区域。
 
-Vibe Lens creates a review sandbox. It shows current questions, historical questions, Git diff stats, direction changes, evidence, verification, and possible conflict signals.
+Vibe Lens 把项目记录和 Git diff 变成一个复盘沙盘：当前问题、历史问题、代码增删、迭代路径、证据链和冲突线索都能看到。
 
-It is not a PM system and it does not rank tasks. It helps the operator and Agent see the board clearly before making judgment calls.
+它不是项目管理系统，不替你排优先级。它的作用是先把局面摆清楚。
 ```
 
-## Social Copy
+## 小红书文案
 
 ```text
-I built vibe-lens, a Codex skill for the messy middle of vibe coding.
+vibe coding 一开始很爽，但项目到中后期会乱。
 
-It turns a project record + Git diff into a visual review sandbox:
-- current questions
-- historical questions
-- added/deleted code stats
-- iteration direction
-- evidence and verification trail
-- conflict signals
+我做了一个 Codex Skill：Vibe Lens。
 
-It displays the board. It does not rank the work.
+它把项目记录 + Git diff 变成复盘沙盘：
+- 当前问题
+- 历史问题
+- 代码新增/删除
+- 迭代路径
+- 证据链
+- 冲突线索
+
+它展示局面，不替你排优先级。
 ```
