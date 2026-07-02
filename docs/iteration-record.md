@@ -30,7 +30,7 @@ Codex reads it together with Git diff data to display questions, history, direct
 | VL-002 | Show Git diff statistics visually | operator | resolved | Git can provide added/deleted lines through `git diff --numstat` | vibe-lens/scripts/lens_snapshot.py, vibe-lens/assets/report_template.html |
 | VL-003 | Keep first use automatic | operator | resolved | Manual file creation is too much friction for beginners | vibe-lens/scripts/lens_snapshot.py |
 | VL-004 | Sync public docs and examples to Vibe Lens | agent | resolved | Public docs, examples, issue templates, and images now use Vibe Lens positioning | README.md, docs/, examples/, assets/ |
-| VL-005 | Rename GitHub repository, remote, and local checkout path | agent | open | Clean draft PR #3 exists, but the repository and checkout folder still carry the old `deeplister-iteration-skill` name | GitHub settings, local remote |
+| VL-005 | Rename GitHub repository, remote, and local checkout path | agent | open | PR #3 is ready for review and mergeable, but the repository and checkout folder still carry the old `deeplister-iteration-skill` name | GitHub settings, local remote |
 | VL-006 | Design second-stage interactive platform later | operator | open | Markdown is not enough for task arrangement and conflict advice | ROADMAP.md |
 
 ## Active Work
@@ -38,7 +38,7 @@ Codex reads it together with Git diff data to display questions, history, direct
 | Session | Task | Files Or Areas | Status | Notes |
 |---|---|---|---|---|
 | 2026-07-02 | Reposition as Vibe Lens review sandbox | vibe-lens/, README.md, docs/, examples/, tests/ | completed | GitHub remote rename remains an external follow-up |
-| 2026-07-02 | Publish clean Vibe Lens branch and draft PR | GitHub branch, PR #3 | completed | Branch `codex/vibe-lens-review-sandbox-clean` pushed; clean draft PR opened against `main`; old PR #2 closed |
+| 2026-07-02 | Publish clean Vibe Lens branch and PR | GitHub branch, PR #3 | completed | Branch `codex/vibe-lens-review-sandbox-clean` pushed; PR opened against `main`; old PR #2 closed; PR #3 is mergeable |
 
 ## Follow-up Flow Notes
 
@@ -51,7 +51,7 @@ Codex reads it together with Git diff data to display questions, history, direct
 
 ## Iteration Log
 
-### 2026-07-02: Publish clean Vibe Lens draft PR
+### 2026-07-02: Publish clean Vibe Lens PR
 Goal:
 - Continue the unfinished GitHub synchronization work after the local commit.
 - Keep the publication evidence in the Vibe Lens source record.
@@ -59,8 +59,9 @@ Goal:
 
 Evidence:
 - Local branch `codex/vibe-lens-review-sandbox-clean` tracks `origin/codex/vibe-lens-review-sandbox-clean`.
-- Clean draft PR #3 was opened at `https://github.com/sunrise-yc/deeplister-iteration-skill/pull/3`.
+- PR #3 was opened at `https://github.com/sunrise-yc/deeplister-iteration-skill/pull/3`.
 - Old draft PR #2 was closed because it contained mixed history from an earlier branch.
+- PR #3 was marked ready for review and GitHub reported `mergeable: true`.
 - The repository still uses the old public name `deeplister-iteration-skill`.
 
 Verification:
