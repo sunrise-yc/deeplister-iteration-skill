@@ -1,51 +1,56 @@
-# vibe-lens-skill Project Context
+# 项目上下文
 
-Updated: 2026-07-02
+更新时间：2026-07-03
 
-This file is a maintainer handoff note. The active source record lives in `docs/iteration-record.md`.
+这份文件给后续维护者看。真正的项目复盘数据源在 [iteration-record.md](iteration-record.md)。
 
-## Maintainer
+## 维护者
 
-- User: 杨晨
-- GitHub: https://github.com/sunrise-yc
-- Preference: explain code in plain Chinese and include product-thinking context.
+- 用户：杨晨
+- GitHub：https://github.com/sunrise-yc
+- 偏好：代码相关内容用中文大白话解释。
 - 学习方向：AI 产品经理。
 
-## Project
+## 项目
 
-- Local repository: `C:\Users\23184\Desktop\deeplister-iteration-skill`
-- Intended GitHub repository name: `vibe-lens-skill`
-- Project type: Codex skill
-- Skill name: `vibe-lens`
-- Default source record: `docs/iteration-record.md`
-- Legacy readable record: `docs/迭代记录.md`
+- 当前本地目录：`C:\Users\23184\Desktop\deeplister-iteration-skill`
+- 当前公开仓库名：`DL-vibe-lens-skill`
+- 项目类型：Codex Skill
+- Skill 名：`vibe-lens`
+- 默认数据源：`docs/iteration-record.md`
+- 旧记录兼容：`docs/迭代记录.md`
 
-## Product Positioning
+## 产品定位
 
-`vibe-lens` is a visual review sandbox for the messy middle of vibe coding.
+`vibe-lens` 是一个给 vibe-coding 项目用的复盘沙盘。
 
-It helps Codex and the operator inspect:
+它展示：
 
-- current questions;
-- historical questions;
-- Git diff statistics;
-- iteration direction;
-- evidence and verification trails;
-- conflict signals across active AI coding sessions.
+- 当前问题；
+- 历史问题；
+- Git diff 代码差异；
+- 迭代路径；
+- 证据和验证记录；
+- 多个 AI 对话之间可能存在的冲突线索。
 
-It does not rank work, assign weights, or decide what must happen next.
+它不做：
 
-## Current Decisions
+- 自动排序；
+- 自动加权；
+- 自动安排任务；
+- 替代测试或代码审查；
+- 替代 Jira、Linear、Notion。
 
-- Rename public direction from `vibe-iteration` to `vibe-lens`.
-- Keep `docs/iteration-record.md` as the default source record for compatibility.
-- Keep legacy `docs/迭代记录.md` support for older DeepLister users.
-- Keep `--init`; manual record creation is not acceptable for a beginner-facing workflow.
-- Add static HTML report generation as the first review surface.
-- Treat `Priority` as legacy descriptive metadata only.
-- Keep old installed skills around temporarily for compatibility; new use should prefer `vibe-lens`.
+## 当前决定
 
-## Verification Commands
+- 公开项目名统一为 `DL-vibe-lens-skill`。
+- Skill 文件夹仍叫 `vibe-lens/`，方便用 `$vibe-lens` 触发。
+- 第一次使用必须走 `--init`，不能让新手手动建记录文件。
+- HTML 报告默认中文，可切英文。
+- 报告要有主页入口、详情页跳转、沙盘演示、迭代路径和对话入口设置。
+- `Priority` 只当旧字段展示，不当排序依据。
+
+## 验证命令
 
 ```powershell
 python -m unittest tests.test_lens_snapshot
@@ -56,13 +61,12 @@ python vibe-lens\scripts\lens_snapshot.py --project-root .
 git diff --check
 ```
 
-## Related Docs
+## 相关文档
 
-- `README.md`: public product page.
-- `ROADMAP.md`: product plan.
-- `CHANGELOG.md`: release notes.
-- `docs/iteration-record.md`: active source record.
-- `docs/INSTALLATION_TROUBLESHOOTING.md`: first-run support.
-- `docs/DEMO_SCRIPT.md`: demo outline.
-- `docs/superpowers/specs/2026-07-02-vibe-lens-design.md`: approved design.
-- `docs/superpowers/plans/2026-07-02-vibe-lens-implementation.md`: implementation plan.
+- `README.md`：公开项目介绍。
+- `ROADMAP.md`：产品路线图。
+- `CHANGELOG.md`：变更记录。
+- `docs/iteration-record.md`：当前复盘数据源。
+- `docs/INSTALLATION_TROUBLESHOOTING.md`：安装排错。
+- `docs/DEMO_SCRIPT.md`：演示脚本。
+- `docs/RELATED_WORK.md`：相邻工具学习点。

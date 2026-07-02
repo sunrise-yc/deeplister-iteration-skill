@@ -18,8 +18,8 @@ Codex reads it together with Git diff data to display questions, history, direct
 
 - 定位：给中后期开始变乱的 vibe-coding 项目做复盘沙盘和信息展现。
 - 主要用户：独立开发者、代码新手、正在学习 AI 产品经理的人，以及使用 Codex 或其他 AI coding agent 的人。
-- 核心任务：展示当前问题、历史问题、代码差异、迭代方向、证据链和冲突线索。
-- 当前重点：把项目从 `vibe-iteration` 的任务选择口径改成 `vibe-lens` 的中性 review sandbox，并生成 HTML 可视化报告。
+- 核心任务：展示当前问题、历史问题、代码差异、迭代路径、证据链和冲突线索。
+- 当前重点：封装为可参加 RedSkill 活动的 `DL-vibe-lens-skill`，完成中文介绍、实操快闪照、HTML 可视化报告和 GitHub 同步。
 - 明确不做：默认排序优先级、安排任务、替操作者做权重判断。
 
 ## Issue Pool
@@ -30,8 +30,11 @@ Codex reads it together with Git diff data to display questions, history, direct
 | VL-002 | Show Git diff statistics visually | operator | resolved | Git can provide added/deleted lines through `git diff --numstat` | vibe-lens/scripts/lens_snapshot.py, vibe-lens/assets/report_template.html |
 | VL-003 | Keep first use automatic | operator | resolved | Manual file creation is too much friction for beginners | vibe-lens/scripts/lens_snapshot.py |
 | VL-004 | Sync public docs and examples to Vibe Lens | agent | resolved | Public docs, examples, issue templates, and images now use Vibe Lens positioning | README.md, docs/, examples/, assets/ |
-| VL-005 | Rename GitHub repository, remote, and local checkout path | agent | open | PR #3 is ready for review and mergeable, but the repository and checkout folder still carry the old `deeplister-iteration-skill` name | GitHub settings, local remote |
+| VL-005 | Rename GitHub repository, remote, and local checkout path | agent | open | User says the public project name is now `DL-vibe-lens-skill`; local remote still needs synchronization evidence | GitHub settings, local remote |
 | VL-006 | Design second-stage interactive platform later | operator | open | Markdown is not enough for task arrangement and conflict advice | ROADMAP.md |
+| VL-007 | Package HTML report as confirmed interface | operator | resolved | Formal template now includes Chinese/English toggle, homepage gateways, detail pages, path labels, and conversation-entry setting | vibe-lens/assets/report_template.html, tests/test_lens_snapshot.py |
+| VL-008 | Prepare Chinese public introduction with quick-start visuals | operator | resolved | README now explains positioning, install/init/report flow, and embeds three quick-start SVG flash shots | README.md, assets/quickstart-*.svg |
+| VL-009 | Build detailed expandable path and platform later | operator | open | Stage 1 report only sketches path detail; full node expand/collapse and platform scheduling belong to later stages | ROADMAP.md, vibe-lens/assets/report_template.html |
 
 ## Active Work
 
@@ -39,6 +42,7 @@ Codex reads it together with Git diff data to display questions, history, direct
 |---|---|---|---|---|
 | 2026-07-02 | Reposition as Vibe Lens review sandbox | vibe-lens/, README.md, docs/, examples/, tests/ | completed | GitHub remote rename remains an external follow-up |
 | 2026-07-02 | Publish clean Vibe Lens branch and PR | GitHub branch, PR #3 | completed | Branch `codex/vibe-lens-review-sandbox-clean` pushed; PR opened against `main`; old PR #2 closed; PR #3 is mergeable |
+| 2026-07-03 | Package RedSkill-ready Vibe Lens | vibe-lens/, README.md, ROADMAP.md, docs/, assets/, tests/ | in progress | Current session is packaging the skill, docs, visuals, verification, and GitHub sync |
 
 ## Follow-up Flow Notes
 
@@ -48,8 +52,44 @@ Codex reads it together with Git diff data to display questions, history, direct
 | First-time user installs the skill | User must manually create the record file | Too much setup friction for a beginner-facing tool | Provide `--init` and make Codex suggest it when the file is missing |
 | Project reaches middle stage | Issues are scattered across chats, docs, and code | Review becomes hard | Use Vibe Lens to show questions, code diff, direction, and evidence |
 | Agent sees old `Priority` fields | Agent may treat them as commands | The skill may oversteer decisions | Treat priority as legacy metadata and separate facts from Agent judgment |
+| RedSkill visitor lands on GitHub | They need to understand and try the skill quickly | Long English docs would lose beginner users | Use Chinese README plus quick-start flash shots |
+| Agent used Vibe Lens in a chat | User may want a quick way back to the report | A full text link after every answer is noisy | Make a compact entry optional through prompt or report setting |
 
 ## Iteration Log
+
+### 2026-07-03: Package RedSkill-ready skill
+Goal:
+- Finish the usable Skill package for `DL-vibe-lens-skill`.
+- Move confirmed UI behavior from mockup into the real HTML report template.
+- Prepare Chinese public introduction and practical quick-start visuals.
+- Record remaining product questions as future optimization instead of overloading stage 1.
+
+Evidence:
+- User requested final packaging for the RedSkill activity.
+- User confirmed the homepage should keep the previous evidence-board style, with overview, sandbox, and iteration path as gateways.
+- User asked that the report can choose Chinese or English.
+- User asked that the Skill can optionally show a compact conversation-end entry.
+
+Code Changes:
+- Added a failing test for the confirmed report interface, then updated `report_template.html` until it passed.
+- Updated `vibe-lens/SKILL.md` and `agents/openai.yaml` to describe initialization, HTML report behavior, and optional conversation entry.
+- Rewrote `README.md` in Chinese for public introduction.
+- Added quick-start visual flash shots under `assets/quickstart-*.svg`.
+- Rewrote public support docs in Chinese: roadmap, launch checklist, demo script, and project context.
+
+Verification:
+- `python -m unittest tests.test_lens_snapshot.LensSnapshotTest.test_html_report_contains_confirmed_lens_interface` passed.
+- `python -m unittest tests.test_lens_snapshot` passed.
+- `python -m py_compile vibe-lens\scripts\lens_snapshot.py` passed.
+- `python -X utf8 C:\Users\23184\.codex\skills\.system\skill-creator\scripts\quick_validate.py vibe-lens` passed.
+- `python vibe-lens\scripts\lens_snapshot.py --project-root . --html --output docs\vibe-lens-report.html` generated the report.
+- Browser verification over `http://127.0.0.1:60961/docs/vibe-lens-report.html` confirmed homepage modules, detail jumps, English toggle, and settings panel.
+- `python C:\Users\23184\.codex\skills\vibe-lens\scripts\lens_snapshot.py --project-root .` verified the installed local skill.
+- `git diff --check` exited 0 with only LF-to-CRLF warnings.
+
+Unfinished:
+- Confirm GitHub remote points to `sunrise-yc/DL-vibe-lens-skill` and push the final branch.
+- Later stage: build detailed expandable path graph and full interactive platform.
 
 ### 2026-07-02: Publish clean Vibe Lens PR
 Goal:

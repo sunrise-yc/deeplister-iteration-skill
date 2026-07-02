@@ -1,153 +1,827 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Vibe Lens Report</title>
   <style>
     :root {
-      --bg: #f7f8fb;
+      --bg: #eef2f7;
       --card: #ffffff;
-      --ink: #17202a;
-      --muted: #677489;
-      --line: #dfe5ee;
+      --ink: #111827;
+      --muted: #64748b;
+      --line: #dbe3ee;
+      --soft: #f8fafc;
       --blue: #2563eb;
       --green: #159957;
       --orange: #d97706;
       --red: #dc2626;
-      --shadow: 0 10px 28px rgba(20, 31, 50, 0.08);
+      --path: #334155;
+      --shadow: 0 10px 28px rgba(15, 23, 42, .08);
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       background: var(--bg);
       color: var(--ink);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Microsoft YaHei", sans-serif;
       line-height: 1.5;
     }
-    header {
-      padding: 28px 24px 18px;
-      border-bottom: 1px solid var(--line);
-      background: #fff;
-    }
-    main { max-width: 1160px; margin: 0 auto; padding: 24px; }
-    h1, h2, h3 { margin: 0; letter-spacing: 0; }
-    h1 { font-size: 28px; }
-    h2 { font-size: 18px; margin-bottom: 12px; }
-    h3 { font-size: 15px; }
-    p { margin: 6px 0 0; color: var(--muted); }
-    .meta { color: var(--muted); font-size: 13px; margin-top: 6px; }
-    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-    .two { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; }
-    .card {
-      background: var(--card);
+
+    .page { max-width: 1180px; margin: 0 auto; padding: 18px; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .note { color: var(--muted); margin: 0 0 12px; font-size: 13px; line-height: 1.65; }
+    .toolbar, .metric, .card {
       border: 1px solid var(--line);
       border-radius: 8px;
+      background: var(--card);
       box-shadow: var(--shadow);
-      padding: 18px;
-      margin-bottom: 18px;
     }
-    .metric .label { color: var(--muted); font-size: 12px; }
-    .metric .value { font-size: 25px; font-weight: 720; margin-top: 4px; }
-    .bar {
-      height: 11px;
-      background: #e8edf4;
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+
+    .brand { font-size: 20px; font-weight: 850; }
+    .brand span { color: var(--muted); font-size: 13px; font-weight: 500; margin-left: 8px; }
+    .toolbar-actions { display: flex; align-items: center; gap: 8px; }
+
+    .lang {
+      display: flex;
+      border: 1px solid #dbe3ee;
       border-radius: 999px;
       overflow: hidden;
-      display: flex;
-      margin: 12px 0;
-    }
-    .bar span { display: block; height: 100%; }
-    .added { background: var(--green); }
-    .deleted { background: var(--red); }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid var(--line); padding: 10px 8px; text-align: left; vertical-align: top; font-size: 13px; }
-    th { color: var(--muted); font-size: 12px; font-weight: 650; }
-    tr:last-child td { border-bottom: 0; }
-    .tag {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: #edf3ff;
-      color: var(--blue);
       font-size: 12px;
-      font-weight: 650;
+      background: #fff;
     }
-    .list { display: grid; gap: 10px; }
-    .item { border: 1px solid var(--line); border-radius: 8px; padding: 12px; background: #fbfcfe; }
-    .item-title { font-weight: 700; }
-    .item-sub { color: var(--muted); font-size: 13px; margin-top: 4px; word-break: break-word; }
-    .timeline { border-left: 3px solid var(--line); padding-left: 14px; display: grid; gap: 12px; }
-    .timeline .point { position: relative; }
-    .timeline .point::before {
+
+    .lang button {
+      border: 0;
+      background: transparent;
+      padding: 7px 12px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .lang button.active { background: var(--ink); color: #fff; font-weight: 800; }
+
+    .icon-button {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid #dbe3ee;
+      background: #fff;
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .icon-button:hover { border-color: #94a3b8; background: #f8fafc; }
+    .lens-icon {
+      width: 14px;
+      height: 14px;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      position: relative;
+      display: inline-block;
+      flex: 0 0 auto;
+    }
+
+    .lens-icon::after {
       content: "";
       position: absolute;
-      left: -22px;
-      top: 5px;
-      width: 10px;
-      height: 10px;
-      background: var(--blue);
-      border-radius: 50%;
+      width: 6px;
+      height: 2px;
+      background: currentColor;
+      right: -5px;
+      bottom: -2px;
+      transform: rotate(45deg);
+      border-radius: 999px;
     }
-    .empty { color: var(--muted); font-size: 13px; padding: 10px 0; }
-    .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 12px; color: #344256; }
+
+    .overview {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .metric {
+      display: block;
+      color: inherit;
+      text-decoration: none;
+      padding: 12px;
+      min-height: 64px;
+    }
+
+    .metric:hover { border-color: var(--blue); }
+    .metric small { display: block; color: var(--muted); font-size: 11px; }
+    .metric strong { display: block; font-size: 20px; line-height: 1.2; margin-top: 2px; }
+
+    .main {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card { padding: 12px; }
+    a.card { display: block; color: inherit; text-decoration: none; }
+    a.card * { color: inherit; text-decoration: none; }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .title-row h2 { margin: 0; font-size: 15px; }
+    .help-dot {
+      display: inline-grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #eef2f7;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 850;
+      cursor: help;
+    }
+
+    .jump {
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      color: #475569;
+      padding: 4px 9px;
+      font-size: 11px;
+      white-space: nowrap;
+      background: #fff;
+    }
+
+    .problem-card { height: 326px; }
+    .question-list {
+      height: 278px;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(100,116,139,.34) transparent;
+    }
+
+    .question-list::-webkit-scrollbar { width: 6px; }
+    .question-list::-webkit-scrollbar-track { background: transparent; }
+    .question-list::-webkit-scrollbar-thumb { background: rgba(100,116,139,.26); border-radius: 999px; }
+
+    .question {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid #dce3ee;
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .q-title { font-weight: 850; font-size: 13px; margin-bottom: 4px; }
+    .q-sub { color: #53657d; font-size: 11px; line-height: 1.45; }
+
+    .mini-donut, .big-donut {
+      border-radius: 50%;
+      position: relative;
+      cursor: help;
+      background: #cbd5e1;
+    }
+
+    .mini-donut { width: 46px; height: 46px; }
+    .mini-donut::after, .big-donut::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: #fff;
+    }
+
+    .mini-donut::after { inset: 12px; background: #fbfdff; }
+    .big-donut {
+      width: 176px;
+      height: 176px;
+      margin: 10px auto 14px;
+      display: grid;
+      place-items: center;
+    }
+
+    .big-donut::after { inset: 48px; }
+    .big-donut strong {
+      position: relative;
+      z-index: 2;
+      font-size: 17px;
+      text-align: center;
+      line-height: 1.35;
+      white-space: pre-line;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 8px;
+    }
+
+    .meter {
+      height: 7px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+      cursor: help;
+    }
+
+    .meter-fill { display: flex; height: 100%; }
+    .seg-blue { background: var(--blue); }
+    .seg-green { background: var(--green); }
+    .seg-orange { background: var(--orange); }
+
+    .file-row {
+      display: grid;
+      grid-template-columns: 1fr 70px 70px;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 7px;
+      background: #f8fafc;
+      margin-top: 7px;
+      font-size: 12px;
+    }
+
+    .file-row strong { text-align: right; }
+    .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+
+    .sandbox-mini { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
+    .steps { display: grid; gap: 8px; }
+    .step {
+      border: 1px solid #dce3ee;
+      border-radius: 7px;
+      padding: 7px 10px;
+      color: var(--muted);
+      background: #fff;
+      font-size: 12px;
+    }
+
+    .step.active {
+      border-color: #cbd5e1;
+      background: #f1f5f9;
+      color: var(--ink);
+      font-weight: 850;
+    }
+
+    .focus-box {
+      border: 1px solid #dce3ee;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfdff;
+      min-height: 138px;
+    }
+
+    .mini-link { display: flex; align-items: center; gap: 8px; margin-top: 7px; font-size: 11px; color: #475569; }
+    .mini-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--green); }
+    .mini-dot.orange { background: var(--orange); }
+    .mini-dot.red { background: var(--red); }
+
+    .timeline-card { padding-bottom: 14px; }
+    .timeline-viz {
+      position: relative;
+      height: 156px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      overflow: visible;
+    }
+
+    .timeline-viz svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .stage-label, .phase-note {
+      position: absolute;
+      color: var(--muted);
+      font-size: 10px;
+      background: rgba(255,255,255,.86);
+      border: 1px solid #e2e8f0;
+      border-radius: 999px;
+      padding: 2px 7px;
+      white-space: nowrap;
+      z-index: 5;
+    }
+
+    .stage-label { top: 10px; transform: translateX(-50%); }
+    .phase-note { left: 12px; bottom: 10px; }
+    .axis, .dash {
+      fill: none;
+      stroke: var(--path);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .dash { stroke-dasharray: 9 8; opacity: .72; }
+    .tick {
+      position: absolute;
+      top: 42px;
+      bottom: 42px;
+      width: 1px;
+      background: #e2e8f0;
+    }
+
+    .control-hint { position: absolute; right: 12px; top: 12px; display: flex; gap: 4px; }
+    .control-hint span {
+      width: 18px;
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+    }
+
+    .node {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      border: 3px solid #172033;
+      background: #fff;
+      transform: translate(-50%, -50%);
+      z-index: 4;
+      cursor: help;
+    }
+
+    .node.done { border-color: var(--green); }
+    .node.choice { border-color: var(--orange); }
+    .node.pending { border-color: #94a3b8; }
+    .node.abandon { border-color: var(--red); border-style: dashed; }
+    .node.current {
+      width: 19px;
+      height: 19px;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 5px rgba(37,99,235,.12);
+    }
+
+    .node.expandable::before, .node.expandable::after {
+      content: "";
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      border: 2px solid #fff;
+    }
+
+    .node.expandable::before { right: -9px; top: -7px; }
+    .node.expandable::after { right: -11px; bottom: -7px; }
+
+    .detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+
+    .detail-header h1 { margin: 0; font-size: 18px; }
+    .back, .detail-control {
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      color: #475569;
+      padding: 5px 10px;
+      font-size: 12px;
+      text-decoration: none;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .detail-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 10px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .detail-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .path-node-detail.collapsed .detail-item { display: none; }
+    .path-node-detail.abandoned.hidden { display: none; }
+
+    .setting-panel {
+      position: fixed;
+      right: 18px;
+      top: 72px;
+      width: min(360px, calc(100vw - 36px));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, .18);
+      padding: 14px;
+      z-index: 1000;
+      display: none;
+    }
+
+    .setting-panel.open { display: block; }
+    .setting-panel h3 { margin: 0 0 8px; font-size: 15px; }
+    .setting-panel p { margin: 0 0 10px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .switch {
+      width: 42px;
+      height: 24px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #e2e8f0;
+      padding: 2px;
+      cursor: pointer;
+    }
+
+    .switch::before {
+      content: "";
+      display: block;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(15,23,42,.2);
+      transition: transform .12s ease;
+    }
+
+    .switch.on { background: var(--ink); border-color: var(--ink); }
+    .switch.on::before { transform: translateX(18px); }
+
+    .chat-preview {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fbfdff;
+      padding: 10px;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .skill-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--ink);
+      padding: 5px 9px;
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .floating-tip {
+      position: fixed;
+      left: 0;
+      top: 0;
+      max-width: min(280px, calc(100vw - 24px));
+      border-radius: 8px;
+      background: var(--ink);
+      color: #fff;
+      padding: 9px 11px;
+      font-size: 11px;
+      line-height: 1.5;
+      box-shadow: 0 16px 32px rgba(15,23,42,.26);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate3d(-9999px,-9999px,0);
+      transition: opacity .08s ease;
+    }
+
+    .floating-tip.visible { opacity: 1; }
+
     @media (max-width: 860px) {
-      .grid, .two { grid-template-columns: 1fr; }
-      main { padding: 16px; }
+      .overview, .main, .sandbox-mini, .detail-grid { grid-template-columns: 1fr; }
+      .timeline-viz { height: 140px; }
+      .brand span { display: block; margin-left: 0; margin-top: 2px; }
+      .toolbar { align-items: flex-start; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Vibe Lens</h1>
-    <p>Review sandbox for current questions, historical questions, code diff, direction, evidence, and conflict signals. It displays information; it does not rank or arrange tasks.</p>
-    <div class="meta" id="meta"></div>
-  </header>
-  <main>
-    <section class="grid" id="overview"></section>
+  <main class="page">
+    <p class="note" data-i18n="note">Vibe Lens 报告：复盘沙盘，只展示事实；总览、沙盘演示、迭代路径都是主页入口，点击后进入详情页。</p>
 
-    <section class="two">
-      <div class="card">
-        <h2>Current Questions</h2>
-        <div id="currentQuestions" class="list"></div>
+    <section id="home" class="screen active">
+      <div class="toolbar">
+        <div class="brand">Vibe Lens <span data-i18n="brandSub">复盘沙盘，只展示事实</span></div>
+        <div class="toolbar-actions">
+          <button class="icon-button" id="open-settings" type="button" aria-label="对话入口设置" data-tip-zh="对话入口设置：控制 agent 是否在每轮回复末尾附带 Vibe Lens 快捷入口。" data-tip-en="Entry settings: control whether the agent appends a compact Vibe Lens shortcut at the end of replies."><span class="lens-icon" aria-hidden="true"></span></button>
+          <div class="lang">
+            <button type="button" class="active" data-lang="zh">中文</button>
+            <button type="button" data-lang="en">English</button>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h2>Code Diff</h2>
-        <div id="diffSummary"></div>
-        <div id="diffFiles"></div>
+
+      <div class="overview" id="overview"></div>
+
+      <div class="main">
+        <div class="card problem-card">
+          <div class="title-row">
+            <h2 data-i18n="currentTitle">当前问题 / 任务</h2>
+            <span class="help-dot" data-tip-zh="这里展示当前仍在讨论或处理中、需要复盘保留的问题。超过三条时，列表内部滚动，不改变主页布局高度。" data-tip-en="Shows current questions that still need to stay visible. If there are more than three, this list scrolls internally without changing the homepage layout.">?</span>
+          </div>
+          <div class="question-list" id="currentQuestions"></div>
+        </div>
+
+        <div class="card">
+          <div class="title-row">
+            <h2 data-i18n="diffTitle">代码差异</h2>
+            <span class="help-dot" data-tip-zh="代码差异来自 Git diff，不是 AI 猜测。圆环表示新增与删除的大致比例。" data-tip-en="Code diff comes from Git, not AI guessing. The ring shows added versus deleted lines.">?</span>
+          </div>
+          <div class="big-donut" id="diffDonut" data-tip-zh="" data-tip-en=""><strong id="diffDonutText">+0 / -0</strong></div>
+          <div id="diffFiles"></div>
+        </div>
       </div>
+
+      <div class="main">
+        <a class="card" href="#sandbox-detail">
+          <div class="title-row">
+            <h2 data-i18n="sandboxTitle">沙盘演示</h2>
+            <span class="jump" data-i18n="jumpSandbox">点击进入完整沙盘</span>
+          </div>
+          <div class="sandbox-mini">
+            <div class="steps">
+              <div class="step" data-i18n="step1">S1 发现问题</div>
+              <div class="step active" data-i18n="step2">S2 方向切换</div>
+              <div class="step" data-i18n="step3">S3 代码变化</div>
+              <div class="step" data-i18n="step4">S4 验证证据</div>
+            </div>
+            <div class="focus-box" id="sandboxMini"></div>
+          </div>
+        </a>
+
+        <div class="card">
+          <div class="title-row">
+            <h2 data-i18n="evidenceTitle">证据链 / 冲突线索</h2>
+            <span class="help-dot" data-tip-zh="证据链解释结论从哪里来；冲突线索提示多个会话或文件区域是否重叠。它只提示，不调度。" data-tip-en="Evidence explains where conclusions came from; conflict signals show overlap across sessions or file areas. This only displays signals, not schedules.">?</span>
+          </div>
+          <div id="evidenceSummary"></div>
+        </div>
+      </div>
+
+      <a class="card timeline-card" href="#path-detail">
+        <div class="title-row">
+          <h2 data-i18n="pathTitle">迭代路径</h2>
+          <span class="jump" data-i18n="jumpPath">点击进入详尽路径</span>
+        </div>
+        <div class="timeline-viz">
+          <div class="control-hint" data-tip-zh="详细版有总控开关：全部展开、全部收起、只看主线、显示放弃路径。主页只做提示。" data-tip-en="The detailed version has controls: expand all, collapse all, mainline only, and show abandoned paths. The homepage only hints at this."><span></span><span></span><span></span></div>
+          <span class="phase-note" data-tip-zh="竖线是阶段刻度，不代表具体日期；主页只显示大阶段，详细页再展开节点背后的选择。" data-tip-en="Vertical lines are stage marks, not exact dates. The homepage shows broad phases; the detail page expands choices behind each node.">阶段刻度，不是日期</span>
+          <span class="tick" style="left:18%"></span>
+          <span class="tick" style="left:39%"></span>
+          <span class="tick" style="left:60%"></span>
+          <span class="tick" style="left:81%"></span>
+          <span class="stage-label" style="left:18%" data-i18n="phase1">定位</span>
+          <span class="stage-label" style="left:39%" data-i18n="phase2">展示</span>
+          <span class="stage-label" style="left:60%" data-i18n="phase3">取舍</span>
+          <span class="stage-label" style="left:81%" data-i18n="phase4">当前</span>
+          <svg viewBox="0 0 980 156" aria-hidden="true">
+            <path class="axis" d="M70 86 H282 Q298 86 298 70 V56 Q298 44 314 44 H520 Q536 44 536 60 V86 H900"></path>
+            <path class="dash" d="M520 44 H664 Q680 44 680 60 V86"></path>
+            <path class="dash" d="M536 86 H698 Q714 86 714 102 V126 H884"></path>
+          </svg>
+          <span class="node done" style="left:7.1%;top:55.1%" data-tip-zh="起点：问题开始进入复盘记录。" data-tip-en="Start: questions entered the review record."></span>
+          <span class="node choice expandable" style="left:30.4%;top:28.2%" data-tip-zh="可展开节点：一次方向选择，详细页显示背后的选择。" data-tip-en="Expandable node: a direction choice; the detail page shows choices behind it."></span>
+          <span class="node choice expandable" style="left:54.7%;top:55.1%" data-tip-zh="可展开节点：报告 UI、沙盘入口、代码差异展示等方向调整。" data-tip-en="Expandable node: report UI, sandbox gateway, and code diff display changed here."></span>
+          <span class="node abandon" style="left:69.4%;top:55.1%" data-tip-zh="放弃路径：与第一阶段只展示事实的定位冲突。" data-tip-en="Abandoned path: conflicted with the stage-one principle of displaying facts only."></span>
+          <span class="node pending" style="left:90.2%;top:80.8%" data-tip-zh="待定节点：后续优化方向。" data-tip-en="Pending node: later optimization direction."></span>
+          <span class="node current" style="left:91.8%;top:55.1%" data-tip-zh="当前节点：生成可发布的 Skill 和项目介绍。" data-tip-en="Current node: package the publishable skill and project intro."></span>
+        </div>
+      </a>
     </section>
 
-    <section class="two">
-      <div class="card">
-        <h2>Iteration Direction</h2>
-        <div id="direction"></div>
+    <section id="overview-detail" class="screen">
+      <div class="detail-header">
+        <h1 data-i18n="overviewDetail">总览详情</h1>
+        <a class="back" href="#home" data-i18n="backHome">返回主页</a>
       </div>
-      <div class="card">
-        <h2>Evidence Chain</h2>
-        <div id="evidence"></div>
-      </div>
+      <div class="detail-grid" id="overviewDetailGrid"></div>
     </section>
 
-    <section class="two">
-      <div class="card">
-        <h2>Historical Questions</h2>
-        <div id="historicalQuestions"></div>
+    <section id="sandbox-detail" class="screen">
+      <div class="detail-header">
+        <h1 data-i18n="sandboxDetail">完整沙盘演示</h1>
+        <a class="back" href="#home" data-i18n="backHome2">返回主页</a>
+      </div>
+      <div class="detail-grid" id="sandboxDetailGrid"></div>
+    </section>
+
+    <section id="path-detail" class="screen">
+      <div class="detail-header">
+        <h1 data-i18n="pathDetail">详尽迭代路径</h1>
+        <a class="back" href="#home" data-i18n="backHome3">返回主页</a>
       </div>
       <div class="card">
-        <h2>Conflict Signals</h2>
-        <div id="conflicts" class="list"></div>
+        <div class="detail-controls">
+          <button class="detail-control" type="button" data-path-action="expand" data-i18n="expandAll">全部展开</button>
+          <button class="detail-control" type="button" data-path-action="collapse" data-i18n="collapseAll">全部收起</button>
+          <button class="detail-control" type="button" data-path-action="main" data-i18n="mainOnly">只看主线</button>
+          <button class="detail-control" type="button" data-path-action="abandoned" data-i18n="showAbandoned">显示放弃路径</button>
+        </div>
+        <div id="pathDetailList"></div>
       </div>
     </section>
   </main>
 
+  <div class="floating-tip" id="floating-tip" role="tooltip"></div>
+
+  <div class="setting-panel" id="setting-panel" aria-hidden="true">
+    <h3 data-i18n="entrySettings">对话入口设置</h3>
+    <p data-i18n="entryIntro">启用后，agent 在使用 Vibe Lens 时，可以在回复末尾附带一个简约入口。也可以在提示词里说“本轮不要显示 Vibe Lens 入口”临时关闭。</p>
+    <div class="toggle-row">
+      <div>
+        <strong data-i18n="entryToggleTitle">回复末尾显示入口</strong>
+        <p data-i18n="entryToggleSub">用于随时打开复盘沙盘，不影响正文。</p>
+      </div>
+      <button class="switch on" id="entry-toggle" type="button" aria-label="切换对话入口显示"></button>
+    </div>
+    <div class="chat-preview" id="chat-preview">
+      <div data-i18n="chatPreview">本轮已记录问题和代码差异。</div>
+      <a class="skill-chip" href="#home"><span class="lens-icon"></span><span data-i18n="openLens">打开 Vibe Lens</span></a>
+    </div>
+  </div>
+
   <script>
     const data = __LENS_DATA__;
-
     const byId = (id) => document.getElementById(id);
     const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
     }[ch]));
+
+    const fields = {
+      id: ["ID", "编号"],
+      issue: ["Issue", "Question", "问题"],
+      source: ["Source", "来源"],
+      status: ["Status", "状态"],
+      evidence: ["Evidence", "Impact", "影响", "证据"],
+      files: ["Related Files", "Files Or Areas", "关联文件", "涉及文件"],
+      task: ["Task", "任务"],
+      notes: ["Notes", "备注"],
+    };
+
+    const labels = {
+      zh: {
+        note: "Vibe Lens 报告：复盘沙盘，只展示事实；总览、沙盘演示、迭代路径都是主页入口，点击后进入详情页。",
+        brandSub: "复盘沙盘，只展示事实",
+        currentTitle: "当前问题 / 任务",
+        diffTitle: "代码差异",
+        sandboxTitle: "沙盘演示",
+        evidenceTitle: "证据链 / 冲突线索",
+        pathTitle: "迭代路径",
+        jumpSandbox: "点击进入完整沙盘",
+        jumpPath: "点击进入详尽路径",
+        phase1: "定位",
+        phase2: "展示",
+        phase3: "取舍",
+        phase4: "当前",
+        step1: "S1 发现问题",
+        step2: "S2 方向切换",
+        step3: "S3 代码变化",
+        step4: "S4 验证证据",
+        overviewDetail: "总览详情",
+        sandboxDetail: "完整沙盘演示",
+        pathDetail: "详尽迭代路径",
+        backHome: "返回主页",
+        backHome2: "返回主页",
+        backHome3: "返回主页",
+        expandAll: "全部展开",
+        collapseAll: "全部收起",
+        mainOnly: "只看主线",
+        showAbandoned: "显示放弃路径",
+        entrySettings: "对话入口设置",
+        entryIntro: "启用后，agent 在使用 Vibe Lens 时，可以在回复末尾附带一个简约入口。也可以在提示词里说“本轮不要显示 Vibe Lens 入口”临时关闭。",
+        entryToggleTitle: "回复末尾显示入口",
+        entryToggleSub: "用于随时打开复盘沙盘，不影响正文。",
+        chatPreview: "本轮已记录问题和代码差异。",
+        openLens: "打开 Vibe Lens",
+        totalQuestions: "历史问题",
+        openQuestions: "当前问题",
+        changedFiles: "变更文件",
+        codeChange: "代码变化",
+        status: "状态",
+        evidence: "证据",
+        files: "关联文件",
+        none: "暂无记录",
+        latestEvidence: "最新证据",
+        conflictSignals: "冲突线索",
+        total: "total",
+        signals: "signals",
+        currentFocus: "当前聚焦",
+        code: "代码",
+        gap: "缺口",
+        currentQuestions: "当前问题明细",
+        historyDistribution: "历史分布",
+        activeWork: "活跃工作",
+        pathScale: "主页竖线说明",
+        pathScaleText: "竖线是阶段刻度，不是具体日期；主页只显示大阶段，详细页才展开每个节点背后的选择。",
+        noOpen: "没有未关闭问题。",
+        noDiff: "没有 tracked 文件 diff。",
+        noConflict: "未检测到冲突线索。",
+        openDetailTip: "点击图标进入详情页",
+      },
+      en: {
+        note: "Vibe Lens report: a review sandbox that displays facts. Overview, sandbox, and path are homepage gateways into detail pages.",
+        brandSub: "Review sandbox, facts first",
+        currentTitle: "Current Questions / Tasks",
+        diffTitle: "Code Diff",
+        sandboxTitle: "Sandbox Replay",
+        evidenceTitle: "Evidence / Conflict Signals",
+        pathTitle: "Iteration Path",
+        jumpSandbox: "Open full sandbox",
+        jumpPath: "Open detailed path",
+        phase1: "Positioning",
+        phase2: "Display",
+        phase3: "Tradeoffs",
+        phase4: "Current",
+        step1: "S1 Find questions",
+        step2: "S2 Direction shift",
+        step3: "S3 Code changes",
+        step4: "S4 Verify evidence",
+        overviewDetail: "Overview Details",
+        sandboxDetail: "Full Sandbox Replay",
+        pathDetail: "Detailed Iteration Path",
+        backHome: "Back home",
+        backHome2: "Back home",
+        backHome3: "Back home",
+        expandAll: "Expand all",
+        collapseAll: "Collapse all",
+        mainOnly: "Mainline only",
+        showAbandoned: "Show abandoned paths",
+        entrySettings: "Conversation Entry Settings",
+        entryIntro: "When enabled, an agent using Vibe Lens may append a compact shortcut at the end of replies. The user can also say “do not show the Vibe Lens entry this turn.”",
+        entryToggleTitle: "Show entry at reply end",
+        entryToggleSub: "Keeps the review sandbox one click away without changing the main answer.",
+        chatPreview: "This turn recorded questions and code diff.",
+        openLens: "Open Vibe Lens",
+        totalQuestions: "Historical questions",
+        openQuestions: "Current questions",
+        changedFiles: "Changed files",
+        codeChange: "Code churn",
+        status: "Status",
+        evidence: "Evidence",
+        files: "Files",
+        none: "No record",
+        latestEvidence: "Latest evidence",
+        conflictSignals: "Conflict signals",
+        total: "total",
+        signals: "signals",
+        currentFocus: "Current focus",
+        code: "Code",
+        gap: "Gap",
+        currentQuestions: "Current question details",
+        historyDistribution: "History distribution",
+        activeWork: "Active work",
+        pathScale: "Homepage scale",
+        pathScaleText: "Vertical lines are stage marks, not exact dates. The homepage shows broad phases; the detail page expands choices behind each node.",
+        noOpen: "No open questions.",
+        noDiff: "No tracked file diff.",
+        noConflict: "No conflict signals detected.",
+        openDetailTip: "Click the metric to open details",
+      },
+    };
+
+    let lang = localStorage.getItem("vibe-lens-language") || "zh";
     const field = (row, names, fallback = "") => {
       for (const name of names) {
         if (row && row[name]) return row[name];
@@ -155,96 +829,252 @@
       return fallback;
     };
 
-    byId("meta").textContent = `${data.record} | generated ${data.generated_at}`;
+    const t = (key) => labels[lang][key] || labels.zh[key] || key;
+    const issueId = (row) => field(row, fields.id, "-");
+    const issueTitle = (row) => field(row, fields.issue, "Untitled question");
+    const issueStatus = (row) => field(row, fields.status, "unknown");
+    const issueEvidence = (row) => field(row, fields.evidence, t("none"));
+    const issueFiles = (row) => field(row, fields.files, t("none"));
+    const pct = (value, total) => `${Math.max(0, Math.min(100, total ? (value / total) * 100 : 0)).toFixed(1)}%`;
 
-    byId("overview").innerHTML = [
-      ["Total questions", data.issue_count],
-      ["Open questions", data.open_question_count],
-      ["Tracked files changed", data.git_diff.changed_file_count],
-      ["Code churn", `+${data.git_diff.total_added} / -${data.git_diff.total_deleted}`],
-    ].map(([label, value]) => `
-      <div class="card metric">
-        <div class="label">${esc(label)}</div>
-        <div class="value">${esc(value)}</div>
-      </div>
-    `).join("");
+    function issueCompleteness(row) {
+      const checks = [
+        field(row, fields.id),
+        field(row, fields.issue),
+        field(row, fields.status),
+        field(row, fields.evidence),
+        field(row, fields.files),
+      ];
+      return Math.round((checks.filter(Boolean).length / checks.length) * 100);
+    }
 
-    const current = data.open_questions || [];
-    byId("currentQuestions").innerHTML = current.length ? current.map((row) => `
-      <div class="item">
-        <div><span class="tag">${esc(field(row, ["ID", "编号"], "-"))}</span></div>
-        <div class="item-title">${esc(field(row, ["Issue", "Question", "问题"], "Untitled question"))}</div>
-        <div class="item-sub">Status: ${esc(field(row, ["Status", "状态"], "unknown"))}</div>
-        <div class="item-sub">Evidence: ${esc(field(row, ["Evidence", "Impact", "影响"], "not recorded"))}</div>
-        <div class="item-sub">Files: ${esc(field(row, ["Related Files", "Files Or Areas", "关联文件", "涉及文件"], "not recorded"))}</div>
-      </div>
-    `).join("") : `<div class="empty">No open questions recorded.</div>`;
+    function relatedDiff(row) {
+      const raw = issueFiles(row);
+      const parts = raw.split(/[,，]/).map((part) => part.trim()).filter(Boolean);
+      const files = data.git_diff?.files || [];
+      const matches = files.filter((file) => parts.some((part) => file.path.includes(part) || part.includes(file.path)));
+      return matches.reduce((acc, file) => {
+        acc.added += Number(file.added || 0);
+        acc.deleted += Number(file.deleted || 0);
+        acc.count += 1;
+        return acc;
+      }, { added: 0, deleted: 0, count: matches.length });
+    }
 
-    const diff = data.git_diff || {};
-    const total = Math.max(1, (diff.total_added || 0) + (diff.total_deleted || 0));
-    byId("diffSummary").innerHTML = `
-      <div class="bar">
-        <span class="added" style="width:${((diff.total_added || 0) / total) * 100}%"></span>
-        <span class="deleted" style="width:${((diff.total_deleted || 0) / total) * 100}%"></span>
-      </div>
-      <p>Git reports ${esc(diff.total_added || 0)} added and ${esc(diff.total_deleted || 0)} deleted lines in ${esc(diff.changed_file_count || 0)} tracked files.</p>
-      ${(diff.untracked_files || []).length ? `<p>Untracked: ${esc(diff.untracked_files.join(", "))}</p>` : ""}
-    `;
-    byId("diffFiles").innerHTML = (diff.files || []).length ? `
-      <table>
-        <thead><tr><th>File</th><th>Added</th><th>Deleted</th></tr></thead>
-        <tbody>
-          ${diff.files.map((file) => `
-            <tr><td class="mono">${esc(file.path)}</td><td>${esc(file.added ?? "binary")}</td><td>${esc(file.deleted ?? "binary")}</td></tr>
-          `).join("")}
-        </tbody>
-      </table>
-    ` : `<div class="empty">No tracked file diff in the selected range.</div>`;
+    function renderOverview() {
+      const diff = data.git_diff || {};
+      const metrics = [
+        ["openQuestions", data.open_question_count, "overview-detail"],
+        ["totalQuestions", data.issue_count, "overview-detail"],
+        ["changedFiles", diff.changed_file_count || 0, "overview-detail"],
+        ["codeChange", `+${diff.total_added || 0} / -${diff.total_deleted || 0}`, "overview-detail"],
+      ];
+      byId("overview").innerHTML = metrics.map(([label, value, target]) => `
+        <a class="metric" href="#${target}" data-tip-zh="${esc(t("openDetailTip"))}" data-tip-en="${esc(labels.en.openDetailTip)}">
+          <small>${esc(t(label))}</small>
+          <strong>${esc(value)}</strong>
+        </a>
+      `).join("");
+    }
 
-    const headings = data.iteration_direction?.headings || [];
-    byId("direction").innerHTML = headings.length ? `
-      <div class="timeline">
-        ${headings.map((title) => `<div class="point"><div class="item-title">${esc(title)}</div></div>`).join("")}
-      </div>
-    ` : `<div class="empty">No iteration direction entries recorded.</div>`;
+    function renderQuestions() {
+      const current = data.open_questions || [];
+      byId("currentQuestions").innerHTML = current.length ? current.map((row) => {
+        const diff = relatedDiff(row);
+        const total = Math.max(1, diff.added + diff.deleted);
+        const green = pct(diff.added, total);
+        const red = pct(diff.deleted, total);
+        const completeness = issueCompleteness(row);
+        const donut = diff.count
+          ? `conic-gradient(var(--green) 0 ${green}, var(--red) ${green} calc(${green} + ${red}), #cbd5e1 0 100%)`
+          : "#cbd5e1";
+        const tipZh = `关联代码差异：新增 +${diff.added}，删除 -${diff.deleted}，文件 ${diff.count} 个。`;
+        const tipEn = `Related code diff: +${diff.added}, -${diff.deleted}, ${diff.count} files.`;
+        return `
+          <div class="question">
+            <div class="mini-donut" style="background:${donut}" data-tip-zh="${esc(tipZh)}" data-tip-en="${esc(tipEn)}"></div>
+            <div>
+              <div class="q-title">${esc(issueId(row))}: ${esc(issueTitle(row))}</div>
+              <div class="q-sub">${esc(t("status"))}: ${esc(issueStatus(row))} ｜ ${esc(t("evidence"))}: ${esc(issueEvidence(row))}</div>
+              <div class="meter-label"><span>${esc(t("evidence"))}</span><span>${completeness}%</span></div>
+              <div class="meter" data-tip-zh="证据完整度：按 ID、问题、状态、证据、关联文件是否存在粗略估算，为展示信号，不是质量评分。" data-tip-en="Evidence completeness: a rough display signal based on ID, issue, status, evidence, and related files. It is not a quality score.">
+                <div class="meter-fill" style="width:${completeness}%">
+                  <span class="seg-blue" style="width:35%"></span>
+                  <span class="seg-green" style="width:40%"></span>
+                  <span class="seg-orange" style="width:25%"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("") : `<div class="detail-item">${esc(t("noOpen"))}</div>`;
+    }
 
-    byId("evidence").innerHTML = `
-      <div class="item">
-        <div class="item-title">Latest iteration</div>
-        <div class="item-sub">${esc(data.latest_iteration || "none")}</div>
-      </div>
-      <div class="item">
-        <div class="item-title">Follow-up flow notes</div>
-        <div class="item-sub">${esc(data.follow_up_case_count)} recorded cases</div>
-      </div>
-      <div class="item">
-        <div class="item-title">Git diff range</div>
-        <div class="item-sub">${esc(diff.range || "none")}</div>
-      </div>
-    `;
+    function renderDiff() {
+      const diff = data.git_diff || {};
+      const total = Math.max(1, (diff.total_added || 0) + (diff.total_deleted || 0));
+      const addedPct = pct(diff.total_added || 0, total);
+      const deletedPct = pct(diff.total_deleted || 0, total);
+      const donut = byId("diffDonut");
+      donut.style.background = `conic-gradient(var(--green) 0 ${addedPct}, var(--red) ${addedPct} calc(${addedPct} + ${deletedPct}), #cbd5e1 0 100%)`;
+      donut.dataset.tipZh = `Git diff：新增 +${diff.total_added || 0}，删除 -${diff.total_deleted || 0}，tracked 文件 ${diff.changed_file_count || 0} 个。`;
+      donut.dataset.tipEn = `Git diff: +${diff.total_added || 0}, -${diff.total_deleted || 0}, ${diff.changed_file_count || 0} tracked files.`;
+      byId("diffDonutText").textContent = `+${diff.total_added || 0}\n-${diff.total_deleted || 0}`;
+      const files = (diff.files || []).slice(0, 6);
+      byId("diffFiles").innerHTML = files.length ? files.map((file) => `
+        <div class="file-row">
+          <span class="mono">${esc(file.path)}</span>
+          <strong>+${esc(file.added ?? "bin")}</strong>
+          <strong>-${esc(file.deleted ?? "bin")}</strong>
+        </div>
+      `).join("") : `<div class="detail-item">${esc(t("noDiff"))}</div>`;
+    }
 
-    byId("historicalQuestions").innerHTML = (data.issues || []).length ? `
-      <table>
-        <thead><tr><th>ID</th><th>Question</th><th>Status</th></tr></thead>
-        <tbody>
-          ${data.issues.map((row) => `
-            <tr>
-              <td>${esc(field(row, ["ID", "编号"], "-"))}</td>
-              <td>${esc(field(row, ["Issue", "Question", "问题"], "Untitled"))}</td>
-              <td>${esc(field(row, ["Status", "状态"], "unknown"))}</td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    ` : `<div class="empty">No historical questions recorded.</div>`;
+    function renderSandboxAndEvidence() {
+      const diff = data.git_diff || {};
+      const latest = data.latest_iteration || t("none");
+      byId("sandboxMini").innerHTML = `
+        <strong>${esc(t("currentFocus"))}: ${esc(latest)}</strong>
+        <div class="mini-link"><span class="mini-dot"></span><span>${esc(t("evidence"))}: ${esc(data.record)}</span></div>
+        <div class="mini-link"><span class="mini-dot orange"></span><span>${esc(t("code"))}: +${esc(diff.total_added || 0)} / -${esc(diff.total_deleted || 0)}</span></div>
+        <div class="mini-link"><span class="mini-dot red"></span><span>${esc(t("gap"))}: ${esc((data.conflict_signals || []).length)} ${esc(t("conflictSignals"))}</span></div>
+      `;
+      byId("evidenceSummary").innerHTML = `
+        <div class="file-row"><span>${esc(t("latestEvidence"))}</span><strong>${esc(latest)}</strong><strong></strong></div>
+        <div class="file-row"><span>${esc(t("totalQuestions"))}</span><strong>${esc(data.issue_count)}</strong><strong>${esc(t("total"))}</strong></div>
+        <div class="file-row"><span>${esc(t("conflictSignals"))}</span><strong>${esc((data.conflict_signals || []).length)}</strong><strong>${esc(t("signals"))}</strong></div>
+      `;
+    }
 
-    const conflicts = data.conflict_signals || [];
-    byId("conflicts").innerHTML = conflicts.length ? conflicts.map((signal) => `
-      <div class="item">
-        <div class="item-title">${esc(signal.area)}</div>
-        <div class="item-sub">${esc(signal.signal)}: ${esc(signal.sessions)}</div>
-      </div>
-    `).join("") : `<div class="empty">No conflict signals detected from Active Work.</div>`;
+    function renderDetails() {
+      const issues = data.issues || [];
+      const active = data.active_work || [];
+      const statusRows = Object.entries(data.question_counts || {});
+      byId("overviewDetailGrid").innerHTML = `
+        <div class="card">
+          <h2>${esc(t("currentQuestions"))}</h2>
+          ${(data.open_questions || []).map((row) => `<div class="detail-item"><strong>${esc(issueId(row))}: ${esc(issueTitle(row))}</strong><br>${esc(t("status"))}: ${esc(issueStatus(row))}<br>${esc(t("evidence"))}: ${esc(issueEvidence(row))}<br>${esc(t("files"))}: ${esc(issueFiles(row))}</div>`).join("") || `<div class="detail-item">${esc(t("noOpen"))}</div>`}
+        </div>
+        <div class="card">
+          <h2>${esc(t("historyDistribution"))}</h2>
+          ${statusRows.map(([status, count]) => `<div class="file-row"><span>${esc(status)}</span><strong>${esc(count)}</strong><strong>${esc(t("total"))}</strong></div>`).join("") || `<div class="detail-item">${esc(t("none"))}</div>`}
+        </div>
+      `;
+
+      byId("sandboxDetailGrid").innerHTML = `
+        <div class="card">
+          <h2>${esc(t("activeWork"))}</h2>
+          ${active.map((row) => `<div class="detail-item"><strong>${esc(field(row, fields.task, "Task"))}</strong><br>${esc(t("status"))}: ${esc(field(row, fields.status, "unknown"))}<br>${esc(t("files"))}: ${esc(field(row, fields.files, t("none")))}<br>${esc(field(row, fields.notes, ""))}</div>`).join("") || `<div class="detail-item">${esc(t("none"))}</div>`}
+        </div>
+        <div class="card">
+          <h2>${esc(t("pathScale"))}</h2>
+          <div class="detail-item">${esc(t("pathScaleText"))}</div>
+          <div class="detail-item">${esc(data.iteration_direction?.current_direction || t("none"))}</div>
+        </div>
+      `;
+
+      const headings = data.iteration_direction?.headings || [];
+      byId("pathDetailList").innerHTML = headings.length ? headings.map((title, index) => `
+        <div class="path-node-detail ${index > 3 ? "abandoned" : ""}">
+          <h3>${esc(index + 1)}. ${esc(title)}</h3>
+          <div class="detail-item">${esc(index === 0 ? (data.iteration_direction?.current_direction || t("pathScaleText")) : t("pathScaleText"))}</div>
+        </div>
+      `).join("") : `<div class="detail-item">${esc(t("none"))}</div>`;
+    }
+
+    function route() {
+      const id = (location.hash || "#home").slice(1);
+      const target = document.getElementById(id) ? id : "home";
+      document.querySelectorAll(".screen").forEach((screen) => screen.classList.toggle("active", screen.id === target));
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    function setLang(next) {
+      lang = next;
+      localStorage.setItem("vibe-lens-language", lang);
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
+      document.querySelectorAll(".lang button").forEach((button) => button.classList.toggle("active", button.dataset.lang === lang));
+      renderAll();
+    }
+
+    function tipText(el) {
+      return lang === "zh" ? (el.dataset.tipZh || el.dataset.tip || "") : (el.dataset.tipEn || el.dataset.tip || "");
+    }
+
+    function setupTooltips() {
+      const tip = byId("floating-tip");
+      document.addEventListener("mousemove", (event) => {
+        const target = event.target.closest("[data-tip], [data-tip-zh], [data-tip-en]");
+        if (!target) {
+          tip.classList.remove("visible");
+          return;
+        }
+        const text = tipText(target);
+        if (!text) return;
+        tip.textContent = text;
+        tip.classList.add("visible");
+        const rect = tip.getBoundingClientRect();
+        const margin = 12;
+        let left = event.clientX + 14;
+        let top = event.clientY + 14;
+        if (left + rect.width + margin > window.innerWidth) left = event.clientX - rect.width - 14;
+        if (top + rect.height + margin > window.innerHeight) top = event.clientY - rect.height - 14;
+        left = Math.max(margin, Math.min(left, window.innerWidth - rect.width - margin));
+        top = Math.max(margin, Math.min(top, window.innerHeight - rect.height - margin));
+        tip.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+      });
+    }
+
+    function setupSettings() {
+      const settings = byId("setting-panel");
+      const openSettings = byId("open-settings");
+      const entryToggle = byId("entry-toggle");
+      const chatPreview = byId("chat-preview");
+      const stored = localStorage.getItem("vibe-lens-entry-enabled");
+      if (stored === "false") {
+        entryToggle.classList.remove("on");
+        chatPreview.querySelector(".skill-chip").style.display = "none";
+      }
+      openSettings.addEventListener("click", () => {
+        const isOpen = settings.classList.toggle("open");
+        settings.setAttribute("aria-hidden", String(!isOpen));
+      });
+      entryToggle.addEventListener("click", () => {
+        const isOn = entryToggle.classList.toggle("on");
+        localStorage.setItem("vibe-lens-entry-enabled", String(isOn));
+        chatPreview.querySelector(".skill-chip").style.display = isOn ? "inline-flex" : "none";
+      });
+    }
+
+    function setupPathControls() {
+      document.querySelectorAll("[data-path-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const action = button.dataset.pathAction;
+          const nodes = document.querySelectorAll(".path-node-detail");
+          if (action === "expand") nodes.forEach((node) => node.classList.remove("collapsed", "hidden"));
+          if (action === "collapse") nodes.forEach((node) => node.classList.add("collapsed"));
+          if (action === "main") nodes.forEach((node) => node.classList.toggle("hidden", node.classList.contains("abandoned")));
+          if (action === "abandoned") nodes.forEach((node) => node.classList.remove("hidden"));
+        });
+      });
+    }
+
+    function renderAll() {
+      renderOverview();
+      renderQuestions();
+      renderDiff();
+      renderSandboxAndEvidence();
+      renderDetails();
+    }
+
+    document.querySelectorAll(".lang button").forEach((button) => button.addEventListener("click", () => setLang(button.dataset.lang)));
+    window.addEventListener("hashchange", route);
+    setupTooltips();
+    setupSettings();
+    setupPathControls();
+    setLang(lang);
+    route();
   </script>
 </body>
 </html>

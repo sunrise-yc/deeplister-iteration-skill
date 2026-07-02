@@ -1,12 +1,12 @@
-# Installation Troubleshooting
+# 安装排错
 
-Updated: 2026-07-02
+更新时间：2026-07-03
 
-This guide is for first-time users of `vibe-lens-skill`.
+这份文档给第一次安装 `DL-vibe-lens-skill` 的用户看。
 
-## 1. Correct Install Location
+## 1. 先确认文件夹放对了
 
-Copy the whole `vibe-lens/` folder into your Codex skills directory.
+把整个 `vibe-lens/` 文件夹复制到 Codex skills 目录。
 
 Windows:
 
@@ -20,7 +20,7 @@ macOS / Linux:
 ~/.codex/skills/vibe-lens
 ```
 
-The final folder should directly contain:
+最终结构应该是：
 
 ```text
 vibe-lens/
@@ -31,55 +31,55 @@ vibe-lens/
   scripts/
 ```
 
-If the path looks like this, there is one folder too many and Codex may not discover the skill:
+如果路径变成这样，就多套了一层，Codex 可能发现不了：
 
 ```text
-~/.codex/skills/vibe-lens-skill/vibe-lens/SKILL.md
+~/.codex/skills/DL-vibe-lens-skill/vibe-lens/SKILL.md
 ```
 
-## 2. Codex Does Not Discover The Skill
+## 2. Codex 没发现 Skill
 
-Check:
+检查三件事：
 
-1. `SKILL.md` is directly inside `vibe-lens/`.
-2. Codex was restarted, or a new Codex session was opened.
-3. The prompt uses the correct skill name:
+1. `SKILL.md` 是否直接在 `vibe-lens/` 下面。
+2. 是否重启了 Codex，或者新开了一个对话。
+3. 提示词是否用了正确名字：
 
 ```text
-Use $vibe-lens to inspect the project record, Git diff, current questions, historical questions, iteration direction, and evidence trail without ranking or arranging tasks.
+Use $vibe-lens to initialize or inspect this project, generate the visual sandbox, and show questions, Git diff, evidence, conflict signals, and iteration path without ranking tasks.
 ```
 
-## 3. No Source Record Exists
+## 3. 没有记录文件
 
-Do not create the file by hand. Run the initializer:
+不要手动创建。运行：
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --init
 ```
 
-This creates:
+它会创建：
 
 ```text
 docs/iteration-record.md
 ```
 
-The generated file includes guardrails that explain which headings should not be renamed and why the lens should not rank work.
+生成的文件里会写清楚哪些标题不要改名，以及 Vibe Lens 为什么不替你排优先级。
 
-## 4. Snapshot Script Does Not Run
+## 4. 脚本跑不起来
 
-Make sure you are in the target project root, then run:
+先确认你在目标项目根目录里，再运行：
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root .
 ```
 
-To test this repository's example:
+如果只是想测试这个仓库自带的示例：
 
 ```powershell
 $env:PYTHONIOENCODING='utf-8'; python vibe-lens\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md
 ```
 
-Expected output should include:
+正常输出里应该能看到类似：
 
 ```text
 Questions: 3 total, 2 open
@@ -87,81 +87,81 @@ Code diff:
 Latest iteration:
 ```
 
-## 5. HTML Report Does Not Appear
+## 5. HTML 报告没出现
 
-Generate it explicitly:
+显式生成：
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --html
 ```
 
-By default this writes:
+默认会写到：
 
 ```text
 docs/vibe-lens-report.html
 ```
 
-Open that file in a browser. The first version is static HTML, not a hosted web app.
+这个文件可以直接用浏览器打开。第一阶段是静态 HTML，不是线上网站。
 
-## 6. Chinese Text Looks Broken In Windows Terminal
+## 6. Windows 终端中文乱码
 
-Sometimes the Windows terminal displays UTF-8 text with the wrong local encoding. First try:
+有时 PowerShell 只是显示编码不对，文件本身没坏。先运行：
 
 ```powershell
 $env:PYTHONIOENCODING='utf-8'
 ```
 
-Then run the snapshot command again.
+再重新跑 snapshot 命令。
 
-If the Markdown file itself looks normal in your editor, this is usually a terminal display issue, not file corruption.
+如果 Markdown 在编辑器里显示正常，那通常就是终端显示问题，不是文件损坏。
 
-## 7. Git Diff Numbers Look Unexpected
+## 7. Git diff 数字看起来不对
 
-Vibe Lens reads Git data. The numbers depend on the selected boundary.
+Vibe Lens 读取的是 Git 数据，数字取决于比较范围。
 
-Default behavior:
+默认规则：
 
-- If the repo has commits, compare the working tree against `HEAD`.
-- Show untracked files separately.
-- Show binary files without pretending line counts are available.
+- 如果仓库有 commit，就比较当前工作区和 `HEAD`。
+- 未跟踪文件会单独列出来。
+- 二进制文件不会假装有行数。
 
-To use a different boundary, pass `--diff-ref`:
+想指定比较范围，可以用：
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --diff-ref main
 ```
 
-## 8. Legacy Records
+## 8. 旧记录兼容
 
-The script still reads:
+脚本仍然能读：
 
 ```text
 docs/迭代记录.md
 ```
 
-It also understands older columns such as:
+也能读旧字段：
 
 ```md
 | ID | Issue | Impact | Priority | Status | Next Step |
 | 编号 | 问题 | 影响 | 优先级 | 状态 | 下一步 |
 ```
 
-`Priority` is displayed only as legacy metadata. It is not used to rank tasks.
+`Priority` 只当旧字段展示，不用于排序。
 
-## 9. What To Include In A GitHub Issue
+## 9. 提 Issue 时带什么
 
-If you are still stuck, include:
+如果还是卡住，建议带上：
 
-- Operating system: Windows / macOS / Linux
-- Codex surface: desktop app, CLI, IDE, or other
-- Install path
-- Command you ran
-- Terminal error or screenshot
-- A privacy-safe sample of `docs/iteration-record.md`
+- 操作系统：Windows / macOS / Linux
+- 使用环境：Codex 桌面版、CLI、IDE 或其他
+- 安装路径
+- 运行的命令
+- 终端报错或截图
+- 脱敏后的 `docs/iteration-record.md` 示例
 
-Use:
+Issue 类型建议：
 
-- `Installation problem` for setup issues.
-- `Bug report` for script, parsing, or report-generation issues.
-- `Feature request` for new capabilities.
-- `User story / use case` for real workflow feedback.
+- 安装问题：`Installation problem`
+- 脚本 / 解析 / 报告生成问题：`Bug report`
+- 新能力建议：`Feature request`
+- 真实使用场景反馈：`User story / use case`

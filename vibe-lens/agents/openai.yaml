@@ -1,4 +1,4 @@
 interface:
   display_name: "Vibe Lens"
-  short_description: "Visual review sandbox for messy AI-coding projects"
-  default_prompt: "Use $vibe-lens to inspect the project record, Git diff, current questions, historical questions, iteration direction, and evidence trail without ranking or arranging tasks."
+  short_description: "复盘沙盘：问题、代码差异、证据和路径"
+  default_prompt: "Use $vibe-lens to initialize or inspect this project, generate the visual sandbox, and show questions, Git diff, evidence, conflict signals, and iteration path without ranking tasks."

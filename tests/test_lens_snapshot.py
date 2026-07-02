@@ -118,6 +118,7 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertIn("## Active Work", text)
         self.assertIn("## Iteration Log", text)
         self.assertIn("Do not rename these headings", text)
+        self.assertIn("不要改名", text)
         self.assertIn("Do not rank issues", text)
 
     def test_generates_static_html_report(self):
@@ -142,8 +143,45 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertIn("Vibe Lens", html)
         self.assertIn("Current Questions", html)
         self.assertIn("Code Diff", html)
-        self.assertIn("Iteration Direction", html)
+        self.assertIn("Iteration Path", html)
         self.assertIn("Render visual sandbox", html)
+
+    def test_html_report_contains_confirmed_lens_interface(self):
+        self.write_record(
+            """# Vibe Lens Record
+
+## Issue Pool
+| ID | Issue | Source | Status | Evidence | Related Files |
+|---|---|---|---|---|---|
+| VL-001 | Keep the homepage compact | operator | open | User wants a stable board layout | README.md |
+| VL-002 | Show code diff with visual rings | operator | resolved | Git diff data exists | vibe-lens/scripts/lens_snapshot.py |
+
+## Active Work
+| Session | Task | Files Or Areas | Status | Notes |
+|---|---|---|---|---|
+| chat-a | Report template | vibe-lens/assets/report_template.html | in progress | Current UI work |
+
+## Iteration Log
+### 2026-07-03: Confirm homepage gateways
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        output = self.tmp / "lens-report.html"
+        lens_snapshot.write_html_report(snapshot, output)
+
+        html = output.read_text(encoding="utf-8")
+        self.assertIn('lang="zh-CN"', html)
+        self.assertIn("当前问题 / 任务", html)
+        self.assertIn("代码差异", html)
+        self.assertIn("沙盘演示", html)
+        self.assertIn("迭代路径", html)
+        self.assertIn('id="overview-detail"', html)
+        self.assertIn('id="sandbox-detail"', html)
+        self.assertIn('id="path-detail"', html)
+        self.assertIn("阶段刻度，不是日期", html)
+        self.assertIn("对话入口设置", html)
+        self.assertIn("打开 Vibe Lens", html)
 
     def test_falls_back_to_legacy_chinese_iteration_record(self):
         docs = self.tmp / "docs"
