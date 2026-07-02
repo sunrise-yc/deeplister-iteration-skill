@@ -2,38 +2,66 @@
 
 This roadmap keeps the project focused on one product promise:
 
-> Help beginner builders keep early project iterations organized in Markdown, so Codex can pick the next task and record what changed.
+> Show the state of a messy vibe-coding project as a visual review sandbox without ranking or arranging the work.
 
-## Priority Rules
+## Product Principles
 
-| Priority | Meaning | Example |
-| --- | --- | --- |
-| P0 | Blocks first successful use | Install path is unclear, Codex cannot discover the skill, snapshot script fails on the example record |
-| P1 | Makes regular use smoother | README explains prompts better, snapshot output is easier to read, fewer manual edits are needed |
-| P2 | Improves trust or promotion | Demo GIF, social preview, screenshots, more examples |
-| P3 | Long-term expansion | Notion sync, GitHub Issues sync, Claude Code variant, full generic rename |
+- Show facts before judgment.
+- Keep Agent advice separate from evidence.
+- Use Git for code-change statistics instead of AI guessing.
+- Keep first use automatic through `--init`.
+- Keep Markdown as the source record and HTML as the review surface.
 
-## Now
+## Stage 1: Review Sandbox
 
-- Upload `assets/social-preview.png` as the GitHub social preview image.
-- Record one short demo GIF or video from `docs/DEMO_SCRIPT.md`.
-- Publish the launch foundation branch so the README, Issue templates, screenshots, and docs are visible on GitHub.
+Current focus:
 
-## Next
+- Rename the public project direction from `vibe-iteration` to `vibe-lens`.
+- Generate `docs/iteration-record.md` automatically.
+- Read current and historical questions from the source record.
+- Collect Git diff statistics: added lines, deleted lines, changed files, and untracked files.
+- Generate a static HTML report with:
+  - project overview;
+  - current questions;
+  - historical questions;
+  - code diff visualization;
+  - iteration direction;
+  - evidence and verification trail;
+  - conflict signals.
+- Keep legacy DeepLister and `vibe-iteration` records readable.
 
-- Add `--record-path` as a friendlier alias for the existing `--record` option.
-- Add a guide for adapting the skill to a different project name.
-- Collect the first installation and README feedback through GitHub Issues.
+## Stage 1.5: Better Evidence
 
-## Later
+Next:
 
-- Consider a more generic `local-iteration-tracker` version.
-- Support richer issue statuses such as `进行中`, `阻塞`, and `已验证` in docs and examples.
-- Produce stable JSON output for other automation workflows.
-- Explore optional GitHub Issues or Notion integration after the local Markdown workflow is proven.
+- Add clearer examples for evidence and verification fields.
+- Improve conflict-signal display for multiple active AI sessions.
+- Add optional diff range selection examples.
+- Refresh screenshots and social preview to use the `vibe-lens` name.
+- Collect first install and report-generation feedback through GitHub Issues.
 
-## Not Planned Yet
+## Stage 2: Interactive Platform
 
-- A full Jira, Linear, or Notion replacement.
-- Team permissions, due dates, assignments, or burndown charts.
+Later:
+
+- Add a local interactive platform instead of only static HTML.
+- Allow filtering by status, source, file area, and iteration.
+- Let the operator arrange questions visually.
+- Let Agent suggestions appear in a separate layer from facts.
+- Detect possible conflicts from overlapping files, dependencies, and contradictory assumptions.
+- Require evidence links for every Agent arrangement suggestion.
+
+## Integrations To Consider
+
+- GitHub Issues and PR data.
+- Notion or Airtable exports.
+- Data Analytics dashboard rendering for richer charts.
+- Figma or static design artifacts for product-review presentations.
+
+## Not Planned For Stage 1
+
+- Automatic priority ranking.
+- Automatic task scheduling.
+- Team permissions, due dates, or assignments.
+- Jira, Linear, or Notion replacement.
 - Automatic code review or testing replacement.

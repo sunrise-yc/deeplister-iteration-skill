@@ -17,17 +17,24 @@ body:
     validations:
       required: true
   - type: textarea
+    id: messy_middle
+    attributes:
+      label: What made the project feel messy?
+      placeholder: "Too many questions / multiple AI chats / hard to review code changes / unclear direction..."
+    validations:
+      required: true
+  - type: textarea
     id: helped
     attributes:
       label: What did it help with?
-      placeholder: "It helped me choose the next task / keep an iteration log / reduce context explaining..."
+      placeholder: "It helped me see current questions / review Git diff / track active work / understand direction..."
     validations:
       required: true
   - type: textarea
     id: failed
     attributes:
       label: Where did it not help?
-      placeholder: "It picked the wrong task / the README was unclear / my record format did not parse..."
+      placeholder: "The report was unclear / my record format did not parse / it still felt too text-heavy..."
     validations:
       required: true
   - type: textarea
