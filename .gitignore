@@ -8,3 +8,4 @@ __pycache__/
 .gstack/
 .superpowers/
 docs/vibe-lens-report.html
+dist/redskill/DL-vibe-lens-skill/

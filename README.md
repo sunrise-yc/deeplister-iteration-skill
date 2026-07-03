@@ -8,6 +8,8 @@
 
 `Vibe Lens` 顾名思义，就是给 vibe coding 过程装上一枚复盘镜头。它不替你驾驶项目，而是把当前问题、历史问题、代码差异、证据和迭代路径聚焦出来，让人和 Agent 都能看清“现在局面长什么样”。
 
+功能图和 RedSkill 投稿材料见：[中文功能介绍](docs/FEATURE_INTRO_ZH.md)。
+
 ![安装快闪照](assets/quickstart-01-install.svg)
 
 ## 它解决什么问题
