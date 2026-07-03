@@ -730,12 +730,36 @@
       </a>
     </section>
 
-    <section id="overview-detail" class="screen">
+    <section id="current-detail" class="screen">
       <div class="detail-header">
-        <h1 data-i18n="overviewDetail">总览详情</h1>
+        <h1 data-i18n="currentDetail">当前问题</h1>
         <a class="back" href="#home" data-i18n="backHome">返回主页</a>
       </div>
-      <div class="detail-grid" id="overviewDetailGrid"></div>
+      <div class="detail-grid" id="currentDetailGrid"></div>
+    </section>
+
+    <section id="history-detail" class="screen">
+      <div class="detail-header">
+        <h1 data-i18n="historyDetail">历史问题</h1>
+        <a class="back" href="#home" data-i18n="backHome">返回主页</a>
+      </div>
+      <div class="detail-grid" id="historyDetailGrid"></div>
+    </section>
+
+    <section id="files-detail" class="screen">
+      <div class="detail-header">
+        <h1 data-i18n="filesDetail">变更文件</h1>
+        <a class="back" href="#home" data-i18n="backHome">返回主页</a>
+      </div>
+      <div class="detail-grid" id="filesDetailGrid"></div>
+    </section>
+
+    <section id="code-detail" class="screen">
+      <div class="detail-header">
+        <h1 data-i18n="codeDetail">代码变化</h1>
+        <a class="back" href="#home" data-i18n="backHome">返回主页</a>
+      </div>
+      <div class="detail-grid" id="codeDetailGrid"></div>
     </section>
 
     <section id="sandbox-detail" class="screen">
@@ -823,7 +847,10 @@
         step2: "S2 方向切换",
         step3: "S3 代码变化",
         step4: "S4 验证证据",
-        overviewDetail: "总览详情",
+        currentDetail: "当前问题",
+        historyDetail: "历史问题",
+        filesDetail: "变更文件",
+        codeDetail: "代码变化",
         sandboxDetail: "完整沙盘演示",
         pathDetail: "详尽迭代路径",
         backHome: "返回主页",
@@ -848,6 +875,8 @@
         changedFiles: "变更文件",
         addedLines: "新增行",
         deletedLines: "删除行",
+        untrackedFiles: "未跟踪文件",
+        fileStatus: "文件状态",
         codeChange: "代码变化",
         status: "状态",
         evidence: "证据",
@@ -888,7 +917,10 @@
         step2: "S2 Direction shift",
         step3: "S3 Code changes",
         step4: "S4 Verify evidence",
-        overviewDetail: "Overview Details",
+        currentDetail: "Current Questions",
+        historyDetail: "Historical Questions",
+        filesDetail: "Changed Files",
+        codeDetail: "Code Change",
         sandboxDetail: "Full Sandbox Replay",
         pathDetail: "Detailed Iteration Path",
         backHome: "Back home",
@@ -913,6 +945,8 @@
         changedFiles: "Changed files",
         addedLines: "Added lines",
         deletedLines: "Deleted lines",
+        untrackedFiles: "Untracked files",
+        fileStatus: "File status",
         codeChange: "Code churn",
         status: "Status",
         evidence: "Evidence",
@@ -980,10 +1014,10 @@
     function renderOverview() {
       const diff = data.git_diff || {};
       const metrics = [
-        ["openQuestions", data.open_question_count, "overview-detail"],
-        ["totalQuestions", data.issue_count, "overview-detail"],
-        ["changedFiles", diff.changed_file_count || 0, "overview-detail"],
-        ["codeChange", `+${diff.total_added || 0} / -${diff.total_deleted || 0}`, "overview-detail"],
+        ["openQuestions", data.open_question_count, "current-detail"],
+        ["totalQuestions", data.issue_count, "history-detail"],
+        ["changedFiles", diff.changed_file_count || 0, "files-detail"],
+        ["codeChange", `+${diff.total_added || 0} / -${diff.total_deleted || 0}`, "code-detail"],
       ];
       byId("overview").innerHTML = metrics.map(([label, value, target]) => `
         <a class="metric" href="#${target}" data-tip-zh="${esc(t("openDetailTip"))}" data-tip-en="${esc(labels.en.openDetailTip)}">
@@ -1070,15 +1104,49 @@
     function renderDetails() {
       const issues = data.issues || [];
       const active = data.active_work || [];
+      const diff = data.git_diff || {};
+      const files = diff.files || [];
       const statusRows = Object.entries(data.question_counts || {});
-      byId("overviewDetailGrid").innerHTML = `
+      byId("currentDetailGrid").innerHTML = `
         <div class="card">
           <h2>${esc(t("currentQuestions"))}</h2>
           ${(data.open_questions || []).map((row) => `<div class="detail-item"><strong>${esc(issueId(row))}: ${esc(issueTitle(row))}</strong><br>${esc(t("status"))}: ${esc(issueStatus(row))}<br>${esc(t("evidence"))}: ${esc(issueEvidence(row))}<br>${esc(t("files"))}: ${esc(issueFiles(row))}</div>`).join("") || `<div class="detail-item">${esc(t("noOpen"))}</div>`}
         </div>
+      `;
+
+      byId("historyDetailGrid").innerHTML = `
         <div class="card">
           <h2>${esc(t("historyDistribution"))}</h2>
           ${statusRows.map(([status, count]) => `<div class="file-row"><span>${esc(status)}</span><strong>${esc(count)}</strong><strong>${esc(t("total"))}</strong></div>`).join("") || `<div class="detail-item">${esc(t("none"))}</div>`}
+        </div>
+        <div class="card">
+          <h2>${esc(t("totalQuestions"))}</h2>
+          ${issues.map((row) => `<div class="detail-item"><strong>${esc(issueId(row))}: ${esc(issueTitle(row))}</strong><br>${esc(t("status"))}: ${esc(issueStatus(row))}<br>${esc(t("evidence"))}: ${esc(issueEvidence(row))}</div>`).join("") || `<div class="detail-item">${esc(t("none"))}</div>`}
+        </div>
+      `;
+
+      byId("filesDetailGrid").innerHTML = `
+        <div class="card">
+          <h2>${esc(t("changedFiles"))}</h2>
+          ${files.map((file) => `<div class="file-row"><span class="mono">${esc(file.path)}</span><strong class="added">+${esc(file.added ?? "bin")}</strong><strong class="deleted">-${esc(file.deleted ?? "bin")}</strong></div>`).join("") || `<div class="detail-item">${esc(t("noDiff"))}</div>`}
+        </div>
+        <div class="card">
+          <h2>${esc(t("untrackedFiles"))}</h2>
+          ${(diff.untracked_files || []).map((file) => `<div class="detail-item mono">${esc(file)}</div>`).join("") || `<div class="detail-item">${esc(t("none"))}</div>`}
+        </div>
+      `;
+
+      byId("codeDetailGrid").innerHTML = `
+        <div class="card">
+          <h2>${esc(t("codeChange"))}</h2>
+          <div class="file-row"><span>${esc(t("addedLines"))}</span><strong class="added">+${esc(diff.total_added || 0)}</strong><strong></strong></div>
+          <div class="file-row"><span>${esc(t("deletedLines"))}</span><strong class="deleted">-${esc(diff.total_deleted || 0)}</strong><strong></strong></div>
+          <div class="file-row"><span>${esc(t("changedFiles"))}</span><strong>${esc(diff.changed_file_count || 0)}</strong><strong>${esc(t("total"))}</strong></div>
+          <div class="file-row"><span>${esc(t("untrackedFiles"))}</span><strong>${esc((diff.untracked_files || []).length)}</strong><strong>${esc(t("total"))}</strong></div>
+        </div>
+        <div class="card">
+          <h2>${esc(t("fileStatus"))}</h2>
+          ${(diff.status || []).map((row) => `<div class="file-row"><span class="mono">${esc(row.path)}</span><strong>${esc(row.status)}</strong><strong></strong></div>`).join("") || `<div class="detail-item">${esc(t("none"))}</div>`}
         </div>
       `;
 
@@ -1163,9 +1231,17 @@
         chatPreview.querySelector(".skill-chip").style.display = mode === "off" ? "none" : "inline-flex";
       }
 
-      openSettings.addEventListener("click", () => {
+      openSettings.addEventListener("click", (event) => {
+        event.stopPropagation();
         const isOpen = settings.classList.toggle("open");
         settings.setAttribute("aria-hidden", String(!isOpen));
+      });
+      settings.addEventListener("click", (event) => event.stopPropagation());
+      document.addEventListener("click", (event) => {
+        if (!settings.classList.contains("open")) return;
+        if (settings.contains(event.target) || openSettings.contains(event.target)) return;
+        settings.classList.remove("open");
+        settings.setAttribute("aria-hidden", "true");
       });
       modeButtons.forEach((button) => {
         button.addEventListener("click", () => setEntryMode(button.dataset.entryMode || "always"));
