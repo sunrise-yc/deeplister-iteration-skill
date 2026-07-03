@@ -1,106 +1,141 @@
 ---
 name: dl-vibe-lens-skill
-description: Use when a vibe-coding project needs a review sandbox, retrospective, issue history view, Git diff visualization, iteration direction map, evidence trail, verification trail, or neutral conflict signals across AI coding sessions.
+description: 当 vibe-coding 项目需要复盘沙盘、问题历史、Git diff 可视化、迭代路径、证据链、验证记录，或多个 AI coding 会话之间的中性冲突线索时使用。
 ---
 
 # DL Vibe Lens Skill
 
-## Overview
+## 定位
 
-Turn a messy vibe-coding project into a neutral review sandbox. `DL` points back to DeepLister, where this workflow started. `Vibe Lens` means a lens over vibe coding: it focuses scattered questions, Git diff statistics, iteration path, evidence, verification, and conflict signals so the operator and Agent can see the situation clearly. It does not rank tasks, assign weights, or decide what the operator must do next.
+把已经变得混乱的 vibe-coding 项目，整理成一个中性的复盘沙盘。
 
-The default source record is `docs/iteration-record.md`; the default project settings file is `docs/vibe-lens-settings.json`; the legacy Chinese path `docs/迭代记录.md` is still readable. Use `references/lens-record-format.md` only when the record format needs explanation.
+`DL` 指向 DeepLister：这个工作流最早是在 DeepLister 项目进入中后期、问题开始堆叠时长出来的。`Vibe Lens` 可以理解为给 vibe coding 过程装上一枚镜头：把散落的问题、Git diff 统计、迭代路径、证据、验证记录和冲突线索聚焦出来，让操作者和 Agent 看清局面。
 
-## Quick Start
+它不做任务排序，不施加权重，不替操作者决定下一步必须做什么。
 
-1. Confirm you are in the project root.
-2. If the record is missing, initialize it instead of asking the user to hand-build a file:
+默认记录文件是：
+
+```text
+docs/iteration-record.md
+```
+
+默认设置文件是：
+
+```text
+docs/vibe-lens-settings.json
+```
+
+旧中文路径仍可读取：
+
+```text
+docs/迭代记录.md
+```
+
+只有在需要解释记录格式时，才读取：
+
+```text
+references/lens-record-format.md
+```
+
+## 快速开始
+
+1. 确认当前目录是项目根目录。
+
+2. 如果记录文件不存在，直接初始化，不要让第一次使用的人手动从零创建文件：
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py" --project-root . --init
 ```
 
-3. Read the current state:
+3. 读取当前项目状态：
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py" --project-root .
 ```
 
-4. Generate the visual sandbox:
+4. 生成可视化复盘沙盘：
 
 ```powershell
 python "$env:USERPROFILE\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py" --project-root . --html
 ```
 
-5. Tell the user where the HTML was written, usually `docs/vibe-lens-report.html`.
-6. Before the final reply, read `docs/vibe-lens-settings.json` when it exists. If `reply_entry_mode` is `"always"`, append a compact Vibe Lens entry. If it is `"when_used"`, append the entry only when this turn used Vibe Lens. If it is `"off"`, do not append it.
+5. 告诉用户 HTML 写到了哪里，通常是：
 
-## Guardrails
+```text
+docs/vibe-lens-report.html
+```
 
-- Display evidence; do not impose priority.
-- Treat `Priority` as legacy descriptive metadata only.
-- Do not choose the next task unless the user explicitly asks for an agent judgment.
-- If asked for a recommendation, separate facts from judgment: first summarize the lens evidence, then label any advice as the agent's interpretation.
-- Show possible conflicts as signals, not as scheduling commands.
-- Keep Markdown as the source record and HTML as the review surface.
-- Do not ask first-time users to manually create the record file; run `--init`.
+6. 最终回复前读取 `docs/vibe-lens-settings.json`。如果 `reply_entry_mode` 是 `"always"`，在回复末尾追加简约 Vibe Lens 入口；如果是 `"when_used"`，只有本轮使用了 Vibe Lens 才追加；如果是 `"off"`，不要追加。
 
-## What To Show
+## 使用边界
 
-Use the snapshot and optional HTML report to surface:
+- 展示证据，不施加优先级。
+- `Priority` 只当旧字段或描述性元数据，不当命令。
+- 除非用户明确要求 Agent 判断，否则不要替用户选择下一步任务。
+- 如果用户要求建议，先展示 Vibe Lens 看到的事实，再明确标注“以下是 Agent 判断”。
+- 冲突只展示为线索，不展示成排期命令。
+- Markdown 记录是数据源，HTML 报告是主要阅读界面。
+- 第一次使用不要让用户手动建文件，运行 `--init`。
 
-- Current questions raised by the operator or Agent.
-- Historical questions and iteration headings.
-- Git diff statistics: added/deleted lines, changed files, untracked files.
-- Iteration path from recent log entries and product-direction notes.
-- Evidence and verification trails from record rows, follow-up notes, and Git state.
-- Conflict signals from active sessions touching the same files or areas.
+## 应该展示什么
 
-## HTML Report Behavior
+使用 snapshot 和 HTML 报告展示这些信息：
 
-The generated report should be the primary review surface when the user asks to see the state visually.
+- 操作者和 Agent 当前提出的问题。
+- 历史问题和历史迭代标题。
+- Git diff 统计：新增行、删除行、变更文件、未跟踪文件。
+- 从迭代记录和产品方向中整理出的迭代路径。
+- 来自记录行、追问记录和 Git 状态的证据链与验证线索。
+- 多个会话碰到同一文件或区域时产生的中性冲突线索。
 
-- Default to Chinese UI, with an English toggle in the report.
-- Keep the homepage compact: overview metrics, current questions, code diff, sandbox replay, evidence/conflict signals, and iteration path.
-- Let overview, sandbox replay, and iteration path jump to detail pages.
-- Use hover tooltips for titles, rings, progress bars, path nodes, and settings.
-- Show Git diff as a ring and file rows. Git is the evidence source; do not invent line counts.
-- Show the homepage path as broad stages. The vertical lines are stage marks, not exact dates.
-- Include the conversation-entry setting panel. In a project that has enabled DL Vibe Lens, the default mode appends a compact `Open Vibe Lens` entry at the end of every Agent reply. If the operator says "do not show the Vibe Lens entry this turn", do not append it for that turn. If the operator disables it persistently, respect the project setting.
-- The compact entry should be a Markdown link such as `[⌕ Vibe Lens](...)` or `[Vibe Lens](...)`, not a raw long URL.
-- The static HTML setting panel is a display aid. Persistent reply behavior must come from the user prompt or `docs/vibe-lens-settings.json`.
+## HTML 报告行为
 
-## Record Update Rules
+当用户要求可视化、复盘、review、dashboard 或沙盘时，HTML 报告应该作为主要展示界面。
 
-After meaningful work, update the record as evidence for the next review:
+- 默认中文界面，同时保留英文切换。
+- 主页保持紧凑：总览指标、当前问题、代码差异、沙盘演示、证据/冲突线索、迭代路径。
+- 总览、沙盘演示、迭代路径都可以进入对应详情页。
+- 标题、圆环、进度条、路径节点和设置项应有鼠标悬浮解释。
+- Git diff 用圆环和文件行展示；Git 是证据来源，不要编造行数。
+- 主页迭代路径展示大阶段；竖线是阶段刻度，不是精确日期。
+- 包含对话入口设置面板。项目启用 DL Vibe Lens 后，默认可在每轮 Agent 回复末尾附带一个简约入口。
+- 如果操作者说“本轮不要显示 Vibe Lens 入口”，本轮不要追加入口。
+- 如果操作者持久关闭入口，要尊重项目设置。
+- 入口应该是 Markdown 简约链接，例如 `[⌕ Vibe Lens](...)` 或 `[Vibe Lens](...)`，不要贴很长的裸 URL。
+- 静态 HTML 里的设置面板只是展示辅助；真正持久生效的设置来自用户提示词或 `docs/vibe-lens-settings.json`。
 
-- Add or update rows in `## Issue Pool` for current and historical questions.
-- Update `## Active Work` when another session needs to see touched files or areas.
-- Add a dated entry under `## Iteration Log`.
-- New records and new rows should follow the current conversation language unless the operator explicitly asks for another language.
-- Existing English rows should not be silently machine-translated in the HTML report; translate and write back only when the operator asks.
-- Record evidence, verification, unfinished uncertainty, and changed files.
-- Keep any recommendation language out of the record unless it is clearly labeled as an operator or Agent opinion.
-- Keep unresolved design/product ideas in the record or roadmap as future optimization, not as hidden behavior.
+## 记录更新规则
 
-## Verification
+完成有意义的工作后，更新记录，让下一次复盘有证据：
 
-Before claiming the lens view is ready:
+- 在 `## 问题池` 中新增或更新当前问题和历史问题。
+- 当另一个会话需要看到可能涉及的文件或区域时，更新 `## 当前工作`。
+- 在 `## 迭代记录` 下添加带日期的条目。
+- 新记录和新增条目默认跟随当前对话语言，除非操作者明确要求另一种语言。
+- HTML 报告不要偷偷把源记录里的英文条目机器翻译后展示。
+- 如果已有英文条目需要中文化，必须明确执行“翻译并写回记录”或“生成翻译缓存”。
+- 记录证据、验证、未完成的不确定性和改动文件。
+- 不要把建议写成事实。如果必须记录建议，要标成“Agent 判断”或“操作者决策”。
+- 未完成的设计或产品想法放进记录或路线图，不能变成隐藏行为。
 
-1. Run the smallest relevant test or command for the change.
-2. Run the snapshot helper again to confirm the record is readable.
-3. Generate the HTML report when visual review is part of the task.
-4. If HTML behavior changed, open the report and verify the expected screens, jumps, language toggle, and settings panel.
-5. Mention any verification that could not be run.
+## 验证
 
-## Common Mistakes
+声称 Lens 视图已经就绪前，至少做这些检查：
 
-| Mistake | Fix |
+1. 运行与改动相关的最小测试或命令。
+2. 再跑一次 snapshot helper，确认记录仍能读取。
+3. 如果视觉复盘是本轮需求，重新生成 HTML 报告。
+4. 如果 HTML 行为有变化，打开报告确认页面跳转、语言切换、设置面板和核心交互。
+5. 说清楚哪些验证没能运行。
+
+## 常见错误
+
+| 错误 | 正确做法 |
 |---|---|
-| Starting from chat memory only | Run the snapshot first |
-| Treating `Priority` as an instruction | Treat it as legacy metadata |
-| Saying what must be done next | Show facts; label any advice as agent judgment |
-| Updating code but not evidence | Update the record with changed files and verification |
-| Manually creating the record from scratch | Use `--init` |
-| Keeping everything in Markdown | Generate the HTML report for visual review |
-| Showing a long raw report URL in replies | Use a compact Markdown entry such as `Open Vibe Lens` |
+| 只靠聊天记忆开始分析 | 先运行 snapshot |
+| 把 `Priority` 当命令 | 只当旧元数据展示 |
+| 直接告诉用户必须先做什么 | 先展示事实；建议要标注为 Agent 判断 |
+| 改了代码但没更新证据 | 把改动文件和验证写进记录 |
+| 第一次使用还让用户手动建记录 | 用 `--init` 初始化 |
+| 所有内容都塞进 Markdown | 需要视觉复盘时生成 HTML 报告 |
+| 回复里贴很长的裸链接 | 用 `[⌕ Vibe Lens](...)` 这样的简约入口 |

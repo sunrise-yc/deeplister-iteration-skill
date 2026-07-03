@@ -152,6 +152,21 @@ assets/feature-05-path-detail.png
 assets/feature-06-entry-settings.png
 ```
 
+## 小红书分步功能图
+
+已经生成一套 6 张竖版介绍图，适合按顺序发布到小红书：
+
+```text
+assets/xhs/01-cover-review-sandbox.png
+assets/xhs/02-home-overview.png
+assets/xhs/03-issues-history.png
+assets/xhs/04-git-diff.png
+assets/xhs/05-evidence-path.png
+assets/xhs/06-quick-start-star.png
+```
+
+这组图使用当前 HTML 报告的真实界面截图作为素材，并在每张图底部加入 GitHub 仓库地址和求 Star 文案。
+
 推荐正文：
 
 ```text
