@@ -60,7 +60,7 @@ Vibe Lens 把项目记录和 Git diff 变成一个复盘沙盘：当前问题、
 
 | 天数 | 动作 | 产出 |
 |---|---|---|
-| 1 | 完成封装和 README | `vibe-lens/`、中文 README、快闪照 |
+| 1 | 完成封装和 README | `dl-vibe-lens-skill/`、中文 README、快闪照 |
 | 2 | 刷新社交预览图 | 正确项目名和核心界面 |
 | 3 | 录 60 秒演示 | 展示 `--init -> snapshot -> HTML report` |
 | 4 | 推送 GitHub | README、Roadmap、排错文档 |

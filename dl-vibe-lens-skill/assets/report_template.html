@@ -268,6 +268,66 @@
     .file-row strong { text-align: right; }
     .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
 
+    .diff-card {
+      height: 326px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .diff-body {
+      display: grid;
+      grid-template-columns: 176px 1fr;
+      gap: 14px;
+      align-items: center;
+      min-height: 186px;
+      flex: 0 0 auto;
+    }
+
+    .diff-card .big-donut { margin: 0; }
+
+    .diff-stats {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .diff-stat {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #f8fafc;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .diff-stat strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+
+    .diff-stat.added strong,
+    .diff-file-list .added { color: var(--green); }
+
+    .diff-stat.deleted strong,
+    .diff-file-list .deleted { color: var(--red); }
+
+    .diff-stat.files strong { color: var(--muted); }
+
+    .diff-file-list {
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(100,116,139,.34) transparent;
+    }
+
+    .diff-file-list::-webkit-scrollbar { width: 6px; }
+    .diff-file-list::-webkit-scrollbar-track { background: transparent; }
+    .diff-file-list::-webkit-scrollbar-thumb { background: rgba(100,116,139,.26); border-radius: 999px; }
+
     .sandbox-mini { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
     .steps { display: grid; gap: 8px; }
     .step {
@@ -484,6 +544,42 @@
     .switch.on { background: var(--ink); border-color: var(--ink); }
     .switch.on::before { transform: translateX(18px); }
 
+    .entry-modes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      min-width: 168px;
+    }
+
+    .entry-mode {
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      background: #fff;
+      color: #475569;
+      padding: 5px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .entry-mode.active {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .setting-note {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #f8fafc;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
     .chat-preview {
       border: 1px solid #e2e8f0;
       border-radius: 8px;
@@ -564,13 +660,16 @@
           <div class="question-list" id="currentQuestions"></div>
         </div>
 
-        <div class="card">
+        <div class="card diff-card">
           <div class="title-row">
             <h2 data-i18n="diffTitle">代码差异</h2>
             <span class="help-dot" data-tip-zh="代码差异来自 Git diff，不是 AI 猜测。圆环表示新增与删除的大致比例。" data-tip-en="Code diff comes from Git, not AI guessing. The ring shows added versus deleted lines.">?</span>
           </div>
-          <div class="big-donut" id="diffDonut" data-tip-zh="" data-tip-en=""><strong id="diffDonutText">+0 / -0</strong></div>
-          <div id="diffFiles"></div>
+          <div class="diff-body">
+            <div class="big-donut" id="diffDonut" data-tip-zh="" data-tip-en=""><strong id="diffDonutText"></strong></div>
+            <div class="diff-stats" id="diffStats"></div>
+          </div>
+          <div class="diff-file-list" id="diffFiles"></div>
         </div>
       </div>
 
@@ -668,14 +767,19 @@
 
   <div class="setting-panel" id="setting-panel" aria-hidden="true">
     <h3 data-i18n="entrySettings">对话入口设置</h3>
-    <p data-i18n="entryIntro">启用后，agent 在使用 Vibe Lens 时，可以在回复末尾附带一个简约入口。也可以在提示词里说“本轮不要显示 Vibe Lens 入口”临时关闭。</p>
-    <div class="toggle-row">
+    <p data-i18n="entryIntro">默认每轮回复末尾显示入口，方便随时打开复盘沙盘。也可以在提示词里说“本轮不要显示 Vibe Lens 入口”临时关闭，或在项目设置里改为只在使用时显示/关闭。</p>
+    <div class="toggle-row" data-setting-key="reply_entry_mode">
       <div>
         <strong data-i18n="entryToggleTitle">回复末尾显示入口</strong>
         <p data-i18n="entryToggleSub">用于随时打开复盘沙盘，不影响正文。</p>
       </div>
-      <button class="switch on" id="entry-toggle" type="button" aria-label="切换对话入口显示"></button>
+      <div class="entry-modes" role="radiogroup" aria-label="reply_entry_mode">
+        <button class="entry-mode active" type="button" data-entry-mode="always" data-i18n="entryModeAlways">每轮</button>
+        <button class="entry-mode" type="button" data-entry-mode="when_used" data-i18n="entryModeWhenUsed">使用时</button>
+        <button class="entry-mode" type="button" data-entry-mode="off" data-i18n="entryModeOff">关闭</button>
+      </div>
     </div>
+    <div class="setting-note" data-i18n="entryPersistNote">持久行为以项目设置文件或明确提示词为准；静态页面里的选择只影响这里的预览。</div>
     <div class="chat-preview" id="chat-preview">
       <div data-i18n="chatPreview">本轮已记录问题和代码差异。</div>
       <a class="skill-chip" href="#home"><span class="lens-icon"></span><span data-i18n="openLens">打开 Vibe Lens</span></a>
@@ -730,14 +834,20 @@
         mainOnly: "只看主线",
         showAbandoned: "显示放弃路径",
         entrySettings: "对话入口设置",
-        entryIntro: "启用后，agent 在使用 Vibe Lens 时，可以在回复末尾附带一个简约入口。也可以在提示词里说“本轮不要显示 Vibe Lens 入口”临时关闭。",
+        entryIntro: "默认每轮回复末尾显示入口，方便随时打开复盘沙盘。也可以在提示词里说“本轮不要显示 Vibe Lens 入口”临时关闭，或在项目设置里改为只在使用时显示/关闭。",
         entryToggleTitle: "回复末尾显示入口",
-        entryToggleSub: "用于随时打开复盘沙盘，不影响正文。",
+        entryToggleSub: "项目设置支持三种模式。",
+        entryModeAlways: "每轮",
+        entryModeWhenUsed: "使用时",
+        entryModeOff: "关闭",
+        entryPersistNote: "持久行为以项目设置文件或明确提示词为准；静态页面里的选择只影响这里的预览。",
         chatPreview: "本轮已记录问题和代码差异。",
         openLens: "打开 Vibe Lens",
         totalQuestions: "历史问题",
         openQuestions: "当前问题",
         changedFiles: "变更文件",
+        addedLines: "新增行",
+        deletedLines: "删除行",
         codeChange: "代码变化",
         status: "状态",
         evidence: "证据",
@@ -789,14 +899,20 @@
         mainOnly: "Mainline only",
         showAbandoned: "Show abandoned paths",
         entrySettings: "Conversation Entry Settings",
-        entryIntro: "When enabled, an agent using Vibe Lens may append a compact shortcut at the end of replies. The user can also say “do not show the Vibe Lens entry this turn.”",
+        entryIntro: "By default, enabled projects show a compact entry at the end of every agent reply. The user can also say “do not show the Vibe Lens entry this turn,” or change the project setting to when-used/off.",
         entryToggleTitle: "Show entry at reply end",
-        entryToggleSub: "Keeps the review sandbox one click away without changing the main answer.",
+        entryToggleSub: "Project settings support three modes.",
+        entryModeAlways: "Always",
+        entryModeWhenUsed: "When used",
+        entryModeOff: "Off",
+        entryPersistNote: "Persistent behavior follows the project settings file or explicit prompts; this static page only changes the preview.",
         chatPreview: "This turn recorded questions and code diff.",
         openLens: "Open Vibe Lens",
         totalQuestions: "Historical questions",
         openQuestions: "Current questions",
         changedFiles: "Changed files",
+        addedLines: "Added lines",
+        deletedLines: "Deleted lines",
         codeChange: "Code churn",
         status: "Status",
         evidence: "Evidence",
@@ -919,13 +1035,18 @@
       donut.style.background = `conic-gradient(var(--green) 0 ${addedPct}, var(--red) ${addedPct} calc(${addedPct} + ${deletedPct}), #cbd5e1 0 100%)`;
       donut.dataset.tipZh = `Git diff：新增 +${diff.total_added || 0}，删除 -${diff.total_deleted || 0}，tracked 文件 ${diff.changed_file_count || 0} 个。`;
       donut.dataset.tipEn = `Git diff: +${diff.total_added || 0}, -${diff.total_deleted || 0}, ${diff.changed_file_count || 0} tracked files.`;
-      byId("diffDonutText").textContent = `+${diff.total_added || 0}\n-${diff.total_deleted || 0}`;
-      const files = (diff.files || []).slice(0, 6);
+      byId("diffDonutText").textContent = "";
+      byId("diffStats").innerHTML = `
+        <div class="diff-stat added"><span>${esc(t("addedLines"))}</span><strong>+${esc(diff.total_added || 0)}</strong></div>
+        <div class="diff-stat deleted"><span>${esc(t("deletedLines"))}</span><strong>-${esc(diff.total_deleted || 0)}</strong></div>
+        <div class="diff-stat files"><span>${esc(t("changedFiles"))}</span><strong>${esc(diff.changed_file_count || 0)}</strong></div>
+      `;
+      const files = diff.files || [];
       byId("diffFiles").innerHTML = files.length ? files.map((file) => `
         <div class="file-row">
           <span class="mono">${esc(file.path)}</span>
-          <strong>+${esc(file.added ?? "bin")}</strong>
-          <strong>-${esc(file.deleted ?? "bin")}</strong>
+          <strong class="added">+${esc(file.added ?? "bin")}</strong>
+          <strong class="deleted">-${esc(file.deleted ?? "bin")}</strong>
         </div>
       `).join("") : `<div class="detail-item">${esc(t("noDiff"))}</div>`;
     }
@@ -1029,22 +1150,27 @@
     function setupSettings() {
       const settings = byId("setting-panel");
       const openSettings = byId("open-settings");
-      const entryToggle = byId("entry-toggle");
       const chatPreview = byId("chat-preview");
-      const stored = localStorage.getItem("vibe-lens-entry-enabled");
-      if (stored === "false") {
-        entryToggle.classList.remove("on");
-        chatPreview.querySelector(".skill-chip").style.display = "none";
+      const modeButtons = [...document.querySelectorAll("[data-entry-mode]")];
+      const configuredMode = data.settings?.reply_entry_mode || "always";
+      const legacyEnabled = localStorage.getItem("vibe-lens-entry-enabled");
+      const storedMode = localStorage.getItem("vibe-lens-entry-mode");
+      const initialMode = storedMode || (legacyEnabled === "false" ? "off" : configuredMode);
+
+      function setEntryMode(mode) {
+        modeButtons.forEach((button) => button.classList.toggle("active", button.dataset.entryMode === mode));
+        localStorage.setItem("vibe-lens-entry-mode", mode);
+        chatPreview.querySelector(".skill-chip").style.display = mode === "off" ? "none" : "inline-flex";
       }
+
       openSettings.addEventListener("click", () => {
         const isOpen = settings.classList.toggle("open");
         settings.setAttribute("aria-hidden", String(!isOpen));
       });
-      entryToggle.addEventListener("click", () => {
-        const isOn = entryToggle.classList.toggle("on");
-        localStorage.setItem("vibe-lens-entry-enabled", String(isOn));
-        chatPreview.querySelector(".skill-chip").style.display = isOn ? "inline-flex" : "none";
+      modeButtons.forEach((button) => {
+        button.addEventListener("click", () => setEntryMode(button.dataset.entryMode || "always"));
       });
+      setEntryMode(initialMode);
     }
 
     function setupPathControls() {

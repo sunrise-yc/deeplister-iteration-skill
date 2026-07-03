@@ -6,24 +6,24 @@
 
 ## 1. 先确认文件夹放对了
 
-把整个 `vibe-lens/` 文件夹复制到 Codex skills 目录。
+把整个 `dl-vibe-lens-skill/` 文件夹复制到 Codex skills 目录。
 
 Windows:
 
 ```text
-C:\Users\<your-user>\.codex\skills\vibe-lens
+C:\Users\<your-user>\.codex\skills\dl-vibe-lens-skill
 ```
 
 macOS / Linux:
 
 ```text
-~/.codex/skills/vibe-lens
+~/.codex/skills/dl-vibe-lens-skill
 ```
 
 最终结构应该是：
 
 ```text
-vibe-lens/
+dl-vibe-lens-skill/
   SKILL.md
   agents/
   assets/
@@ -34,19 +34,19 @@ vibe-lens/
 如果路径变成这样，就多套了一层，Codex 可能发现不了：
 
 ```text
-~/.codex/skills/DL-vibe-lens-skill/vibe-lens/SKILL.md
+~/.codex/skills/DL-vibe-lens-skill/dl-vibe-lens-skill/SKILL.md
 ```
 
 ## 2. Codex 没发现 Skill
 
 检查三件事：
 
-1. `SKILL.md` 是否直接在 `vibe-lens/` 下面。
+1. `SKILL.md` 是否直接在 `dl-vibe-lens-skill/` 下面。
 2. 是否重启了 Codex，或者新开了一个对话。
 3. 提示词是否用了正确名字：
 
 ```text
-Use $vibe-lens to initialize or inspect this project, generate the visual sandbox, and show questions, Git diff, evidence, conflict signals, and iteration path without ranking tasks.
+Use $dl-vibe-lens-skill to initialize or inspect this project, generate the visual sandbox, and show questions, Git diff, evidence, conflict signals, and iteration path without ranking tasks.
 ```
 
 ## 3. 没有记录文件
@@ -54,29 +54,31 @@ Use $vibe-lens to initialize or inspect this project, generate the visual sandbo
 不要手动创建。运行：
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --init
+python "$env:USERPROFILE\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py" --project-root . --init
 ```
 
 它会创建：
 
 ```text
 docs/iteration-record.md
+docs/vibe-lens-settings.json
 ```
 
 生成的文件里会写清楚哪些标题不要改名，以及 Vibe Lens 为什么不替你排优先级。
+设置文件里会默认写入 `reply_entry_mode: "always"`，表示项目启用后每轮回复末尾都显示简约入口。
 
 ## 4. 脚本跑不起来
 
 先确认你在目标项目根目录里，再运行：
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root .
+python "$env:USERPROFILE\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py" --project-root .
 ```
 
 如果只是想测试这个仓库自带的示例：
 
 ```powershell
-$env:PYTHONIOENCODING='utf-8'; python vibe-lens\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md
+$env:PYTHONIOENCODING='utf-8'; python dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md
 ```
 
 正常输出里应该能看到类似：
@@ -92,7 +94,7 @@ Latest iteration:
 显式生成：
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --html
+python "$env:USERPROFILE\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py" --project-root . --html
 ```
 
 默认会写到：
@@ -128,7 +130,7 @@ Vibe Lens 读取的是 Git 数据，数字取决于比较范围。
 想指定比较范围，可以用：
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --diff-ref main
+python "$env:USERPROFILE\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py" --project-root . --diff-ref main
 ```
 
 ## 8. 旧记录兼容

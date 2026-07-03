@@ -1,45 +1,48 @@
-# Changelog
+# 变更记录
 
-All notable changes to this project will be documented here.
+这个文件记录项目的重要变化。
 
 ## Unreleased
 
-### Added
+### 新增
 
-- Added the `vibe-lens` skill direction: a neutral review sandbox for vibe-coding projects.
-- Added `vibe-lens/scripts/lens_snapshot.py`.
-- Added Git diff statistics from Git: added/deleted lines, changed tracked files, untracked files, and file status.
-- Added JSON and static HTML report generation.
-- Added `vibe-lens/assets/report_template.html`.
-- Added tests for neutral question display, Git diff stats, initialization, legacy Chinese records, and HTML report generation.
-- Added a design spec and implementation plan under `docs/superpowers/`.
+- 增加 `DL-vibe-lens-skill` 方向：给 vibe-coding 项目使用的中性复盘沙盘。
+- 增加 `dl-vibe-lens-skill/scripts/lens_snapshot.py`。
+- 增加 Git diff 统计：新增行、删除行、变更 tracked 文件、未跟踪文件和文件状态。
+- 增加 JSON 输出和静态 HTML 报告生成。
+- 增加 `dl-vibe-lens-skill/assets/report_template.html`。
+- 增加 `docs/vibe-lens-settings.json` 设置设计，默认 `reply_entry_mode: "always"`。
+- 增加测试：中性问题展示、Git diff 统计、自动初始化、旧中文记录兼容、HTML 报告生成。
+- 增加 `docs/superpowers/` 下的中文设计稿和执行计划。
 
-### Changed
+### 变更
 
-- Repositioned the project from `vibe-iteration` task selection to `vibe-lens` information display.
-- Removed the default “recommended next task” behavior from the script output.
-- Reframed `Priority` as legacy descriptive metadata, not a decision rule.
-- Updated the public README, roadmap, skill metadata, and reference format around review-sandbox language.
+- 项目从 `vibe-iteration` 的任务选择方向，转为 `DL-vibe-lens-skill` 的信息展示方向。
+- Skill 机器名和安装目录统一为 `dl-vibe-lens-skill`，触发名统一为 `$dl-vibe-lens-skill`。
+- 删除脚本默认输出“推荐下一步任务”的行为。
+- 将 `Priority` 重新定义为旧字段展示信息，不作为决策规则。
+- README、安装排错、演示脚本、发布清单和项目上下文改为中文新用户说明。
+- HTML 代码差异卡片改为固定高度：左侧圆环、右侧彩色数字、下方文件列表内部滚动。
 
-### Notes
+### 说明
 
-- `docs/iteration-record.md` remains the default source record for compatibility.
-- The legacy Chinese path `docs/迭代记录.md` is still readable.
-- The local repository folder may still be named `deeplister-iteration-skill` until the GitHub repository is renamed and the local checkout path is optionally moved.
-- Old installed skills such as `deeplister-iteration` and `vibe-iteration` may remain for compatibility, but new use should prefer `vibe-lens`.
+- `docs/iteration-record.md` 仍是默认数据源。
+- 旧中文路径 `docs/迭代记录.md` 仍可读取。
+- 页面产品名继续叫 `Vibe Lens`，默认报告文件仍是 `docs/vibe-lens-report.html`。
+- 旧安装目录如 `deeplister-iteration`、`vibe-iteration`、`vibe-lens` 可以保留兼容，但新文档和新使用方式统一推荐 `dl-vibe-lens-skill`。
 
 ## 0.1.0 - 2026-07-01
 
-### Added
+### 新增
 
-- Created the first DeepLister-specific iteration Codex skill.
-- Added a snapshot script that reads a local Markdown record and prints issue counts, recommended next task, latest iteration entry, and follow-up-flow case count.
-- Added an example iteration record.
-- Added README, roadmap, launch checklist, demo script, promotion plan, install troubleshooting, and GitHub Issue templates.
+- 创建第一版 DeepLister 专用迭代 Codex Skill。
+- 增加读取本地 Markdown 记录的 snapshot 脚本，可以输出问题数量、推荐任务、最新迭代记录和追问流程数量。
+- 增加示例迭代记录。
+- 增加 README、路线图、发布清单、演示脚本、推广计划、安装排错和 GitHub Issue 模板。
 
-### Changed
+### 变更
 
-- Renamed the first public direction from `deeplister-iteration` to `vibe-iteration`.
-- Added `--init` to create `docs/iteration-record.md` automatically.
-- Added default English iteration record support with `## Issue Pool`, `## Active Work`, `## Follow-up Flow Notes`, and `## Iteration Log`.
-- Added legacy compatibility for older `docs/迭代记录.md` records.
+- 第一版公开方向从 `deeplister-iteration` 改为 `vibe-iteration`。
+- 增加 `--init`，自动创建 `docs/iteration-record.md`。
+- 增加带 `## Issue Pool`、`## Active Work`、`## Follow-up Flow Notes`、`## Iteration Log` 的默认英文记录模板。
+- 增加旧 `docs/迭代记录.md` 记录兼容。

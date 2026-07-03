@@ -16,7 +16,12 @@ from typing import Any
 
 DEFAULT_RECORD = Path("docs") / "iteration-record.md"
 DEFAULT_REPORT = Path("docs") / "vibe-lens-report.html"
+DEFAULT_SETTINGS = Path("docs") / "vibe-lens-settings.json"
 LEGACY_RECORDS = [Path("docs") / "迭代记录.md"]
+DEFAULT_SETTINGS_DATA = {
+    "reply_entry_mode": "always",
+    "record_language": "auto",
+}
 
 DONE_STATUSES = {
     "done",
@@ -116,6 +121,17 @@ def resolve_record(project_root: Path, record_path: Path | None = None) -> Path:
         if candidate.exists():
             return candidate
     return project_root / DEFAULT_RECORD
+
+
+def ensure_settings(project_root: Path) -> Path:
+    settings = project_root / DEFAULT_SETTINGS
+    settings.parent.mkdir(parents=True, exist_ok=True)
+    if not settings.exists():
+        settings.write_text(
+            json.dumps(DEFAULT_SETTINGS_DATA, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+    return settings
 
 
 def run_git(project_root: Path, args: list[str]) -> subprocess.CompletedProcess[str]:
@@ -223,6 +239,10 @@ def build_snapshot(
     follow_up_rows = parse_markdown_table(section_any(text, SECTION_ALIASES["follow_up"]))
     iterations = parse_iterations(section_any(text, SECTION_ALIASES["iteration_log"]))
     direction_text = section_any(text, SECTION_ALIASES["direction"])
+    settings_path = project_root / DEFAULT_SETTINGS
+    settings = DEFAULT_SETTINGS_DATA.copy()
+    if settings_path.exists():
+        settings.update(json.loads(settings_path.read_text(encoding="utf-8")))
 
     return {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
@@ -243,6 +263,7 @@ def build_snapshot(
             "headings": iterations[:10],
             "current_direction": direction_text,
         },
+        "settings": settings,
         "git_diff": collect_git_diff(project_root, diff_ref),
         "conflict_signals": build_conflict_signals(active_work_rows),
     }
@@ -269,77 +290,151 @@ def build_conflict_signals(active_work_rows: list[dict[str, str]]) -> list[dict[
     ]
 
 
-def record_template(today: date | None = None) -> str:
+def record_template_zh(today: date | None = None) -> str:
     current_date = (today or date.today()).isoformat()
-    return f"""# Vibe Lens Record
+    return f"""# Vibe Lens 记录
 
 这是 Vibe Lens 的数据源文件。
 脚本会把这里的记录和 Git diff 数据合在一起，生成一个可视化复盘沙盘。
 
 大白话：这里不是任务裁判，不替你排优先级；它负责把当前问题、历史问题、代码差异、证据和迭代路径展示出来。
 
-## Guardrails
+## 保护说明
 
-- Do not rename these headings: `## Issue Pool`, `## Active Work`, `## Follow-up Flow Notes`, `## Iteration Log`.
-- Do not rename these legacy Issue Pool columns when they exist: `ID`, `Issue`, `Impact`, `Priority`, `Status`, `Next Step`.
-- Do not rank issues or tell the operator what must be done first from this file alone.
-- Treat `Priority` as legacy descriptive metadata only; the lens displays it but does not use it as a decision rule.
-- You can freely edit row content, add new rows, and add extra sections.
-- 中文提示：上面这几个 `##` 二级标题不要改名，也不要把 `## Issue Pool` 里的表格搬到别的地方。你可以改表格内容、增加行、增加自己的说明段落。
+- 不要改名这些标题：`## 问题池`、`## 当前工作`、`## 追问流程专项记录`、`## 迭代记录`。
+- 不要把 `## 问题池` 里的表格搬到别的地方。
+- 不要只根据这个文件给问题排序，`优先级` 只能当旧字段展示。
+- 你可以改表格内容、增加行、增加自己的说明段落。
 
-## Current Product Direction
+## 当前产品方向
 
 - 定位：给中后期开始变乱的 vibe-coding 项目做复盘沙盘。
 - 使用者：独立开发者、代码新手、正在学习 AI 产品经理的人，以及使用 AI coding agent 的人。
 - 当前重点：展示信息，不安排任务，不施加权重。
 
+## 问题池
+
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 |
+|---|---|---|---|---|---|
+| VL-001 | 第一个需要复盘的问题 | operator | open | 把这一行替换成真实问题 | docs/iteration-record.md |
+
+## 当前工作
+
+| 会话 | 任务 | 涉及文件 | 状态 | 备注 |
+|---|---|---|---|---|
+| {current_date} | 初始化 Vibe Lens 记录 | docs/iteration-record.md | in progress | 第一次真实工作完成后，可以替换这一行 |
+
+## 追问流程专项记录
+
+| 场景 | 当前表现 | 问题 | 优化方向 |
+|---|---|---|---|
+| 多个 AI 对话同时改一个项目 | 每个对话可能持有不同上下文 | 并行修改容易冲突 | 把活跃工作和涉及区域作为中性线索展示 |
+
+## 迭代记录
+
+### {current_date}: 初始化 Vibe Lens 记录
+目标：
+- 创建能喂给可视化复盘沙盘的数据源文件。
+
+发现的问题：
+- 手动建文件对第一次使用的人来说太麻烦。
+
+决策：
+- 使用 `docs/iteration-record.md` 作为默认输入记录。
+- Markdown 只作为数据源，最终展示面是 HTML 报告。
+
+完成：
+- 初始化 Vibe Lens 记录。
+
+验证：
+- 运行 lens snapshot 脚本，确认它能读这个文件。
+
+未完成：
+- 把示例行替换成当前项目真实的问题和证据。
+"""
+
+
+def record_template_en(today: date | None = None) -> str:
+    current_date = (today or date.today()).isoformat()
+    return f"""# Vibe Lens Record
+
+This is the source record for Vibe Lens.
+The script combines this record with Git diff data to generate a visual review sandbox.
+
+Plain English: this file is not a task judge. It shows current questions, historical questions, code changes, evidence, and iteration path.
+
+## Guardrails
+
+- Do not rename these headings: `## Issue Pool`, `## Active Work`, `## Follow-up Flow Notes`, `## Iteration Log`.
+- Do not move the table under `## Issue Pool` to another section.
+- Do not rank issues or tell the operator what must be done first from this file alone.
+- Treat `Priority` as legacy display metadata only.
+- You can edit row content, add rows, and add extra sections.
+
+## Current Product Direction
+
+- Positioning: a review sandbox for messy middle-stage vibe-coding projects.
+- Users: solo developers, coding beginners, AI product-manager learners, and AI coding agent users.
+- Current focus: display information without scheduling tasks or assigning weights.
+
 ## Issue Pool
 
 | ID | Issue | Source | Status | Evidence | Related Files |
 |---|---|---|---|---|---|
-| VL-001 | 第一个需要复盘的问题 | operator | open | 把这一行替换成真实问题 | docs/iteration-record.md |
+| VL-001 | First question to review | operator | open | Replace this row with a real question | docs/iteration-record.md |
 
 ## Active Work
 
 | Session | Task | Files Or Areas | Status | Notes |
 |---|---|---|---|---|
-| {current_date} | 初始化 Vibe Lens 记录 | docs/iteration-record.md | in progress | 第一次真实工作完成后，可以替换这一行 |
+| {current_date} | Initialize Vibe Lens record | docs/iteration-record.md | in progress | Replace this row after the first real work |
 
 ## Follow-up Flow Notes
 
 | Scenario | Current Behavior | Issue | Improvement |
 |---|---|---|---|
-| 多个 AI 对话同时改一个项目 | 每个对话可能持有不同上下文 | 并行修改容易冲突 | 把活跃工作和涉及区域作为中性线索展示 |
+| Multiple AI chats edit one project | Each chat may hold different context | Parallel changes can conflict | Show active work and touched areas as neutral signals |
 
 ## Iteration Log
 
-### {current_date}: 初始化 Vibe Lens 记录
+### {current_date}: Initialize Vibe Lens record
 Goal:
-- 创建能喂给可视化复盘沙盘的数据源文件。
+- Create the source record for the visual review sandbox.
 
 Discovered Issues:
-- 手动建文件对第一次使用的人来说太麻烦。
+- Manual file creation is too much friction for first-time users.
 
 Decisions:
 - Use `docs/iteration-record.md` as the default input record.
-- Markdown 只作为数据源，最终展示面是 HTML 报告。
+- Markdown is the source record; the HTML report is the display surface.
 
 Completed:
-- 初始化 Vibe Lens 记录。
+- Initialized the Vibe Lens record.
 
 Verification:
-- 运行 lens snapshot 脚本，确认它能读这个文件。
+- Run the lens snapshot script and confirm it can read this file.
 
 Unfinished:
-- 把示例行替换成当前项目真实的问题和证据。
+- Replace example rows with real project questions and evidence.
 """
 
 
-def init_record(project_root: Path, record_path: Path | None = None) -> Path:
+def record_template(today: date | None = None, record_language: str = "zh") -> str:
+    if record_language == "en":
+        return record_template_en(today)
+    return record_template_zh(today)
+
+
+def init_record(
+    project_root: Path,
+    record_path: Path | None = None,
+    record_language: str = "zh",
+) -> Path:
     record = record_path or project_root / DEFAULT_RECORD
     record.parent.mkdir(parents=True, exist_ok=True)
     if not record.exists():
-        record.write_text(record_template(), encoding="utf-8")
+        record.write_text(record_template(record_language=record_language), encoding="utf-8")
+    ensure_settings(project_root)
     return record
 
 
@@ -406,6 +501,12 @@ def main() -> int:
     parser.add_argument("--record", "--record-path", dest="record", help="Explicit record path")
     parser.add_argument("--diff-ref", help="Git diff base or range, defaults to HEAD when available")
     parser.add_argument("--init", action="store_true", help="Create docs/iteration-record.md when it is missing")
+    parser.add_argument(
+        "--record-language",
+        choices=["auto", "zh", "en"],
+        default="auto",
+        help="Language for --init record template; auto defaults to zh for CLI use",
+    )
     parser.add_argument("--json", action="store_true", help="Print JSON instead of text")
     parser.add_argument("--html", action="store_true", help="Generate a static HTML Vibe Lens report")
     parser.add_argument("--output", help="HTML output path, defaults to docs/vibe-lens-report.html")
@@ -415,7 +516,8 @@ def main() -> int:
     record_path = Path(args.record).resolve() if args.record else None
 
     if args.init:
-        record_path = init_record(project_root, record_path)
+        language = "zh" if args.record_language == "auto" else args.record_language
+        record_path = init_record(project_root, record_path, language)
 
     try:
         snapshot = build_snapshot(project_root, record_path, args.diff_ref)

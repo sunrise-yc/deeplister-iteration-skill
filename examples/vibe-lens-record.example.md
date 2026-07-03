@@ -1,63 +1,53 @@
-# Vibe Lens Record
+# Vibe Lens 示例记录
 
-This is a small example for `vibe-lens`. It shows the Markdown source record that feeds the visual review sandbox.
+这是 `DL-vibe-lens-skill` 的示例数据源。脚本会读取这份 Markdown，再结合 Git diff 数据生成 HTML 复盘沙盘。
 
-## Guardrails
+## 保护说明
 
-- Do not rename these headings: `## Issue Pool`, `## Active Work`, `## Follow-up Flow Notes`, `## Iteration Log`.
-- Do not rank issues or tell the operator what must be done first from this file alone.
-- Treat legacy `Priority` values as display metadata only.
-- You can edit row content and add extra sections.
+- 不要改名这些标题：`## 问题池`、`## 当前工作`、`## 追问流程专项记录`、`## 迭代记录`。
+- 不要把 `## 问题池` 里的表格搬到其他位置。
+- `优先级` 或 `Priority` 只能作为旧字段展示，不能当成任务排序命令。
 
-## Current Product Direction
+## 当前产品方向
 
-The project is a vibe-coding prototype that has reached the messy middle stage: questions are scattered across chats, docs, and code changes. The current goal is to make the situation visible before any Agent or operator decides what to do next.
+- 定位：给中后期开始变乱的 vibe-coding 项目做复盘沙盘。
+- 当前重点：展示问题、代码差异、证据和路径，不替操作者安排任务。
 
-## Issue Pool
+## 问题池
 
-| ID | Issue | Source | Status | Evidence | Related Files |
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 |
 |---|---|---|---|---|---|
-| VL-001 | Manual record setup is too much friction | operator | open | First-time users should not hand-build structured files | vibe-lens/scripts/lens_snapshot.py |
-| VL-002 | Code changes need visual diff statistics | agent | open | Git can report added/deleted lines accurately when the range is clear | vibe-lens/assets/report_template.html |
-| VL-003 | Old priority wording may oversteer agents | operator | resolved | Skill now says display facts and avoid ranking | vibe-lens/SKILL.md |
+| VL-001 | 手动创建记录文件太重 | operator | open | 第一次使用的人不应该手动搭表格 | dl-vibe-lens-skill/scripts/lens_snapshot.py |
+| VL-002 | 代码变化需要可视化 diff 统计 | agent | open | Git 可以在边界明确时准确给出新增/删除行数 | dl-vibe-lens-skill/assets/report_template.html |
+| VL-003 | 旧优先级字段可能误导 Agent | operator | resolved | Skill 说明已改为只展示事实，不负责排序 | dl-vibe-lens-skill/SKILL.md |
 
-## Active Work
+## 当前工作
 
-| Session | Task | Files Or Areas | Status | Notes |
+| 会话 | 任务 | 涉及文件 | 状态 | 备注 |
 |---|---|---|---|---|
-| 2026-07-02 | Build review sandbox | vibe-lens/, README.md, tests/ | in progress | Current session owns the rename and report flow |
+| 2026-07-03 | 构建复盘沙盘 | dl-vibe-lens-skill/, README.md, tests/ | in progress | 当前会话负责报告和命名同步 |
 
-## Follow-up Flow Notes
+## 追问流程专项记录
 
-| Scenario | Current Behavior | Issue | Improvement |
+| 场景 | 当前表现 | 问题 | 优化方向 |
 |---|---|---|---|
-| A user has many questions across chats | Codex may focus on the latest chat only | Historical context gets lost | Show current and historical questions together |
-| Two AI chats run at once | Each chat assumes it is the only worker | Conflicts become likely | Show active files or areas as conflict signals |
-| A user wants to review progress | Markdown is hard to scan | Review takes too much mental effort | Generate an HTML report with charts and timelines |
+| 多个 AI 对话同时工作 | 每个对话可能持有不同上下文 | 可能改到同一文件 | 展示当前工作和涉及文件，作为中性冲突线索 |
 
-## Iteration Log
+## 迭代记录
 
-### 2026-07-02: Reposition as Vibe Lens
-Goal:
-- Shift from task selection to neutral information display.
+### 2026-07-03: 更新为 DL-vibe-lens-skill
+目标：
+- 把公开传播名、安装目录、触发名和文档说明统一到新命名。
 
-Questions Raised:
-- What questions are current?
-- What questions were raised in the past?
-- Which code was added or deleted while solving them?
-- How has the project direction changed?
+证据：
+- 用户希望保留 DeepLister 来源，并让调用名更好记。
 
-Evidence:
-- Git diff can provide line-level added/deleted statistics for tracked text files.
-- The source record can keep questions, active work, and verification notes.
+代码变化：
+- 将 skill 目录改为 `dl-vibe-lens-skill/`。
+- 更新 `SKILL.md`、README 和示例记录。
 
-Code Changes:
-- Rename the public skill direction to `vibe-lens`.
-- Add a static HTML report.
+验证：
+- 运行 `python dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md --html`。
 
-Verification:
-- Run `python -m unittest tests.test_lens_snapshot`.
-- Run `python vibe-lens\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md --html`.
-
-Unfinished:
-- Build the second-stage interactive platform later.
+未完成：
+- 后续再做完整交互平台。

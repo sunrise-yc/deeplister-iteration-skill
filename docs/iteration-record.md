@@ -1,20 +1,20 @@
-# Vibe Lens Record
+# Vibe Lens 记录
 
-This file is the source record for the Vibe Lens review sandbox.
-Codex reads it together with Git diff data to display questions, history, direction, evidence, and conflict signals.
+这是 Vibe Lens 复盘沙盘的数据源文件。
+Codex 会把它和 Git diff 数据一起读取，用来展示问题、历史、方向、证据和冲突线索。
 
 中文大白话：这是项目复盘沙盘的原始记录本。它不是任务裁判，不替你排优先级；它把局面摆出来，让人和 Agent 自己判断。
 
-## Guardrails
+## 保护说明
 
-- Do not rename these headings: `## Issue Pool`, `## Active Work`, `## Follow-up Flow Notes`, `## Iteration Log`.
-- Do not rename legacy Issue Pool columns when they exist: `ID`, `Issue`, `Impact`, `Priority`, `Status`, `Next Step`.
-- Do not rank issues or tell the operator what must be done first from this file alone.
-- Treat `Priority` as legacy descriptive metadata only.
-- You can freely edit row content, add new rows, and add extra sections.
-- If an AI coding session starts work, record touched files or areas under `## Active Work` before broad changes.
+- 不要改名这些标题：`## 问题池`、`## 当前工作`、`## 追问流程专项记录`、`## 迭代记录`。
+- 不要把 `## 问题池` 里的表格搬到其他位置。
+- 不要只根据这个文件给问题排序，也不要告诉操作者“必须先做哪个”。
+- `Priority` 或 `优先级` 只当旧字段展示。
+- 可以自由编辑行内容、添加新行、添加额外章节。
+- 如果 AI coding 会话开始大范围工作，先在 `## 当前工作` 记录涉及文件或区域。
 
-## Current Product Direction
+## 当前产品方向
 
 - 定位：给中后期开始变乱的 vibe-coding 项目做复盘沙盘和信息展现。
 - 主要用户：独立开发者、代码新手、正在学习 AI 产品经理的人，以及使用 Codex 或其他 AI coding agent 的人。
@@ -22,140 +22,170 @@ Codex reads it together with Git diff data to display questions, history, direct
 - 当前重点：`DL-vibe-lens-skill` 的 RedSkill 传播版已经打包并推到 GitHub PR；后续重点是详细迭代路径和第二阶段平台。
 - 明确不做：默认排序优先级、安排任务、替操作者做权重判断。
 
-## Issue Pool
+## 问题池
 
-| ID | Issue | Source | Status | Evidence | Related Files |
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 |
 |---|---|---|---|---|---|
-| VL-001 | Reposition project as a review sandbox | operator | resolved | User clarified the skill should display information, not decide priority | README.md, vibe-lens/SKILL.md |
-| VL-002 | Show Git diff statistics visually | operator | resolved | Git can provide added/deleted lines through `git diff --numstat` | vibe-lens/scripts/lens_snapshot.py, vibe-lens/assets/report_template.html |
-| VL-003 | Keep first use automatic | operator | resolved | Manual file creation is too much friction for beginners | vibe-lens/scripts/lens_snapshot.py |
-| VL-004 | Sync public docs and examples to Vibe Lens | agent | resolved | Public docs, examples, issue templates, and images now use Vibe Lens positioning | README.md, docs/, examples/, assets/ |
-| VL-005 | Rename GitHub repository, remote, and local checkout path | agent | resolved | Local remote now points to `sunrise-yc/DL-vibe-lens-skill`; branch `codex/vibe-lens-report-ui-spec` was pushed and PR #4 opened | GitHub remote, PR #4 |
-| VL-006 | Design second-stage interactive platform later | operator | open | Markdown is not enough for task arrangement and conflict advice | ROADMAP.md |
-| VL-007 | Package HTML report as confirmed interface | operator | resolved | Formal template now includes Chinese/English toggle, homepage gateways, detail pages, path labels, and conversation-entry setting | vibe-lens/assets/report_template.html, tests/test_lens_snapshot.py |
-| VL-008 | Prepare Chinese public introduction with quick-start visuals | operator | resolved | README now explains positioning, install/init/report flow, and embeds three quick-start SVG flash shots | README.md, assets/quickstart-*.svg |
-| VL-009 | Build detailed expandable path and platform later | operator | open | Stage 1 report only sketches path detail; full node expand/collapse and platform scheduling belong to later stages | ROADMAP.md, vibe-lens/assets/report_template.html |
+| VL-001 | 将项目重新定位为复盘沙盘 | operator | resolved | 用户明确说 skill 应展示信息，而不是决定优先级 | README.md, dl-vibe-lens-skill/SKILL.md |
+| VL-002 | 可视化展示 Git diff 统计 | operator | resolved | `git diff --numstat` 能提供新增/删除行数 | dl-vibe-lens-skill/scripts/lens_snapshot.py, dl-vibe-lens-skill/assets/report_template.html |
+| VL-003 | 第一次使用必须自动初始化 | operator | resolved | 让新手手动建记录文件太重 | dl-vibe-lens-skill/scripts/lens_snapshot.py |
+| VL-004 | 同步公开文档和示例到 Vibe Lens 定位 | agent | resolved | 公开文档、示例、Issue 模板和图片已使用复盘沙盘定位 | README.md, docs/, examples/, assets/ |
+| VL-005 | 重命名 GitHub 仓库、remote 和本地路径 | agent | resolved | 本地 remote 已指向 `sunrise-yc/DL-vibe-lens-skill`，分支和 PR 已推送 | GitHub remote, PR #4 |
+| VL-006 | 第二阶段交互平台后续再做 | operator | open | Markdown 不足以承载任务编排和冲突建议 | ROADMAP.md |
+| VL-007 | 将确认后的 HTML 报告界面打包进 Skill | operator | resolved | 模板已包含中英切换、主页入口、详情页、路径标签和对话入口设置 | dl-vibe-lens-skill/assets/report_template.html, tests/test_lens_snapshot.py |
+| VL-008 | 准备中文公开介绍和快速上手图 | operator | resolved | README 已说明定位、安装、初始化、报告流程，并嵌入三张快闪图 | README.md, assets/quickstart-*.svg |
+| VL-009 | 详细可展开路径图和平台后续再做 | operator | open | 第一阶段报告只做路径概览，完整展开/收起和平台编排属于后续阶段 | ROADMAP.md, dl-vibe-lens-skill/assets/report_template.html |
+| VL-010 | 统一 Skill 名为 DL-vibe-lens-skill | operator | resolved | 用户希望保留 DeepLister 来源，并让调用名更好记 | README.md, dl-vibe-lens-skill/SKILL.md, docs/ |
 
-## Active Work
+## 当前工作
 
-| Session | Task | Files Or Areas | Status | Notes |
+| 会话 | 任务 | 涉及文件 | 状态 | 备注 |
 |---|---|---|---|---|
-| 2026-07-02 | Reposition as Vibe Lens review sandbox | vibe-lens/, README.md, docs/, examples/, tests/ | completed | GitHub remote rename remains an external follow-up |
-| 2026-07-02 | Publish clean Vibe Lens branch and PR | GitHub branch, PR #3 | completed | Branch `codex/vibe-lens-review-sandbox-clean` pushed; PR opened against `main`; old PR #2 closed; PR #3 is mergeable |
-| 2026-07-03 | Package RedSkill-ready Vibe Lens | vibe-lens/, README.md, ROADMAP.md, docs/, assets/, tests/ | completed | Branch `codex/vibe-lens-report-ui-spec` pushed to `sunrise-yc/DL-vibe-lens-skill`; draft PR #4 opened |
+| 2026-07-02 | 重新定位为 Vibe Lens 复盘沙盘 | dl-vibe-lens-skill/, README.md, docs/, examples/, tests/ | completed | GitHub remote 重命名已作为外部事项处理 |
+| 2026-07-02 | 发布干净的 Vibe Lens 分支和 PR | GitHub branch, PR #3 | completed | 分支 `codex/vibe-lens-review-sandbox-clean` 已推送，PR #3 可合并 |
+| 2026-07-03 | 打包 RedSkill 传播版 Vibe Lens | dl-vibe-lens-skill/, README.md, ROADMAP.md, docs/, assets/, tests/ | completed | 分支 `codex/vibe-lens-report-ui-spec` 已推到 `sunrise-yc/DL-vibe-lens-skill`，草稿 PR #4 已打开 |
+| 2026-07-03 | 统一 Skill 命名和入口设置 | dl-vibe-lens-skill/, README.md, docs/, examples/, assets/, tests/ | completed | 展示名保留 `DL-vibe-lens-skill`，实际 skill 机器名用规范小写 `dl-vibe-lens-skill` |
 
-## Follow-up Flow Notes
+## 追问流程专项记录
 
-| Scenario | Current Behavior | Issue | Improvement |
+| 场景 | 当前表现 | 问题 | 优化方向 |
 |---|---|---|---|
-| Multiple AI chats work on the same project | Each chat may hold a different mental model | Parallel edits can conflict | Show active work and touched areas as neutral conflict signals |
-| First-time user installs the skill | User must manually create the record file | Too much setup friction for a beginner-facing tool | Provide `--init` and make Codex suggest it when the file is missing |
-| Project reaches middle stage | Issues are scattered across chats, docs, and code | Review becomes hard | Use Vibe Lens to show questions, code diff, direction, and evidence |
-| Agent sees old `Priority` fields | Agent may treat them as commands | The skill may oversteer decisions | Treat priority as legacy metadata and separate facts from Agent judgment |
-| RedSkill visitor lands on GitHub | They need to understand and try the skill quickly | Long English docs would lose beginner users | Use Chinese README plus quick-start flash shots |
-| Agent used Vibe Lens in a chat | User may want a quick way back to the report | A full text link after every answer is noisy | Make a compact entry optional through prompt or report setting |
+| 多个 AI 对话同时改一个项目 | 每个对话可能持有不同上下文 | 并行修改容易冲突 | 展示当前工作和涉及区域，作为中性冲突线索 |
+| 第一次安装 Skill | 用户过去需要手动创建记录文件 | 对新手来说启动成本太高 | 提供 `--init`，缺文件时报错也提示初始化 |
+| 项目进入中后期 | 问题散在聊天、文档和代码里 | 复盘变难 | 用 Vibe Lens 展示问题、代码差异、方向和证据 |
+| Agent 看到旧 `Priority` 字段 | Agent 可能把它当命令 | Skill 会过度影响决策 | 将 priority 当旧元数据展示，区分事实和 Agent 判断 |
+| RedSkill 访客打开 GitHub | 需要快速理解和试用 | 长英文文档会劝退中文新手 | 使用中文 README 和快速上手图 |
+| Agent 使用过 Vibe Lens | 用户可能想随时回到报告 | 每次贴长链接很丑且打断阅读 | 默认用简约入口，持久行为由 `reply_entry_mode` 控制 |
 
-## Iteration Log
+## 迭代记录
 
-### 2026-07-03: Package RedSkill-ready skill
-Goal:
-- Finish the usable Skill package for `DL-vibe-lens-skill`.
-- Move confirmed UI behavior from mockup into the real HTML report template.
-- Prepare Chinese public introduction and practical quick-start visuals.
-- Record remaining product questions as future optimization instead of overloading stage 1.
+### 2026-07-03: 统一 Skill 名为 DL-vibe-lens-skill
+目标：
+- 把传播名、安装目录、Skill frontmatter 和触发提示词统一到 `DL-vibe-lens-skill` 方向。
+- 把本项目的记录和公开文档改成中文默认，避免中文界面展示英文源数据。
 
-Evidence:
-- User requested final packaging for the RedSkill activity.
-- User confirmed the homepage should keep the previous evidence-board style, with overview, sandbox, and iteration path as gateways.
-- User asked that the report can choose Chinese or English.
-- User asked that the Skill can optionally show a compact conversation-end entry.
+证据：
+- 用户明确要求 “skill 改为 DL-vibe-lens-skill”。
+- 用户确认记录语言应默认跟随当前对话语言。
+- Skill 命名规范要求机器名使用小写字母、数字和连字符。
 
-Code Changes:
-- Added a failing test for the confirmed report interface, then updated `report_template.html` until it passed.
-- Updated `vibe-lens/SKILL.md` and `agents/openai.yaml` to describe initialization, HTML report behavior, and optional conversation entry.
-- Rewrote `README.md` in Chinese for public introduction.
-- Added quick-start visual flash shots under `assets/quickstart-*.svg`.
-- Rewrote public support docs in Chinese: roadmap, launch checklist, demo script, and project context.
+代码变化：
+- 将 skill 目录从 `vibe-lens/` 改为 `dl-vibe-lens-skill/`。
+- 将 `SKILL.md` frontmatter 改为 `name: dl-vibe-lens-skill`。
+- 增加 `docs/vibe-lens-settings.json` 设置设计，默认 `reply_entry_mode: "always"`。
+- 调整 HTML 代码差异卡片：圆环、彩色统计和文件列表分区展示。
 
-Verification:
-- `python -m unittest tests.test_lens_snapshot.LensSnapshotTest.test_html_report_contains_confirmed_lens_interface` passed.
-- `python -m unittest tests.test_lens_snapshot` passed.
-- `python -m py_compile vibe-lens\scripts\lens_snapshot.py` passed.
-- `python -X utf8 C:\Users\23184\.codex\skills\.system\skill-creator\scripts\quick_validate.py vibe-lens` passed.
-- `python vibe-lens\scripts\lens_snapshot.py --project-root . --html --output docs\vibe-lens-report.html` generated the report.
-- Browser verification over `http://127.0.0.1:60961/docs/vibe-lens-report.html` confirmed homepage modules, detail jumps, English toggle, settings panel, and hash routes for overview, sandbox, path, and home.
-- `python C:\Users\23184\.codex\skills\vibe-lens\scripts\lens_snapshot.py --project-root .` verified the installed local skill.
-- `git diff --check` exited 0 with only LF-to-CRLF warnings.
-- `git push -u origin codex/vibe-lens-report-ui-spec` succeeded after merging the GitHub connector commits.
-- GitHub draft PR #4 opened at `https://github.com/sunrise-yc/DL-vibe-lens-skill/pull/4`; GitHub reported `mergeable: true`.
+验证：
+- `python -m unittest tests.test_lens_snapshot` 通过。
+- `python -m py_compile dl-vibe-lens-skill\scripts\lens_snapshot.py` 通过。
+- `python -X utf8 C:\Users\23184\.codex\skills\.system\skill-creator\scripts\quick_validate.py dl-vibe-lens-skill` 通过。
+- `python dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md` 能读取中文示例记录。
+- `python dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root . --html --output docs\vibe-lens-report.html` 已重新生成报告。
+- `python C:\Users\23184\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root .` 验证本地安装的新 skill。
+- `git diff --check` 只有 Windows LF-to-CRLF 提醒，没有 whitespace 错误。
 
-Unfinished:
-- Later stage: build detailed expandable path graph and full interactive platform.
+未完成：
+- 第二阶段完整平台和详细可展开路径图仍放在后续阶段。
 
-### 2026-07-02: Publish clean Vibe Lens PR
-Goal:
-- Continue the unfinished GitHub synchronization work after the local commit.
-- Keep the publication evidence in the Vibe Lens source record.
-- Replace the older mixed-history PR with a clean PR based on the latest `main`.
+### 2026-07-03: 打包 RedSkill 传播版 Skill
+目标：
+- 完成可用的 `DL-vibe-lens-skill` 包装。
+- 把已经确认的 UI 行为从草图迁移到真实 HTML 模板。
+- 准备中文公开介绍和快速上手图。
+- 把剩余产品问题放进后续优化，不让第一阶段过载。
 
-Evidence:
-- Local branch `codex/vibe-lens-review-sandbox-clean` tracks `origin/codex/vibe-lens-review-sandbox-clean`.
-- PR #3 was opened at `https://github.com/sunrise-yc/deeplister-iteration-skill/pull/3`.
-- Old draft PR #2 was closed because it contained mixed history from an earlier branch.
-- PR #3 was marked ready for review and GitHub reported `mergeable: true`.
-- The repository still uses the old public name `deeplister-iteration-skill`.
+证据：
+- 用户要求为 RedSkill 活动做最终包装。
+- 用户确认主页应保留证据看板风格，并把总览、沙盘和迭代路径作为入口。
+- 用户要求报告可以选择中文或英文。
+- 用户要求 Skill 可以在对话末尾显示简约入口。
 
-Verification:
-- `git push -u origin codex/vibe-lens-review-sandbox-clean` succeeded.
-- GitHub connector returned draft PR #3 with head SHA `c6545cc38628005fac4571cd5dbb84c85343d239`.
-- `git merge-base --is-ancestor origin/main HEAD` confirmed the clean branch is based on the latest fetched `origin/main`.
-- `git merge-tree $(git merge-base HEAD origin/main) HEAD origin/main` produced no conflict output.
+代码变化：
+- 先增加报告界面测试，再更新 `report_template.html` 直到测试通过。
+- 更新 `vibe-lens/SKILL.md` 和 `agents/openai.yaml`，说明初始化、HTML 报告和可选对话入口。
+- 将 README 改写为中文公开介绍。
+- 在 `assets/quickstart-*.svg` 增加快速上手图。
+- 将路线图、发布清单、演示脚本和项目上下文等支持文档改成中文。
 
-Unfinished:
-- Rename the GitHub repository to `vibe-lens-skill`.
-- Update the local checkout folder and remote URL after the repository is renamed.
+验证：
+- `python -m unittest tests.test_lens_snapshot.LensSnapshotTest.test_html_report_contains_confirmed_lens_interface` 通过。
+- `python -m unittest tests.test_lens_snapshot` 通过。
+- `python -m py_compile vibe-lens\scripts\lens_snapshot.py` 通过。
+- `python -X utf8 C:\Users\23184\.codex\skills\.system\skill-creator\scripts\quick_validate.py vibe-lens` 通过。
+- `python vibe-lens\scripts\lens_snapshot.py --project-root . --html --output docs\vibe-lens-report.html` 生成报告。
+- 浏览器验证 `http://127.0.0.1:60961/docs/vibe-lens-report.html`，确认主页模块、详情跳转、英文切换、设置面板和 hash 路由可用。
+- `python C:\Users\23184\.codex\skills\vibe-lens\scripts\lens_snapshot.py --project-root .` 验证本地已安装 skill。
+- `git diff --check` 只有 LF-to-CRLF 提醒，没有实际 whitespace 错误。
+- `git push -u origin codex/vibe-lens-report-ui-spec` 在合并 GitHub connector 提交后成功。
+- GitHub 草稿 PR #4 已打开：`https://github.com/sunrise-yc/DL-vibe-lens-skill/pull/4`，GitHub 显示可合并。
 
-### 2026-07-02: Reposition as Vibe Lens review sandbox
-Goal:
-- Shift the project from task selection to neutral information display.
-- Rename the public direction to `vibe-lens`.
-- Add Git diff statistics and HTML report generation.
+未完成：
+- 后续阶段再做详细可展开路径图和完整交互平台。
 
-Questions Raised:
-- What questions are current, and who raised them?
-- What questions were raised in the past?
-- Which code was added or deleted while solving them?
-- How has the project direction changed?
-- What evidence and verification support the changes?
+### 2026-07-02: 发布干净的 Vibe Lens PR
+目标：
+- 接续本地提交后的 GitHub 同步工作。
+- 把发布证据保存在 Vibe Lens 源记录里。
+- 用基于最新 `main` 的干净 PR 替换旧的混合历史 PR。
 
-Evidence:
-- User explicitly said the skill should be information display, a review surface, or a sandbox, not a priority judge.
-- `git diff --numstat` can provide accurate added/deleted line counts when the diff boundary is clear.
-- `KKKKhazix/khazix-skills` shows a useful pattern: Skill triggers scripts, scripts generate an HTML report or local service.
+证据：
+- 本地分支 `codex/vibe-lens-review-sandbox-clean` 跟踪 `origin/codex/vibe-lens-review-sandbox-clean`。
+- PR #3 已打开：`https://github.com/sunrise-yc/deeplister-iteration-skill/pull/3`。
+- 旧草稿 PR #2 因为混入早期分支历史而关闭。
+- PR #3 已标记为 ready for review，GitHub 显示 `mergeable: true`。
+- 当时仓库仍使用旧公开名 `deeplister-iteration-skill`。
 
-Code Changes:
-- Renamed the skill folder to `vibe-lens`.
-- Replaced `iteration_snapshot.py` with `lens_snapshot.py`.
-- Added static HTML report generation.
-- Updated tests for neutral question display, Git diff stats, initialization, legacy Chinese records, and HTML report generation.
-- Updated product docs toward review-sandbox positioning.
+验证：
+- `git push -u origin codex/vibe-lens-review-sandbox-clean` 成功。
+- GitHub connector 返回草稿 PR #3，head SHA 为 `c6545cc38628005fac4571cd5dbb84c85343d239`。
+- `git merge-base --is-ancestor origin/main HEAD` 确认干净分支基于最新 `origin/main`。
+- `git merge-tree $(git merge-base HEAD origin/main) HEAD origin/main` 没有输出冲突。
 
-Verification:
-- `python -m unittest tests.test_lens_snapshot` passed after adding the new behavior tests.
-- `python -m py_compile vibe-lens\scripts\lens_snapshot.py` passed.
-- `python vibe-lens\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md` read the example record.
-- `python vibe-lens\scripts\lens_snapshot.py --project-root . --html --output docs\vibe-lens-report.html` generated the static HTML report.
-- `python vibe-lens\scripts\lens_snapshot.py --project-root .` read this repository's source record.
-- `python C:\Users\23184\.codex\skills\vibe-lens\scripts\lens_snapshot.py --project-root .` verified the installed local skill.
-- `python C:\Users\23184\.codex\skills\vibe-lens\scripts\lens_snapshot.py --project-root C:\Users\23184\Desktop\DeepLister` verified the DeepLister source record.
-- `git diff --check` exited 0 with only LF-to-CRLF warnings.
+未完成：
+- 当时还需要把 GitHub 仓库改名为 `vibe-lens-skill`。
+- 仓库改名后再更新本地 checkout 文件夹和 remote URL。
 
-Unfinished:
-- Rename the GitHub repository and local remote when account tooling is available.
-- Build the second-stage interactive platform later.
+### 2026-07-02: 重新定位为 Vibe Lens 复盘沙盘
+目标：
+- 将项目从任务选择转为中性信息展示。
+- 将公开方向改名为 `vibe-lens`。
+- 增加 Git diff 统计和 HTML 报告生成。
 
-Legacy note:
-- Entries below this point describe earlier `deeplister-iteration` and `vibe-iteration` directions. They are preserved as history, not as current product behavior.
+提出的问题：
+- 当前有哪些问题，谁提出的？
+- 过去提出过哪些问题？
+- 解决问题时添加和删除了哪些代码？
+- 项目方向发生了什么变化？
+- 变化背后有哪些证据和验证？
+
+证据：
+- 用户明确说这个 skill 应该是信息展示、复盘界面或沙盘，而不是优先级裁判。
+- `git diff --numstat` 在边界明确时能准确提供新增/删除行数。
+- `KKKKhazix/khazix-skills` 提供了可参考模式：Skill 触发脚本，脚本生成 HTML 报告或本地服务。
+
+代码变化：
+- 将 skill 文件夹改名为 `vibe-lens`。
+- 用 `lens_snapshot.py` 替换 `iteration_snapshot.py`。
+- 增加静态 HTML 报告生成。
+- 增加中性问题展示、Git diff 统计、初始化、旧中文记录兼容和 HTML 报告生成测试。
+- 将产品文档改向复盘沙盘定位。
+
+验证：
+- 增加新行为测试后，`python -m unittest tests.test_lens_snapshot` 通过。
+- `python -m py_compile vibe-lens\scripts\lens_snapshot.py` 通过。
+- `python vibe-lens\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md` 能读取示例记录。
+- `python vibe-lens\scripts\lens_snapshot.py --project-root . --html --output docs\vibe-lens-report.html` 生成静态 HTML 报告。
+- `python vibe-lens\scripts\lens_snapshot.py --project-root .` 能读取本仓库源记录。
+- `python C:\Users\23184\.codex\skills\vibe-lens\scripts\lens_snapshot.py --project-root .` 验证本地安装 skill。
+- `python C:\Users\23184\.codex\skills\vibe-lens\scripts\lens_snapshot.py --project-root C:\Users\23184\Desktop\DeepLister` 验证 DeepLister 源记录。
+- `git diff --check` 只有 LF-to-CRLF 提醒。
+
+未完成：
+- 账号工具可用后再重命名 GitHub 仓库和本地 remote。
+- 第二阶段交互平台后续再做。
+
+历史说明：
+- 下面的条目记录更早的 `deeplister-iteration` 和 `vibe-iteration` 方向，只作为历史保留，不代表当前产品行为。
 
 ### 2026-07-01: 将学习点改成中文
 目标：
@@ -168,75 +198,75 @@ Legacy note:
 - 在这份迭代记录里补充中文大白话说明。
 
 验证：
-- `python vibe-iteration\scripts\iteration_snapshot.py --project-root .` still reads this record successfully.
-- `python -m unittest tests.test_iteration_snapshot` passed.
+- `python vibe-iteration\scripts\iteration_snapshot.py --project-root .` 仍能成功读取这份记录。
+- `python -m unittest tests.test_iteration_snapshot` 通过。
 
 下一步建议：
 - 在另一个 AI 对话开始大范围改动前，继续让 VI-004 保持可见。
 
-### 2026-07-01: Rename to vibe-iteration and add initialization
-Goal:
-- Reposition the skill from a DeepLister-specific iteration helper to a lightweight workflow for messy vibe-coding projects.
-- Make first use work without manually creating a record file.
-- Make this repository use its own iteration record.
+### 2026-07-01: 改名为 vibe-iteration 并增加初始化
+目标：
+- 将 skill 从 DeepLister 专用迭代助手，改成能处理混乱 vibe-coding 项目的轻量工作流。
+- 第一次使用时，不再要求用户手动创建记录文件。
+- 让本仓库使用自己的迭代记录。
 
-Discovered Issues:
-- The old public name made the project look too narrow.
-- Manual Markdown setup was too fragile for the target beginner user.
-- The social preview and snapshot image still carried old product language.
-- The GitHub CLI is not installed locally, so the remote repository could not be renamed from this environment.
+发现的问题：
+- 旧公开名让项目看起来太窄。
+- 手动搭 Markdown 对目标新手用户来说太脆弱。
+- 社交预览图和 snapshot 图片仍带着旧产品语言。
+- 本地没有安装 GitHub CLI，所以当时不能在这个环境直接重命名远程仓库。
 
-Decisions:
-- Use `vibe-iteration` as the skill name and `vibe-iteration-skill` as the intended repository name.
-- Use `docs/iteration-record.md` as the new default file.
-- Keep legacy `docs/迭代记录.md` support for older DeepLister records.
-- Add `## Active Work` to make parallel AI coding sessions more visible.
+决策：
+- 使用 `vibe-iteration` 作为 skill 名，预期仓库名为 `vibe-iteration-skill`。
+- 使用 `docs/iteration-record.md` 作为新默认文件。
+- 保留旧 `docs/迭代记录.md` 兼容。
+- 增加 `## Active Work`，让并行 AI coding 会话更可见。
 
-Completed:
-- Renamed the skill folder and metadata to `vibe-iteration`.
-- Added `--init` to generate `docs/iteration-record.md`.
-- Added tests for English default records, legacy Chinese records, and initialization.
-- Created this repository's own `docs/iteration-record.md`.
-- Updated README, roadmap, changelog, launch checklist, demo script, promotion plan, troubleshooting guide, project context, issue templates, example record, and image assets.
-- Installed the new skill locally at `C:\Users\23184\.codex\skills\vibe-iteration`.
-- Added `docs/RELATED_WORK.md` with lessons and gaps from adjacent tools.
-- Added `C:\Users\23184\Desktop\DeepLister\docs\iteration-record.md` by copying the existing DeepLister record so the new default path reads real project tasks.
+完成：
+- 将 skill 文件夹和元数据改为 `vibe-iteration`。
+- 增加 `--init`，自动生成 `docs/iteration-record.md`。
+- 增加英文默认记录、旧中文记录和初始化测试。
+- 创建本仓库自己的 `docs/iteration-record.md`。
+- 更新 README、路线图、变更记录、发布清单、演示脚本、推广计划、排错文档、项目上下文、Issue 模板、示例记录和图片资产。
+- 将新 skill 安装到 `C:\Users\23184\.codex\skills\vibe-iteration`。
+- 增加 `docs/RELATED_WORK.md`，记录相邻工具的学习点和不足。
+- 复制 DeepLister 现有记录到 `C:\Users\23184\Desktop\DeepLister\docs\iteration-record.md`，让新默认路径读取真实项目任务。
 
-Verification:
-- `python -m unittest tests.test_iteration_snapshot` passed.
-- `python -m py_compile vibe-iteration\scripts\iteration_snapshot.py` passed.
-- `python vibe-iteration\scripts\iteration_snapshot.py --project-root . --record examples\vibe-iteration-record.example.md` read 2 issues and recommended `VI-001`.
-- `python vibe-iteration\scripts\iteration_snapshot.py --project-root .` read this repo's record and recommended `VI-001` before this log update.
-- `python ...\vibe-iteration\scripts\iteration_snapshot.py --project-root .` in `C:\Users\23184\Desktop\DeepLister` read 9 issues from `docs/iteration-record.md` and recommended `DL-001`.
-- `git diff --check` reported only Windows LF-to-CRLF warnings, no whitespace errors.
+验证：
+- `python -m unittest tests.test_iteration_snapshot` 通过。
+- `python -m py_compile vibe-iteration\scripts\iteration_snapshot.py` 通过。
+- `python vibe-iteration\scripts\iteration_snapshot.py --project-root . --record examples\vibe-iteration-record.example.md` 读取 2 个问题，并推荐 `VI-001`。
+- `python vibe-iteration\scripts\iteration_snapshot.py --project-root .` 在本次日志更新前能读取本仓库记录并推荐 `VI-001`。
+- 在 `C:\Users\23184\Desktop\DeepLister` 中运行 `python ...\vibe-iteration\scripts\iteration_snapshot.py --project-root .`，从 `docs/iteration-record.md` 读取 9 个问题并推荐 `DL-001`。
+- `git diff --check` 只报告 Windows LF-to-CRLF 提醒，没有 whitespace 错误。
 
-Unfinished:
-- The remote GitHub repository still points to `sunrise-yc/deeplister-iteration-skill` because `gh` is not installed locally and the available GitHub connector does not expose a rename tool.
-- The local checkout folder is still `deeplister-iteration-skill`; this is acceptable until the remote repository is renamed.
-- The old installed `deeplister-iteration` skill remains for compatibility.
+未完成：
+- 当时远程 GitHub 仓库仍指向 `sunrise-yc/deeplister-iteration-skill`，因为本地没有 `gh`，可用 GitHub connector 也没有 rename 工具。
+- 本地 checkout 文件夹仍叫 `deeplister-iteration-skill`，在远程仓库改名前可以接受。
+- 旧安装的 `deeplister-iteration` skill 仍保留兼容。
 
-Next Recommendation:
-- Rename the GitHub repository to `vibe-iteration-skill` in GitHub settings, then update the local remote URL.
+下一步建议：
+- 在 GitHub 设置里把仓库名改为 `vibe-iteration-skill`，再更新本地 remote URL。
 
-### 2026-07-01: Initialize vibe iteration record
-Goal:
-- Create a shared project memory for task selection, priority, active work, and review.
+### 2026-07-01: 初始化 vibe iteration 记录
+目标：
+- 创建一个共享项目记忆，用来记录任务选择、优先级、当前工作和复盘。
 
-Discovered Issues:
-- Manual setup is friction for first-time users.
+发现的问题：
+- 第一次使用时手动搭记录文件有摩擦。
 
-Decisions:
-- Use `docs/iteration-record.md` as the default record path.
-- Keep this file lightweight and Markdown-first.
+决策：
+- 使用 `docs/iteration-record.md` 作为默认记录路径。
+- 让文件保持轻量，优先使用 Markdown。
 
-Completed:
-- Initialized the iteration record.
+完成：
+- 初始化迭代记录。
 
-Verification:
-- Run the snapshot script and confirm it can read this file.
+验证：
+- 运行 snapshot 脚本，确认它能读取这份文件。
 
-Unfinished:
-- Replace the starter issue pool with project-specific tasks.
+未完成：
+- 将 starter 问题池替换成真实项目任务。
 
-Next Recommendation:
-- Add the highest-priority real issue as `P0`.
+下一步建议：
+- 添加最高优先级真实问题作为 `P0`。

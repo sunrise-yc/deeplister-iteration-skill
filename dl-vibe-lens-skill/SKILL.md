@@ -1,15 +1,15 @@
 ---
-name: vibe-lens
+name: dl-vibe-lens-skill
 description: Use when a vibe-coding project needs a review sandbox, retrospective, issue history view, Git diff visualization, iteration direction map, evidence trail, verification trail, or neutral conflict signals across AI coding sessions.
 ---
 
-# Vibe Lens
+# DL Vibe Lens Skill
 
 ## Overview
 
-Turn a messy vibe-coding project into a neutral review sandbox. Vibe Lens displays current questions, historical questions, Git diff statistics, iteration path, evidence, verification, and conflict signals. It does not rank tasks, assign weights, or decide what the operator must do next.
+Turn a messy vibe-coding project into a neutral review sandbox. `DL` points back to DeepLister, where this workflow started. `Vibe Lens` means a lens over vibe coding: it focuses scattered questions, Git diff statistics, iteration path, evidence, verification, and conflict signals so the operator and Agent can see the situation clearly. It does not rank tasks, assign weights, or decide what the operator must do next.
 
-The default source record is `docs/iteration-record.md`; the legacy Chinese path `docs/迭代记录.md` is still readable. Use `references/lens-record-format.md` only when the record format needs explanation.
+The default source record is `docs/iteration-record.md`; the default project settings file is `docs/vibe-lens-settings.json`; the legacy Chinese path `docs/迭代记录.md` is still readable. Use `references/lens-record-format.md` only when the record format needs explanation.
 
 ## Quick Start
 
@@ -17,22 +17,23 @@ The default source record is `docs/iteration-record.md`; the legacy Chinese path
 2. If the record is missing, initialize it instead of asking the user to hand-build a file:
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --init
+python "$env:USERPROFILE\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py" --project-root . --init
 ```
 
 3. Read the current state:
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root .
+python "$env:USERPROFILE\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py" --project-root .
 ```
 
 4. Generate the visual sandbox:
 
 ```powershell
-python "$env:USERPROFILE\.codex\skills\vibe-lens\scripts\lens_snapshot.py" --project-root . --html
+python "$env:USERPROFILE\.codex\skills\dl-vibe-lens-skill\scripts\lens_snapshot.py" --project-root . --html
 ```
 
 5. Tell the user where the HTML was written, usually `docs/vibe-lens-report.html`.
+6. Before the final reply, read `docs/vibe-lens-settings.json` when it exists. If `reply_entry_mode` is `"always"`, append a compact Vibe Lens entry. If it is `"when_used"`, append the entry only when this turn used Vibe Lens. If it is `"off"`, do not append it.
 
 ## Guardrails
 
@@ -65,7 +66,9 @@ The generated report should be the primary review surface when the user asks to 
 - Use hover tooltips for titles, rings, progress bars, path nodes, and settings.
 - Show Git diff as a ring and file rows. Git is the evidence source; do not invent line counts.
 - Show the homepage path as broad stages. The vertical lines are stage marks, not exact dates.
-- Include the conversation-entry setting panel. If enabled, an Agent may append a compact `Open Vibe Lens` entry at the end of a reply when Vibe Lens was used. If the operator says "do not show the Vibe Lens entry this turn", do not append it.
+- Include the conversation-entry setting panel. In a project that has enabled DL Vibe Lens, the default mode appends a compact `Open Vibe Lens` entry at the end of every Agent reply. If the operator says "do not show the Vibe Lens entry this turn", do not append it for that turn. If the operator disables it persistently, respect the project setting.
+- The compact entry should be a Markdown link such as `[⌕ Vibe Lens](...)` or `[Vibe Lens](...)`, not a raw long URL.
+- The static HTML setting panel is a display aid. Persistent reply behavior must come from the user prompt or `docs/vibe-lens-settings.json`.
 
 ## Record Update Rules
 
@@ -74,6 +77,8 @@ After meaningful work, update the record as evidence for the next review:
 - Add or update rows in `## Issue Pool` for current and historical questions.
 - Update `## Active Work` when another session needs to see touched files or areas.
 - Add a dated entry under `## Iteration Log`.
+- New records and new rows should follow the current conversation language unless the operator explicitly asks for another language.
+- Existing English rows should not be silently machine-translated in the HTML report; translate and write back only when the operator asks.
 - Record evidence, verification, unfinished uncertainty, and changed files.
 - Keep any recommendation language out of the record unless it is clearly labeled as an operator or Agent opinion.
 - Keep unresolved design/product ideas in the record or roadmap as future optimization, not as hidden behavior.
@@ -98,4 +103,4 @@ Before claiming the lens view is ready:
 | Updating code but not evidence | Update the record with changed files and verification |
 | Manually creating the record from scratch | Use `--init` |
 | Keeping everything in Markdown | Generate the HTML report for visual review |
-| Appending a Vibe Lens entry to every answer | Append it only when the skill was used and the setting/prompt allows it |
+| Showing a long raw report URL in replies | Use a compact Markdown entry such as `Open Vibe Lens` |

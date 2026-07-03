@@ -1,4 +1,0 @@
-interface:
-  display_name: "Vibe Lens"
-  short_description: "复盘沙盘：问题、代码差异、证据和路径"
-  default_prompt: "Use $vibe-lens to initialize or inspect this project, generate the visual sandbox, and show questions, Git diff, evidence, conflict signals, and iteration path without ranking tasks."

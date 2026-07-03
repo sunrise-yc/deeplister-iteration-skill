@@ -16,13 +16,14 @@
 - 当前本地目录：`C:\Users\23184\Desktop\deeplister-iteration-skill`
 - 当前公开仓库名：`DL-vibe-lens-skill`
 - 项目类型：Codex Skill
-- Skill 名：`vibe-lens`
+- Skill 机器名：`dl-vibe-lens-skill`
+- 页面产品名：`Vibe Lens`
 - 默认数据源：`docs/iteration-record.md`
 - 旧记录兼容：`docs/迭代记录.md`
 
 ## 产品定位
 
-`vibe-lens` 是一个给 vibe-coding 项目用的复盘沙盘。
+`DL-vibe-lens-skill` 是一个给 vibe-coding 项目用的复盘沙盘，页面产品名保留为 `Vibe Lens`。
 
 它展示：
 
@@ -44,7 +45,7 @@
 ## 当前决定
 
 - 公开项目名统一为 `DL-vibe-lens-skill`。
-- Skill 文件夹仍叫 `vibe-lens/`，方便用 `$vibe-lens` 触发。
+- Skill 文件夹和触发名统一为 `dl-vibe-lens-skill/` 与 `$dl-vibe-lens-skill`。
 - 第一次使用必须走 `--init`，不能让新手手动建记录文件。
 - HTML 报告默认中文，可切英文。
 - 报告要有主页入口、详情页跳转、沙盘演示、迭代路径和对话入口设置。
@@ -54,10 +55,10 @@
 
 ```powershell
 python -m unittest tests.test_lens_snapshot
-python -m py_compile vibe-lens\scripts\lens_snapshot.py
-python vibe-lens\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md
-python vibe-lens\scripts\lens_snapshot.py --project-root . --html --output docs\vibe-lens-report.html
-python vibe-lens\scripts\lens_snapshot.py --project-root .
+python -m py_compile dl-vibe-lens-skill\scripts\lens_snapshot.py
+python dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md
+python dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root . --html --output docs\vibe-lens-report.html
+python dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root .
 git diff --check
 ```
 

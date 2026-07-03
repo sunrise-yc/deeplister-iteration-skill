@@ -22,9 +22,10 @@
 
 ## 第一次使用
 
-- [ ] 安装目录是 `vibe-lens/`。
-- [ ] 触发提示词使用 `$vibe-lens`。
+- [ ] 安装目录是 `dl-vibe-lens-skill/`。
+- [ ] 触发提示词使用 `$dl-vibe-lens-skill`。
 - [ ] `--init` 能创建 `docs/iteration-record.md`。
+- [ ] `--init` 能创建 `docs/vibe-lens-settings.json`，默认 `reply_entry_mode` 是 `"always"`。
 - [ ] 缺记录文件时，错误信息会提示运行 `--init`。
 - [ ] README 不要求用户手动创建记录文件。
 - [ ] README 说明 Vibe Lens 不排序、不安排任务。
@@ -33,10 +34,10 @@
 
 ```powershell
 python -m unittest tests.test_lens_snapshot
-python -m py_compile vibe-lens\scripts\lens_snapshot.py
-python vibe-lens\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md
-python vibe-lens\scripts\lens_snapshot.py --project-root . --html --output docs\vibe-lens-report.html
-python vibe-lens\scripts\lens_snapshot.py --project-root .
+python -m py_compile dl-vibe-lens-skill\scripts\lens_snapshot.py
+python dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root . --record examples\vibe-lens-record.example.md
+python dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root . --html --output docs\vibe-lens-report.html
+python dl-vibe-lens-skill\scripts\lens_snapshot.py --project-root .
 git diff --check
 ```
 

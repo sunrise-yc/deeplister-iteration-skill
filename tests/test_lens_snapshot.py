@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import os
 import shutil
 import stat
@@ -10,7 +11,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "vibe-lens" / "scripts" / "lens_snapshot.py"
+SCRIPT = ROOT / "dl-vibe-lens-skill" / "scripts" / "lens_snapshot.py"
 
 spec = importlib.util.spec_from_file_location("lens_snapshot", SCRIPT)
 lens_snapshot = importlib.util.module_from_spec(spec)
@@ -114,12 +115,58 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(record.exists())
         text = record.read_text(encoding="utf-8")
+        self.assertIn("## 问题池", text)
+        self.assertIn("## 当前工作", text)
+        self.assertIn("## 迭代记录", text)
+        self.assertIn("不要改名", text)
+        self.assertIn("不替你排优先级", text)
+
+    def test_init_creates_settings_and_chinese_record_by_default(self):
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--project-root", str(self.tmp), "--init"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        record = self.tmp / "docs" / "iteration-record.md"
+        settings = self.tmp / "docs" / "vibe-lens-settings.json"
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(record.exists())
+        self.assertTrue(settings.exists())
+        text = record.read_text(encoding="utf-8")
+        config = json.loads(settings.read_text(encoding="utf-8"))
+        self.assertIn("# Vibe Lens 记录", text)
+        self.assertIn("## 问题池", text)
+        self.assertIn("## 当前工作", text)
+        self.assertIn("## 迭代记录", text)
+        self.assertEqual(config["reply_entry_mode"], "always")
+        self.assertEqual(config["record_language"], "auto")
+
+    def test_init_can_create_english_record_when_requested(self):
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                "--project-root",
+                str(self.tmp),
+                "--init",
+                "--record-language",
+                "en",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        record = self.tmp / "docs" / "iteration-record.md"
+        self.assertEqual(result.returncode, 0, result.stderr)
+        text = record.read_text(encoding="utf-8")
+        self.assertIn("# Vibe Lens Record", text)
         self.assertIn("## Issue Pool", text)
         self.assertIn("## Active Work", text)
         self.assertIn("## Iteration Log", text)
-        self.assertIn("Do not rename these headings", text)
-        self.assertIn("不要改名", text)
-        self.assertIn("Do not rank issues", text)
 
     def test_generates_static_html_report(self):
         self.write_record(
@@ -182,6 +229,27 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertIn("阶段刻度，不是日期", html)
         self.assertIn("对话入口设置", html)
         self.assertIn("打开 Vibe Lens", html)
+        self.assertIn("diff-card", html)
+        self.assertIn("diff-body", html)
+        self.assertIn("diff-file-list", html)
+        self.assertIn("reply_entry_mode", html)
+        self.assertIn("默认每轮回复末尾显示入口", html)
+        self.assertIn('data-entry-mode="always"', html)
+        self.assertIn('data-entry-mode="when_used"', html)
+        self.assertIn('data-entry-mode="off"', html)
+        self.assertIn("持久行为以项目设置文件或明确提示词为准", html)
+
+    def test_skill_metadata_and_docs_use_dl_trigger(self):
+        skill_md = (ROOT / "dl-vibe-lens-skill" / "SKILL.md").read_text(encoding="utf-8")
+        openai_yaml = (ROOT / "dl-vibe-lens-skill" / "agents" / "openai.yaml").read_text(encoding="utf-8")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("name: dl-vibe-lens-skill", skill_md)
+        self.assertIn("$dl-vibe-lens-skill", openai_yaml)
+        self.assertIn("dl-vibe-lens-skill/", readme)
+        self.assertIn("$dl-vibe-lens-skill", readme)
+        self.assertNotIn("$vibe-lens", readme)
+        self.assertNotIn(".codex\\skills\\vibe-lens", readme)
 
     def test_falls_back_to_legacy_chinese_iteration_record(self):
         docs = self.tmp / "docs"
