@@ -1,3 +1,20 @@
+# DL Vibe Lens
+
+A lightweight review sandbox for Codex.
+
+When a vibe coding project grows, important context becomes scattered across conversations, Markdown files, Git diffs, and unfinished ideas.
+
+Vibe Lens brings the situation back into view:
+
+- Current and historical issues
+- Git changes
+- Evidence behind conclusions
+- Conflict signals across AI sessions
+- The project's iteration path
+
+It does not rank tasks or decide what you must do next.
+
+It shows you what the situation looks like, so the human can remain in control.
 # DL-vibe-lens-skill
 
 一个给 Codex 用的复盘沙盘 Skill。
