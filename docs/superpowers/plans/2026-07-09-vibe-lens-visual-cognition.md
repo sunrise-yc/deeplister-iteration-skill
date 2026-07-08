@@ -1306,7 +1306,7 @@ git commit -m "Document Vibe Lens visual cognition fields"
 
 **Files:**
 - Modify: `docs/iteration-record.md`
-- Generated: `docs/vibe-lens-report.html`
+- Generate for verification only: `docs/vibe-lens-report.html` is ignored by git and must not be committed with a normal `git add`.
 
 **Interfaces:**
 - Consumes: all completed tasks
@@ -1402,7 +1402,7 @@ Expected: snapshot reads the new 2026-07-09 iteration entry.
 - [ ] **Step 5: Commit final feature**
 
 ```powershell
-git add dl-vibe-lens-skill/scripts/lens_snapshot.py dl-vibe-lens-skill/assets/report_template.html dl-vibe-lens-skill/references/lens-record-format.md tests/test_lens_snapshot.py README.md docs/FEATURE_INTRO_ZH.md docs/iteration-record.md docs/vibe-lens-report.html
+git add dl-vibe-lens-skill/scripts/lens_snapshot.py dl-vibe-lens-skill/assets/report_template.html dl-vibe-lens-skill/references/lens-record-format.md tests/test_lens_snapshot.py README.md docs/FEATURE_INTRO_ZH.md docs/iteration-record.md
 git commit -m "Implement Vibe Lens visual cognition layer"
 ```
 
