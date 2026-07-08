@@ -337,6 +337,43 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(snapshot["cognition_summary"]["issues_with_verification"], 1)
         self.assertEqual(snapshot["cognition_summary"]["issues_with_full_explanation"], 1)
 
+    def test_file_cognition_marks_only_explicitly_linked_files(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-201 | 脚本需要认知信号 | operator | open | 用户要求可视化减轻负担 | app.py | python -m unittest tests.test_lens_snapshot | 已解释 |
+| VL-202 | 文档需要更新 | operator | open | 用户要求记录边界 | docs/plan.md |  | 解释不足 |
+
+## 迭代记录
+### 2026-07-09: 文件认知标记
+"""
+        )
+        self.run_git("init")
+        self.run_git("config", "user.email", "test@example.com")
+        self.run_git("config", "user.name", "Test User")
+        (self.tmp / "app.py").write_text("one\n", encoding="utf-8")
+        (self.tmp / "other.py").write_text("base\n", encoding="utf-8")
+        self.run_git("add", "app.py", "other.py", "docs/iteration-record.md")
+        self.run_git("commit", "-m", "initial")
+        (self.tmp / "app.py").write_text("one\ntwo\n", encoding="utf-8")
+        (self.tmp / "other.py").write_text("base\nchanged\n", encoding="utf-8")
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        by_path = {row["path"]: row for row in snapshot["git_diff"]["file_cognition"]}
+
+        self.assertEqual(by_path["app.py"]["relation_status"], "已关联")
+        self.assertEqual(by_path["app.py"]["explanation_status"], "已解释")
+        self.assertEqual(by_path["app.py"]["verification_status"], "有验证")
+        self.assertEqual(by_path["app.py"]["linked_issue_ids"], ["VL-201"])
+
+        self.assertEqual(by_path["other.py"]["relation_status"], "未关联")
+        self.assertEqual(by_path["other.py"]["explanation_status"], "未关联")
+        self.assertEqual(by_path["other.py"]["verification_status"], "未关联")
+        self.assertEqual(by_path["other.py"]["linked_issue_ids"], [])
+
     def run_git(self, *args: str) -> None:
         subprocess.run(
             ["git", *args],

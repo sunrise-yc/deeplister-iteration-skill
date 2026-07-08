@@ -214,6 +214,68 @@ def build_cognition_summary(issues: list[dict[str, Any]]) -> dict[str, int]:
     }
 
 
+def split_file_refs(raw: str) -> list[str]:
+    return [part.strip() for part in re.split(r"[,，]", raw) if part.strip()]
+
+
+def file_matches_ref(path: str, ref: str) -> bool:
+    normalized_path = path.replace("\\", "/")
+    normalized_ref = ref.replace("\\", "/")
+    return (
+        normalized_path == normalized_ref
+        or normalized_path.endswith(normalized_ref)
+        or normalized_ref.endswith(normalized_path)
+    )
+
+
+def build_file_cognition(issues: list[dict[str, Any]], files: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows = []
+    for file in files:
+        path = file["path"]
+        linked = []
+        for issue in issues:
+            refs = split_file_refs(value(issue, "files"))
+            if any(file_matches_ref(path, ref) for ref in refs):
+                linked.append(issue)
+
+        if not linked:
+            rows.append(
+                {
+                    "path": path,
+                    "relation_status": "未关联",
+                    "explanation_status": "未关联",
+                    "verification_status": "未关联",
+                    "linked_issue_ids": [],
+                }
+            )
+            continue
+
+        explanations = [issue["__lens"]["explanation"]["label"] for issue in linked]
+        if "已解释" in explanations:
+            explanation_status = "已解释"
+        elif "部分解释" in explanations:
+            explanation_status = "部分解释"
+        else:
+            explanation_status = "解释不足"
+
+        verification_status = (
+            "有验证"
+            if any(issue["__lens"]["verification"]["percent"] > 0 for issue in linked)
+            else "缺验证"
+        )
+
+        rows.append(
+            {
+                "path": path,
+                "relation_status": "已关联",
+                "explanation_status": explanation_status,
+                "verification_status": verification_status,
+                "linked_issue_ids": [value(issue, "id", "-") for issue in linked],
+            }
+        )
+    return rows
+
+
 def resolve_record(project_root: Path, record_path: Path | None = None) -> Path:
     if record_path:
         return record_path
@@ -348,6 +410,9 @@ def build_snapshot(
     if settings_path.exists():
         settings.update(json.loads(settings_path.read_text(encoding="utf-8")))
 
+    git_diff = collect_git_diff(project_root, diff_ref)
+    git_diff["file_cognition"] = build_file_cognition(issues, git_diff.get("files", []))
+
     return {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "project_root": str(project_root),
@@ -368,7 +433,7 @@ def build_snapshot(
             "current_direction": direction_text,
         },
         "settings": settings,
-        "git_diff": collect_git_diff(project_root, diff_ref),
+        "git_diff": git_diff,
         "conflict_signals": build_conflict_signals(active_work_rows),
         "cognition_summary": build_cognition_summary(issues),
     }
