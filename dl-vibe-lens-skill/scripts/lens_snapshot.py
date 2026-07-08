@@ -53,6 +53,8 @@ FIELD_ALIASES = {
     "files": ["Files Or Areas", "Related Files", "关联文件", "涉及文件"],
     "source": ["Source", "来源"],
     "evidence": ["Evidence", "证据"],
+    "verification": ["Verification", "Validation", "验证", "验证记录"],
+    "explanation_status": ["Explanation Status", "Explanation", "解释状态", "解释"],
 }
 
 
@@ -109,6 +111,103 @@ def value(row: dict[str, str], field: str, default: str = "") -> str:
 
 def is_open_issue(issue: dict[str, str]) -> bool:
     return value(issue, "status").strip().lower() not in DONE_STATUSES
+
+
+EMPTY_VALUES = {"", "-", "none", "None", "NONE", "n/a", "N/A", "无", "暂无", "未记录", "unknown"}
+FULL_EXPLANATION_VALUES = {"explained", "full", "complete", "已解释", "完整解释"}
+PARTIAL_EXPLANATION_VALUES = {"partial", "部分解释"}
+WEAK_EXPLANATION_VALUES = {"insufficient", "missing", "解释不足", "缺解释", "未解释"}
+
+
+def has_meaningful_text(raw: str) -> bool:
+    return raw.strip() not in EMPTY_VALUES
+
+
+def percent(complete: int, total: int) -> int:
+    if total <= 0:
+        return 0
+    return round((complete / total) * 100)
+
+
+def issue_signal_breakdown(issue: dict[str, str]) -> dict[str, Any]:
+    source_present = has_meaningful_text(value(issue, "source"))
+    evidence_present = has_meaningful_text(value(issue, "evidence")) or has_meaningful_text(value(issue, "impact"))
+    files_present = has_meaningful_text(value(issue, "files"))
+    verification_present = has_meaningful_text(value(issue, "verification"))
+
+    evidence_checks = [
+        ("来源", source_present),
+        ("证据", evidence_present),
+        ("关联文件", files_present),
+    ]
+    evidence_complete = sum(1 for _name, present in evidence_checks if present)
+    evidence_missing = [name for name, present in evidence_checks if not present]
+
+    verification_missing = [] if verification_present else ["验证"]
+
+    explanation_raw = value(issue, "explanation_status").strip()
+    explanation_normalized = explanation_raw.lower()
+    if explanation_raw in FULL_EXPLANATION_VALUES or explanation_normalized in FULL_EXPLANATION_VALUES:
+        explanation_label = "已解释"
+        explanation_complete = 1
+        explanation_missing: list[str] = []
+    elif explanation_raw in PARTIAL_EXPLANATION_VALUES or explanation_normalized in PARTIAL_EXPLANATION_VALUES:
+        explanation_label = "部分解释"
+        explanation_complete = 0
+        explanation_missing = ["完整解释"]
+    elif explanation_raw in WEAK_EXPLANATION_VALUES or explanation_normalized in WEAK_EXPLANATION_VALUES:
+        explanation_label = "解释不足"
+        explanation_complete = 0
+        explanation_missing = ["解释"]
+    elif has_meaningful_text(explanation_raw):
+        explanation_label = explanation_raw
+        explanation_complete = 1
+        explanation_missing = []
+    else:
+        explanation_label = "未记录"
+        explanation_complete = 0
+        explanation_missing = ["解释"]
+
+    total_complete = evidence_complete + (1 if verification_present else 0) + explanation_complete
+    total_possible = 5
+
+    return {
+        "evidence": {
+            "complete": evidence_complete,
+            "total": 3,
+            "percent": percent(evidence_complete, 3),
+            "missing": evidence_missing,
+        },
+        "verification": {
+            "complete": 1 if verification_present else 0,
+            "total": 1,
+            "percent": 100 if verification_present else 0,
+            "missing": verification_missing,
+        },
+        "explanation": {
+            "complete": explanation_complete,
+            "total": 1,
+            "percent": 100 if explanation_complete else 0,
+            "label": explanation_label,
+            "missing": explanation_missing,
+        },
+        "overall_percent": percent(total_complete, total_possible),
+    }
+
+
+def enrich_issue(issue: dict[str, str]) -> dict[str, Any]:
+    enriched: dict[str, Any] = dict(issue)
+    enriched["__lens"] = issue_signal_breakdown(issue)
+    return enriched
+
+
+def build_cognition_summary(issues: list[dict[str, Any]]) -> dict[str, int]:
+    return {
+        "issues_with_evidence": sum(1 for issue in issues if issue["__lens"]["evidence"]["percent"] > 0),
+        "issues_with_verification": sum(1 for issue in issues if issue["__lens"]["verification"]["percent"] > 0),
+        "issues_with_full_explanation": sum(1 for issue in issues if issue["__lens"]["explanation"]["label"] == "已解释"),
+        "issues_with_gaps": sum(1 for issue in issues if issue["__lens"]["overall_percent"] < 100),
+    }
 
 
 def resolve_record(project_root: Path, record_path: Path | None = None) -> Path:
@@ -231,9 +330,10 @@ def build_snapshot(
     record = resolve_record(project_root, record_path)
     text = record.read_text(encoding="utf-8")
 
-    issues = parse_markdown_table(section_any(text, SECTION_ALIASES["issue_pool"]))
+    raw_issues = parse_markdown_table(section_any(text, SECTION_ALIASES["issue_pool"]))
+    issues = [enrich_issue(issue) for issue in raw_issues]
     open_questions = [issue for issue in issues if is_open_issue(issue)]
-    issue_counts = Counter(value(issue, "status", "unknown") for issue in issues)
+    issue_counts = Counter(value(issue, "status", "unknown") for issue in raw_issues)
 
     active_work_rows = parse_markdown_table(section_any(text, SECTION_ALIASES["active_work"]))
     follow_up_rows = parse_markdown_table(section_any(text, SECTION_ALIASES["follow_up"]))
@@ -266,6 +366,7 @@ def build_snapshot(
         "settings": settings,
         "git_diff": collect_git_diff(project_root, diff_ref),
         "conflict_signals": build_conflict_signals(active_work_rows),
+        "cognition_summary": build_cognition_summary(issues),
     }
 
 

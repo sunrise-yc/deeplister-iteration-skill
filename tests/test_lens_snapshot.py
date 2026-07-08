@@ -289,6 +289,46 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(snapshot["latest_iteration"], "2026-07-01：旧文档兼容")
         self.assertEqual(snapshot["follow_up_case_count"], 1)
 
+    def test_snapshot_builds_visual_cognition_signals(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-101 | 总览详情入口混乱 | operator | open | 用户指出四个指标跳到同一详情页 | dl-vibe-lens-skill/assets/report_template.html | python -m unittest tests.test_lens_snapshot | 已解释 |
+| VL-102 | 路径图还是演示图 | operator | open | 用户指出路径图落地残缺 | dl-vibe-lens-skill/assets/report_template.html |  | 解释不足 |
+
+## 当前工作
+| 会话 | 任务 | 涉及文件 | 状态 | 备注 |
+|---|---|---|---|---|
+| 2026-07-09 | 设计可视化认知层 | docs/ | discussing | 计划阶段 |
+
+## 迭代记录
+### 2026-07-09: 设计可视化认知层
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        first = snapshot["open_questions"][0]["__lens"]
+        second = snapshot["open_questions"][1]["__lens"]
+
+        self.assertEqual(first["evidence"]["complete"], 3)
+        self.assertEqual(first["evidence"]["total"], 3)
+        self.assertEqual(first["evidence"]["percent"], 100)
+        self.assertEqual(first["verification"]["percent"], 100)
+        self.assertEqual(first["explanation"]["label"], "已解释")
+        self.assertEqual(first["overall_percent"], 100)
+
+        self.assertEqual(second["verification"]["percent"], 0)
+        self.assertIn("验证", second["verification"]["missing"])
+        self.assertEqual(second["explanation"]["label"], "解释不足")
+        self.assertLess(second["overall_percent"], 100)
+
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_evidence"], 2)
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_verification"], 1)
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_full_explanation"], 1)
+
     def run_git(self, *args: str) -> None:
         subprocess.run(
             ["git", *args],
