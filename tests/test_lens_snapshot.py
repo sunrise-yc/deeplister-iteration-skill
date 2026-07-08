@@ -298,6 +298,7 @@ class LensSnapshotTest(unittest.TestCase):
 |---|---|---|---|---|---|---|---|
 | VL-101 | 总览详情入口混乱 | operator | open | 用户指出四个指标跳到同一详情页 | dl-vibe-lens-skill/assets/report_template.html | python -m unittest tests.test_lens_snapshot | 已解释 |
 | VL-102 | 路径图还是演示图 | operator | open | 用户指出路径图落地残缺 | dl-vibe-lens-skill/assets/report_template.html |  | 解释不足 |
+| VL-103 | 解释状态要更严格 | operator | open | 需要确认未知值不会被当成已解释 | dl-vibe-lens-skill/scripts/lens_snapshot.py |  | 待解释 |
 
 ## 当前工作
 | 会话 | 任务 | 涉及文件 | 状态 | 备注 |
@@ -312,6 +313,7 @@ class LensSnapshotTest(unittest.TestCase):
         snapshot = lens_snapshot.build_snapshot(self.tmp)
         first = snapshot["open_questions"][0]["__lens"]
         second = snapshot["open_questions"][1]["__lens"]
+        third = snapshot["open_questions"][2]["__lens"]
 
         self.assertEqual(first["evidence"]["complete"], 3)
         self.assertEqual(first["evidence"]["total"], 3)
@@ -325,7 +327,13 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(second["explanation"]["label"], "解释不足")
         self.assertLess(second["overall_percent"], 100)
 
-        self.assertEqual(snapshot["cognition_summary"]["issues_with_evidence"], 2)
+        self.assertEqual(third["explanation"]["label"], "待解释")
+        self.assertEqual(third["explanation"]["complete"], 0)
+        self.assertEqual(third["explanation"]["percent"], 0)
+        self.assertIn("解释", third["explanation"]["missing"])
+        self.assertLess(third["overall_percent"], 100)
+
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_evidence"], 3)
         self.assertEqual(snapshot["cognition_summary"]["issues_with_verification"], 1)
         self.assertEqual(snapshot["cognition_summary"]["issues_with_full_explanation"], 1)
 

@@ -123,6 +123,10 @@ def has_meaningful_text(raw: str) -> bool:
     return raw.strip() not in EMPTY_VALUES
 
 
+def normalize_text(raw: str) -> str:
+    return raw.strip().lower()
+
+
 def percent(complete: int, total: int) -> int:
     if total <= 0:
         return 0
@@ -146,7 +150,7 @@ def issue_signal_breakdown(issue: dict[str, str]) -> dict[str, Any]:
     verification_missing = [] if verification_present else ["验证"]
 
     explanation_raw = value(issue, "explanation_status").strip()
-    explanation_normalized = explanation_raw.lower()
+    explanation_normalized = normalize_text(explanation_raw)
     if explanation_raw in FULL_EXPLANATION_VALUES or explanation_normalized in FULL_EXPLANATION_VALUES:
         explanation_label = "已解释"
         explanation_complete = 1
@@ -161,8 +165,8 @@ def issue_signal_breakdown(issue: dict[str, str]) -> dict[str, Any]:
         explanation_missing = ["解释"]
     elif has_meaningful_text(explanation_raw):
         explanation_label = explanation_raw
-        explanation_complete = 1
-        explanation_missing = []
+        explanation_complete = 0
+        explanation_missing = ["解释"]
     else:
         explanation_label = "未记录"
         explanation_complete = 0
@@ -205,7 +209,7 @@ def build_cognition_summary(issues: list[dict[str, Any]]) -> dict[str, int]:
     return {
         "issues_with_evidence": sum(1 for issue in issues if issue["__lens"]["evidence"]["percent"] > 0),
         "issues_with_verification": sum(1 for issue in issues if issue["__lens"]["verification"]["percent"] > 0),
-        "issues_with_full_explanation": sum(1 for issue in issues if issue["__lens"]["explanation"]["label"] == "已解释"),
+        "issues_with_full_explanation": sum(1 for issue in issues if issue["__lens"]["explanation"]["complete"] > 0),
         "issues_with_gaps": sum(1 for issue in issues if issue["__lens"]["overall_percent"] < 100),
     }
 
