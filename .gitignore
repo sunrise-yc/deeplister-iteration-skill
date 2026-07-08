@@ -7,5 +7,6 @@ __pycache__/
 .mypy_cache/
 .gstack/
 .superpowers/
+.worktrees/
 docs/vibe-lens-report.html
 dist/redskill/DL-vibe-lens-skill/
