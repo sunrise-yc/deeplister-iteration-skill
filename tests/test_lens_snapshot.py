@@ -368,6 +368,34 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(snapshot["cognition_summary"]["issues_with_verification"], 1)
         self.assertEqual(snapshot["cognition_summary"]["issues_with_full_explanation"], 1)
 
+    def test_html_report_renders_visual_cognition_signals_without_new_card(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-401 | 当前问题需要信息信号 | operator | open | 用户要求可视化减轻负担 | README.md | python -m unittest tests.test_lens_snapshot | 已解释 |
+
+## 迭代记录
+### 2026-07-09: HTML 信息信号
+验证：
+- 已生成 HTML。
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        output = self.tmp / "lens-report.html"
+        lens_snapshot.write_html_report(snapshot, output)
+        html = output.read_text(encoding="utf-8")
+
+        self.assertIn("signal-row", html)
+        self.assertIn("evidenceSignal", html)
+        self.assertIn("verificationSignal", html)
+        self.assertIn("explanationSignal", html)
+        self.assertIn("信息完整度", html)
+        self.assertNotIn(">理解 Coding<", html)
+
     def test_file_cognition_marks_only_explicitly_linked_files(self):
         self.write_record(
             """# Vibe Lens 记录
