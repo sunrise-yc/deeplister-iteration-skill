@@ -221,11 +221,13 @@ def split_file_refs(raw: str) -> list[str]:
 def file_matches_ref(path: str, ref: str) -> bool:
     normalized_path = path.replace("\\", "/")
     normalized_ref = ref.replace("\\", "/")
-    return (
-        normalized_path == normalized_ref
-        or normalized_path.endswith(normalized_ref)
-        or normalized_ref.endswith(normalized_path)
-    )
+    if normalized_path == normalized_ref:
+        return True
+
+    if normalized_ref.endswith("/") and normalized_path.startswith(normalized_ref):
+        return True
+
+    return False
 
 
 def build_file_cognition(issues: list[dict[str, Any]], files: list[dict[str, Any]]) -> list[dict[str, Any]]:

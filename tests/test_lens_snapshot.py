@@ -345,7 +345,8 @@ class LensSnapshotTest(unittest.TestCase):
 | 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
 |---|---|---|---|---|---|---|---|
 | VL-201 | 脚本需要认知信号 | operator | open | 用户要求可视化减轻负担 | app.py | python -m unittest tests.test_lens_snapshot | 已解释 |
-| VL-202 | 文档需要更新 | operator | open | 用户要求记录边界 | docs/plan.md |  | 解释不足 |
+| VL-202 | 同名片段不该误连 | operator | open | 用户要求严格按路径匹配 | myapp.py |  | 解释不足 |
+| VL-203 | 目录前缀应可关联 | operator | open | 用户要求显式目录引用 | src/ |  | 部分解释 |
 
 ## 迭代记录
 ### 2026-07-09: 文件认知标记
@@ -356,10 +357,19 @@ class LensSnapshotTest(unittest.TestCase):
         self.run_git("config", "user.name", "Test User")
         (self.tmp / "app.py").write_text("one\n", encoding="utf-8")
         (self.tmp / "other.py").write_text("base\n", encoding="utf-8")
-        self.run_git("add", "app.py", "other.py", "docs/iteration-record.md")
+        (self.tmp / "src").mkdir()
+        (self.tmp / "src" / "tool.py").write_text("tool\n", encoding="utf-8")
+        self.run_git(
+            "add",
+            "app.py",
+            "other.py",
+            "src/tool.py",
+            "docs/iteration-record.md",
+        )
         self.run_git("commit", "-m", "initial")
         (self.tmp / "app.py").write_text("one\ntwo\n", encoding="utf-8")
         (self.tmp / "other.py").write_text("base\nchanged\n", encoding="utf-8")
+        (self.tmp / "src" / "tool.py").write_text("tool\nupdated\n", encoding="utf-8")
 
         snapshot = lens_snapshot.build_snapshot(self.tmp)
         by_path = {row["path"]: row for row in snapshot["git_diff"]["file_cognition"]}
@@ -368,6 +378,13 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(by_path["app.py"]["explanation_status"], "已解释")
         self.assertEqual(by_path["app.py"]["verification_status"], "有验证")
         self.assertEqual(by_path["app.py"]["linked_issue_ids"], ["VL-201"])
+
+        self.assertNotIn("VL-202", by_path["app.py"]["linked_issue_ids"])
+
+        self.assertEqual(by_path["src/tool.py"]["relation_status"], "已关联")
+        self.assertEqual(by_path["src/tool.py"]["explanation_status"], "部分解释")
+        self.assertEqual(by_path["src/tool.py"]["verification_status"], "缺验证")
+        self.assertEqual(by_path["src/tool.py"]["linked_issue_ids"], ["VL-203"])
 
         self.assertEqual(by_path["other.py"]["relation_status"], "未关联")
         self.assertEqual(by_path["other.py"]["explanation_status"], "未关联")
