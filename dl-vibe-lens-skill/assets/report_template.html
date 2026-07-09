@@ -792,12 +792,7 @@
             <path class="dash" d="M520 44 H664 Q680 44 680 60 V86"></path>
             <path class="dash" d="M536 86 H698 Q714 86 714 102 V126 H884"></path>
           </svg>
-          <span class="node done" style="left:7.1%;top:55.1%" data-tip-zh="起点：问题开始进入复盘记录。" data-tip-en="Start: questions entered the review record."></span>
-          <span class="node choice expandable" style="left:30.4%;top:28.2%" data-tip-zh="可展开节点：一次方向选择，详细页显示背后的选择。" data-tip-en="Expandable node: a direction choice; the detail page shows choices behind it."></span>
-          <span class="node choice expandable" style="left:54.7%;top:55.1%" data-tip-zh="可展开节点：报告 UI、沙盘入口、代码差异展示等方向调整。" data-tip-en="Expandable node: report UI, sandbox gateway, and code diff display changed here."></span>
-          <span class="node abandon" style="left:69.4%;top:55.1%" data-tip-zh="放弃路径：与第一阶段只展示事实的定位冲突。" data-tip-en="Abandoned path: conflicted with the stage-one principle of displaying facts only."></span>
-          <span class="node pending" style="left:90.2%;top:80.8%" data-tip-zh="待定节点：后续优化方向。" data-tip-en="Pending node: later optimization direction."></span>
-          <span class="node current" style="left:91.8%;top:55.1%" data-tip-zh="当前节点：生成可发布的 Skill 和项目介绍。" data-tip-en="Current node: package the publishable skill and project intro."></span>
+          <div id="timelineNodes"></div>
         </div>
       </a>
     </section>
@@ -1141,8 +1136,8 @@
     }
 
     function tagClass(value) {
-      if (["已解释", "有验证", "已关联", "Linked"].includes(value)) return "good";
-      if (["部分解释", "解释不足", "缺验证", "Partial explanation", "Insufficient explanation", "Missing verification"].includes(value)) return "warn";
+      if (["已解释", "有验证", "已关联", "记录事实", "测试验证", "Linked"].includes(value)) return "good";
+      if (["部分解释", "解释不足", "缺验证", "风险线索", "Partial explanation", "Insufficient explanation", "Missing verification"].includes(value)) return "warn";
       return "muted";
     }
 
@@ -1259,6 +1254,32 @@
       `;
     }
 
+    function markerClass(markers) {
+      if ((markers || []).includes("风险线索")) return "abandon";
+      if ((markers || []).includes("解释不足")) return "choice";
+      if ((markers || []).includes("测试验证")) return "done";
+      return "done";
+    }
+
+    function renderPathViz() {
+      const nodes = data.iteration_direction?.nodes || [];
+      const container = byId("timelineNodes");
+      if (!container) return;
+      if (!nodes.length) {
+        container.innerHTML = "";
+        return;
+      }
+      const count = Math.max(1, nodes.length - 1);
+      container.innerHTML = nodes.map((node, index) => {
+        const left = 7 + (index / count) * 86;
+        const top = index % 2 === 0 ? 55 : 28;
+        const markers = node.markers || [];
+        const tipZh = `${node.title}｜${markers.join("、") || "记录事实"}`;
+        const tipEn = `${node.title} | ${markers.join(", ") || "record fact"}`;
+        return `<span class="node ${esc(markerClass(markers))}" data-node-index="${esc(index)}" style="left:${left.toFixed(1)}%;top:${top.toFixed(1)}%" data-tip-zh="${esc(tipZh)}" data-tip-en="${esc(tipEn)}"></span>`;
+      }).join("");
+    }
+
     function renderDetails() {
       const issues = data.issues || [];
       const active = data.active_work || [];
@@ -1320,11 +1341,12 @@
         </div>
       `;
 
-      const headings = data.iteration_direction?.headings || [];
-      byId("pathDetailList").innerHTML = headings.length ? headings.map((title, index) => `
+      const nodes = data.iteration_direction?.nodes || [];
+      byId("pathDetailList").innerHTML = nodes.length ? nodes.map((node, index) => `
         <div class="path-node-detail ${index > 3 ? "abandoned" : ""}">
-          <h3>${esc(index + 1)}. ${esc(title)}</h3>
-          <div class="detail-item">${esc(index === 0 ? (data.iteration_direction?.current_direction || t("pathScaleText")) : t("pathScaleText"))}</div>
+          <h3>${esc(index + 1)}. ${esc(node.title)}</h3>
+          <div class="fact-row">${(node.markers || []).map((marker) => `<span class="fact-chip ${esc(tagClass(marker))}">${esc(marker)}</span>`).join("")}</div>
+          <div class="detail-item">${esc(index === 0 ? (data.iteration_direction?.current_direction || t("pathScaleText")) : (node.summary || t("pathScaleText")))}</div>
         </div>
       `).join("") : `<div class="detail-item">${esc(t("none"))}</div>`;
     }
@@ -1425,6 +1447,7 @@
       renderQuestions();
       renderDiff();
       renderSandboxAndEvidence();
+      renderPathViz();
       renderDetails();
     }
 

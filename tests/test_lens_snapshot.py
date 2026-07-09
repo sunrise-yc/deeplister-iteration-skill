@@ -316,6 +316,37 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertIn("linked_issue_ids", html)
         self.assertNotIn("file.path.includes(part)", html)
 
+    def test_html_path_visualization_uses_real_iteration_nodes(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 |
+|---|---|---|---|---|---|
+| VL-601 | 路径图要来自记录 | operator | open | 用户要求路径图不再只是演示 | dl-vibe-lens-skill/assets/report_template.html |
+
+## 迭代记录
+### 2026-07-09: 真实节点一
+验证：
+- 已运行测试。
+
+### 2026-07-08: 真实节点二
+未完成：
+- 还有解释缺口。
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        output = self.tmp / "lens-report.html"
+        lens_snapshot.write_html_report(snapshot, output)
+        html = output.read_text(encoding="utf-8")
+
+        self.assertIn("renderPathViz", html)
+        self.assertIn("data-node-index", html)
+        self.assertIn("真实节点一", html)
+        self.assertIn("真实节点二", html)
+        self.assertNotIn("可展开节点：报告 UI、沙盘入口、代码差异展示等方向调整。", html)
+
     def test_skill_metadata_and_docs_use_dl_trigger(self):
         skill_md = (ROOT / "dl-vibe-lens-skill" / "SKILL.md").read_text(encoding="utf-8")
         openai_yaml = (ROOT / "dl-vibe-lens-skill" / "agents" / "openai.yaml").read_text(encoding="utf-8")
