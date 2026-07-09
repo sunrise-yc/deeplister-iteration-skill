@@ -369,6 +369,37 @@
     .diff-file-list::-webkit-scrollbar-track { background: transparent; }
     .diff-file-list::-webkit-scrollbar-thumb { background: rgba(100,116,139,.26); border-radius: 999px; }
 
+    .file-cognition-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 4px;
+      min-width: 96px;
+    }
+
+    .mini-tag, .fact-chip {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: var(--muted);
+      background: rgba(255,255,255,.72);
+      white-space: nowrap;
+    }
+
+    .mini-tag.good, .fact-chip.good { color: #166534; background: #dcfce7; border-color: #bbf7d0; }
+    .mini-tag.warn, .fact-chip.warn { color: #92400e; background: #fef3c7; border-color: #fde68a; }
+    .mini-tag.muted, .fact-chip.muted { color: #64748b; background: #f1f5f9; }
+
+    .fact-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
     .sandbox-mini { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
     .steps { display: grid; gap: 8px; }
     .step {
@@ -929,6 +960,16 @@
         explanationSignal: "解释",
         latestEvidence: "最新证据",
         conflictSignals: "冲突线索",
+        gitFact: "Git 事实",
+        recordFact: "记录事实",
+        testVerification: "测试验证",
+        operatorConfirmed: "操作者确认",
+        agentJudgment: "Agent 判断",
+        missingEvidence: "缺证据",
+        missingVerification: "缺验证",
+        insufficientExplanation: "解释不足",
+        linked: "已关联",
+        unlinked: "未关联",
         total: "total",
         signals: "signals",
         currentFocus: "当前聚焦",
@@ -1003,6 +1044,16 @@
         explanationSignal: "Explanation",
         latestEvidence: "Latest evidence",
         conflictSignals: "Conflict signals",
+        gitFact: "Git fact",
+        recordFact: "Record fact",
+        testVerification: "Test verification",
+        operatorConfirmed: "Operator confirmed",
+        agentJudgment: "Agent judgment",
+        missingEvidence: "Missing evidence",
+        missingVerification: "Missing verification",
+        insufficientExplanation: "Insufficient explanation",
+        linked: "Linked",
+        unlinked: "Unlinked",
         total: "total",
         signals: "signals",
         currentFocus: "Current focus",
@@ -1066,16 +1117,37 @@
     }
 
     function relatedDiff(row) {
-      const raw = issueFiles(row);
-      const parts = raw.split(/[,，]/).map((part) => part.trim()).filter(Boolean);
+      const relatedPaths = new Set((data.git_diff?.file_cognition || [])
+        .filter((item) => (item.linked_issue_ids || []).includes(issueId(row)))
+        .map((item) => item.path));
       const files = data.git_diff?.files || [];
-      const matches = files.filter((file) => parts.some((part) => file.path.includes(part) || part.includes(file.path)));
+      const matches = files.filter((file) => relatedPaths.has(file.path));
       return matches.reduce((acc, file) => {
         acc.added += Number(file.added || 0);
         acc.deleted += Number(file.deleted || 0);
         acc.count += 1;
         return acc;
       }, { added: 0, deleted: 0, count: matches.length });
+    }
+
+    function cognitionByPath(path) {
+      const rows = data.git_diff?.file_cognition || [];
+      return rows.find((row) => row.path === path) || {
+        relation_status: t("unlinked"),
+        explanation_status: t("unlinked"),
+        verification_status: t("unlinked"),
+        linked_issue_ids: []
+      };
+    }
+
+    function tagClass(value) {
+      if (["已解释", "有验证", "已关联", "Linked"].includes(value)) return "good";
+      if (["部分解释", "解释不足", "缺验证", "Partial explanation", "Insufficient explanation", "Missing verification"].includes(value)) return "warn";
+      return "muted";
+    }
+
+    function renderMiniTag(value) {
+      return `<span class="mini-tag ${esc(tagClass(value))}">${esc(value)}</span>`;
     }
 
     function renderOverview() {
@@ -1156,6 +1228,10 @@
           <span class="mono">${esc(file.path)}</span>
           <strong class="added">+${esc(file.added ?? "bin")}</strong>
           <strong class="deleted">-${esc(file.deleted ?? "bin")}</strong>
+          <span class="file-cognition-tags">
+            ${renderMiniTag(cognitionByPath(file.path).explanation_status)}
+            ${renderMiniTag(cognitionByPath(file.path).verification_status)}
+          </span>
         </div>
       `).join("") : `<div class="detail-item">${esc(t("noDiff"))}</div>`;
     }
@@ -1169,9 +1245,16 @@
         <div class="mini-link"><span class="mini-dot orange"></span><span>${esc(t("code"))}: +${esc(diff.total_added || 0)} / -${esc(diff.total_deleted || 0)}</span></div>
         <div class="mini-link"><span class="mini-dot red"></span><span>${esc(t("gap"))}: ${esc((data.conflict_signals || []).length)} ${esc(t("conflictSignals"))}</span></div>
       `;
+      const summary = data.cognition_summary || {};
       byId("evidenceSummary").innerHTML = `
+        <div class="fact-row">
+          <span class="fact-chip good">${esc(t("gitFact"))}: ${esc(diff.changed_file_count || 0)}</span>
+          <span class="fact-chip good">${esc(t("recordFact"))}: ${esc(data.issue_count || 0)}</span>
+          <span class="fact-chip good">${esc(t("testVerification"))}: ${esc(summary.issues_with_verification || 0)}</span>
+          <span class="fact-chip warn">${esc(t("missingVerification"))}: ${esc((data.issue_count || 0) - (summary.issues_with_verification || 0))}</span>
+          <span class="fact-chip warn">${esc(t("insufficientExplanation"))}: ${esc(summary.issues_with_gaps || 0)}</span>
+        </div>
         <div class="file-row"><span>${esc(t("latestEvidence"))}</span><strong>${esc(latest)}</strong><strong></strong></div>
-        <div class="file-row"><span>${esc(t("totalQuestions"))}</span><strong>${esc(data.issue_count)}</strong><strong>${esc(t("total"))}</strong></div>
         <div class="file-row"><span>${esc(t("conflictSignals"))}</span><strong>${esc((data.conflict_signals || []).length)}</strong><strong>${esc(t("signals"))}</strong></div>
       `;
     }

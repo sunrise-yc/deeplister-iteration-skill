@@ -279,6 +279,43 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(nodes[1]["title"], "2026-07-08: 记录理解 coding 定位")
         self.assertIn("记录事实", nodes[1]["markers"])
 
+    def test_html_report_renders_file_cognition_tags_and_fact_types(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-501 | 文件标记需要可追溯 | operator | open | 用户要求不猜文件关系 | app.py | python -m unittest tests.test_lens_snapshot | 已解释 |
+
+## 迭代记录
+### 2026-07-09: 文件标签
+验证：
+- 已运行测试。
+"""
+        )
+        self.run_git("init")
+        self.run_git("config", "user.email", "test@example.com")
+        self.run_git("config", "user.name", "Test User")
+        (self.tmp / "app.py").write_text("one\n", encoding="utf-8")
+        self.run_git("add", "app.py", "docs/iteration-record.md")
+        self.run_git("commit", "-m", "initial")
+        (self.tmp / "app.py").write_text("one\ntwo\n", encoding="utf-8")
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        output = self.tmp / "lens-report.html"
+        lens_snapshot.write_html_report(snapshot, output)
+        html = output.read_text(encoding="utf-8")
+
+        self.assertIn("file-cognition-tags", html)
+        self.assertIn("已解释", html)
+        self.assertIn("有验证", html)
+        self.assertIn("fact-chip", html)
+        self.assertIn("Git 事实", html)
+        self.assertIn("缺验证", html)
+        self.assertIn("linked_issue_ids", html)
+        self.assertNotIn("file.path.includes(part)", html)
+
     def test_skill_metadata_and_docs_use_dl_trigger(self):
         skill_md = (ROOT / "dl-vibe-lens-skill" / "SKILL.md").read_text(encoding="utf-8")
         openai_yaml = (ROOT / "dl-vibe-lens-skill" / "agents" / "openai.yaml").read_text(encoding="utf-8")
