@@ -102,6 +102,41 @@ def parse_iterations(block: str) -> list[str]:
     return re.findall(r"^###\s+(.+?)\s*$", block, flags=re.MULTILINE)
 
 
+def parse_iteration_entries(block: str) -> list[dict[str, str]]:
+    pattern = re.compile(r"^###\s+(.+?)\s*$", flags=re.MULTILINE)
+    matches = list(pattern.finditer(block))
+    entries: list[dict[str, str]] = []
+    for index, match in enumerate(matches):
+        start = match.end()
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(block)
+        entries.append({"title": match.group(1).strip(), "body": block[start:end].strip()})
+    return entries
+
+
+def build_iteration_nodes(entries: list[dict[str, str]]) -> list[dict[str, Any]]:
+    nodes = []
+    for index, entry in enumerate(entries[:10]):
+        body = entry["body"]
+        markers = ["记录事实"]
+        if "验证" in body or "Verification" in body:
+            markers.append("测试验证")
+        if "未完成" in body or "不清楚" in body or "缺口" in body:
+            markers.append("解释不足")
+        if "风险" in body or "冲突" in body:
+            markers.append("风险线索")
+        body_lines = body.splitlines()
+        nodes.append(
+            {
+                "title": entry["title"],
+                "index": index,
+                "kind": "latest" if index == 0 else "main",
+                "markers": markers,
+                "summary": body_lines[0] if body_lines else "",
+            }
+        )
+    return nodes
+
+
 def value(row: dict[str, str], field: str, default: str = "") -> str:
     for name in FIELD_ALIASES[field]:
         if name in row:
@@ -405,7 +440,9 @@ def build_snapshot(
 
     active_work_rows = parse_markdown_table(section_any(text, SECTION_ALIASES["active_work"]))
     follow_up_rows = parse_markdown_table(section_any(text, SECTION_ALIASES["follow_up"]))
-    iterations = parse_iterations(section_any(text, SECTION_ALIASES["iteration_log"]))
+    iteration_block = section_any(text, SECTION_ALIASES["iteration_log"])
+    iteration_entries = parse_iteration_entries(iteration_block)
+    iterations = [entry["title"] for entry in iteration_entries]
     direction_text = section_any(text, SECTION_ALIASES["direction"])
     settings_path = project_root / DEFAULT_SETTINGS
     settings = DEFAULT_SETTINGS_DATA.copy()
@@ -432,6 +469,7 @@ def build_snapshot(
         "latest_iteration": iterations[0] if iterations else None,
         "iteration_direction": {
             "headings": iterations[:10],
+            "nodes": build_iteration_nodes(iteration_entries),
             "current_direction": direction_text,
         },
         "settings": settings,

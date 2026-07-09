@@ -248,6 +248,37 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertIn("settings.contains(event.target)", html)
         self.assertIn("settings.classList.remove(\"open\")", html)
 
+    def test_iteration_path_nodes_are_built_from_real_entries(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 |
+|---|---|---|---|---|---|
+| VL-301 | 路径图需要真实数据 | operator | open | 用户指出当前路径图像演示 | dl-vibe-lens-skill/assets/report_template.html |
+
+## 迭代记录
+### 2026-07-09: 记录可视化认知层
+验证：
+- 已运行 snapshot。
+未完成：
+- 路径图还需要节点展开。
+
+### 2026-07-08: 记录理解 coding 定位
+证据：
+- 用户明确纠正产品定位。
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        nodes = snapshot["iteration_direction"]["nodes"]
+
+        self.assertEqual(nodes[0]["title"], "2026-07-09: 记录可视化认知层")
+        self.assertIn("测试验证", nodes[0]["markers"])
+        self.assertIn("解释不足", nodes[0]["markers"])
+        self.assertEqual(nodes[1]["title"], "2026-07-08: 记录理解 coding 定位")
+        self.assertIn("记录事实", nodes[1]["markers"])
+
     def test_skill_metadata_and_docs_use_dl_trigger(self):
         skill_md = (ROOT / "dl-vibe-lens-skill" / "SKILL.md").read_text(encoding="utf-8")
         openai_yaml = (ROOT / "dl-vibe-lens-skill" / "agents" / "openai.yaml").read_text(encoding="utf-8")
