@@ -53,6 +53,8 @@ FIELD_ALIASES = {
     "files": ["Files Or Areas", "Related Files", "关联文件", "涉及文件"],
     "source": ["Source", "来源"],
     "evidence": ["Evidence", "证据"],
+    "verification": ["Verification", "Validation", "验证", "验证记录"],
+    "explanation_status": ["Explanation Status", "Explanation", "解释状态", "解释"],
 }
 
 
@@ -100,6 +102,41 @@ def parse_iterations(block: str) -> list[str]:
     return re.findall(r"^###\s+(.+?)\s*$", block, flags=re.MULTILINE)
 
 
+def parse_iteration_entries(block: str) -> list[dict[str, str]]:
+    pattern = re.compile(r"^###\s+(.+?)\s*$", flags=re.MULTILINE)
+    matches = list(pattern.finditer(block))
+    entries: list[dict[str, str]] = []
+    for index, match in enumerate(matches):
+        start = match.end()
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(block)
+        entries.append({"title": match.group(1).strip(), "body": block[start:end].strip()})
+    return entries
+
+
+def build_iteration_nodes(entries: list[dict[str, str]]) -> list[dict[str, Any]]:
+    nodes = []
+    for index, entry in enumerate(entries[:10]):
+        body = entry["body"]
+        markers = ["记录事实"]
+        if "验证" in body or "Verification" in body:
+            markers.append("测试验证")
+        if "未完成" in body or "不清楚" in body or "缺口" in body:
+            markers.append("解释不足")
+        if "风险" in body or "冲突" in body:
+            markers.append("风险线索")
+        body_lines = body.splitlines()
+        nodes.append(
+            {
+                "title": entry["title"],
+                "index": index,
+                "kind": "latest" if index == 0 else "main",
+                "markers": markers,
+                "summary": body_lines[0] if body_lines else "",
+            }
+        )
+    return nodes
+
+
 def value(row: dict[str, str], field: str, default: str = "") -> str:
     for name in FIELD_ALIASES[field]:
         if name in row:
@@ -109,6 +146,181 @@ def value(row: dict[str, str], field: str, default: str = "") -> str:
 
 def is_open_issue(issue: dict[str, str]) -> bool:
     return value(issue, "status").strip().lower() not in DONE_STATUSES
+
+
+EMPTY_VALUES = {"", "-", "none", "n/a", "无", "暂无", "未记录", "unknown"}
+FULL_EXPLANATION_VALUES = {"explained", "full", "complete", "已解释", "完整解释"}
+PARTIAL_EXPLANATION_VALUES = {"partial", "部分解释"}
+WEAK_EXPLANATION_VALUES = {"insufficient", "missing", "解释不足", "缺解释", "未解释"}
+
+
+def has_meaningful_text(raw: str) -> bool:
+    return normalize_text(raw) not in EMPTY_VALUES
+
+
+def normalize_text(raw: str) -> str:
+    return raw.strip().lower()
+
+
+def percent(complete: int, total: int) -> int:
+    if total <= 0:
+        return 0
+    return round((complete / total) * 100)
+
+
+def issue_signal_breakdown(issue: dict[str, str]) -> dict[str, Any]:
+    source_present = has_meaningful_text(value(issue, "source"))
+    evidence_present = has_meaningful_text(value(issue, "evidence")) or has_meaningful_text(value(issue, "impact"))
+    files_present = has_meaningful_text(value(issue, "files"))
+    verification_present = has_meaningful_text(value(issue, "verification"))
+
+    evidence_checks = [
+        ("来源", source_present),
+        ("证据", evidence_present),
+        ("关联文件", files_present),
+    ]
+    evidence_complete = sum(1 for _name, present in evidence_checks if present)
+    evidence_missing = [name for name, present in evidence_checks if not present]
+
+    verification_missing = [] if verification_present else ["验证"]
+
+    explanation_raw = value(issue, "explanation_status").strip()
+    explanation_normalized = normalize_text(explanation_raw)
+    if explanation_raw in FULL_EXPLANATION_VALUES or explanation_normalized in FULL_EXPLANATION_VALUES:
+        explanation_label = "已解释"
+        explanation_complete = 1
+        explanation_missing: list[str] = []
+    elif explanation_raw in PARTIAL_EXPLANATION_VALUES or explanation_normalized in PARTIAL_EXPLANATION_VALUES:
+        explanation_label = "部分解释"
+        explanation_complete = 0
+        explanation_missing = ["完整解释"]
+    elif explanation_raw in WEAK_EXPLANATION_VALUES or explanation_normalized in WEAK_EXPLANATION_VALUES:
+        explanation_label = "解释不足"
+        explanation_complete = 0
+        explanation_missing = ["解释"]
+    elif has_meaningful_text(explanation_raw):
+        explanation_label = explanation_raw
+        explanation_complete = 0
+        explanation_missing = ["解释"]
+    else:
+        explanation_label = "未记录"
+        explanation_complete = 0
+        explanation_missing = ["解释"]
+
+    total_complete = evidence_complete + (1 if verification_present else 0) + explanation_complete
+    total_possible = 5
+
+    return {
+        "evidence": {
+            "complete": evidence_complete,
+            "total": 3,
+            "percent": percent(evidence_complete, 3),
+            "missing": evidence_missing,
+        },
+        "verification": {
+            "complete": 1 if verification_present else 0,
+            "total": 1,
+            "percent": 100 if verification_present else 0,
+            "missing": verification_missing,
+        },
+        "explanation": {
+            "complete": explanation_complete,
+            "total": 1,
+            "percent": 100 if explanation_complete else 0,
+            "label": explanation_label,
+            "missing": explanation_missing,
+        },
+        "overall_percent": percent(total_complete, total_possible),
+    }
+
+
+def enrich_issue(issue: dict[str, str]) -> dict[str, Any]:
+    enriched: dict[str, Any] = dict(issue)
+    enriched["__lens"] = issue_signal_breakdown(issue)
+    return enriched
+
+
+def build_cognition_summary(issues: list[dict[str, Any]]) -> dict[str, int]:
+    return {
+        "issues_with_evidence": sum(1 for issue in issues if issue["__lens"]["evidence"]["percent"] > 0),
+        "issues_with_verification": sum(1 for issue in issues if issue["__lens"]["verification"]["percent"] > 0),
+        "issues_with_full_explanation": sum(1 for issue in issues if issue["__lens"]["explanation"]["complete"] > 0),
+        "issues_with_insufficient_explanation": sum(
+            1 for issue in issues if issue["__lens"]["explanation"]["percent"] < 100
+        ),
+        "issues_with_gaps": sum(1 for issue in issues if issue["__lens"]["overall_percent"] < 100),
+    }
+
+
+def split_file_refs(raw: str) -> list[str]:
+    return [part.strip() for part in re.split(r"[,，]", raw) if part.strip()]
+
+
+def file_matches_ref(path: str, ref: str) -> bool:
+    normalized_path = path.replace("\\", "/")
+    normalized_ref = ref.replace("\\", "/")
+    if normalized_path == normalized_ref:
+        return True
+
+    if normalized_ref.endswith("/") and normalized_path.startswith(normalized_ref):
+        return True
+
+    return False
+
+
+def build_file_cognition(issues: list[dict[str, Any]], files: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    rows = []
+    for file in files:
+        path = file["path"]
+        linked = []
+        for issue in issues:
+            refs = split_file_refs(value(issue, "files"))
+            if any(file_matches_ref(path, ref) for ref in refs):
+                linked.append(issue)
+
+        if not linked:
+            rows.append(
+                {
+                    "path": path,
+                    "relation_status": "未关联",
+                    "relation_status_key": "unlinked",
+                    "explanation_status": "未关联",
+                    "explanation_status_key": "unlinked",
+                    "verification_status": "未关联",
+                    "verification_status_key": "unlinked",
+                    "linked_issue_ids": [],
+                }
+            )
+            continue
+
+        explanations = [issue["__lens"]["explanation"]["label"] for issue in linked]
+        if "已解释" in explanations:
+            explanation_status = "已解释"
+            explanation_status_key = "explained"
+        elif "部分解释" in explanations:
+            explanation_status = "部分解释"
+            explanation_status_key = "partial_explanation"
+        else:
+            explanation_status = "解释不足"
+            explanation_status_key = "insufficient_explanation"
+
+        has_verification = any(issue["__lens"]["verification"]["percent"] > 0 for issue in linked)
+        verification_status = "有验证" if has_verification else "缺验证"
+        verification_status_key = "verified" if has_verification else "missing_verification"
+
+        rows.append(
+            {
+                "path": path,
+                "relation_status": "已关联",
+                "relation_status_key": "linked",
+                "explanation_status": explanation_status,
+                "explanation_status_key": explanation_status_key,
+                "verification_status": verification_status,
+                "verification_status_key": verification_status_key,
+                "linked_issue_ids": [value(issue, "id", "-") for issue in linked],
+            }
+        )
+    return rows
 
 
 def resolve_record(project_root: Path, record_path: Path | None = None) -> Path:
@@ -231,18 +443,24 @@ def build_snapshot(
     record = resolve_record(project_root, record_path)
     text = record.read_text(encoding="utf-8")
 
-    issues = parse_markdown_table(section_any(text, SECTION_ALIASES["issue_pool"]))
+    raw_issues = parse_markdown_table(section_any(text, SECTION_ALIASES["issue_pool"]))
+    issues = [enrich_issue(issue) for issue in raw_issues]
     open_questions = [issue for issue in issues if is_open_issue(issue)]
-    issue_counts = Counter(value(issue, "status", "unknown") for issue in issues)
+    issue_counts = Counter(value(issue, "status", "unknown") for issue in raw_issues)
 
     active_work_rows = parse_markdown_table(section_any(text, SECTION_ALIASES["active_work"]))
     follow_up_rows = parse_markdown_table(section_any(text, SECTION_ALIASES["follow_up"]))
-    iterations = parse_iterations(section_any(text, SECTION_ALIASES["iteration_log"]))
+    iteration_block = section_any(text, SECTION_ALIASES["iteration_log"])
+    iteration_entries = parse_iteration_entries(iteration_block)
+    iterations = [entry["title"] for entry in iteration_entries]
     direction_text = section_any(text, SECTION_ALIASES["direction"])
     settings_path = project_root / DEFAULT_SETTINGS
     settings = DEFAULT_SETTINGS_DATA.copy()
     if settings_path.exists():
         settings.update(json.loads(settings_path.read_text(encoding="utf-8")))
+
+    git_diff = collect_git_diff(project_root, diff_ref)
+    git_diff["file_cognition"] = build_file_cognition(issues, git_diff.get("files", []))
 
     return {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
@@ -261,11 +479,13 @@ def build_snapshot(
         "latest_iteration": iterations[0] if iterations else None,
         "iteration_direction": {
             "headings": iterations[:10],
+            "nodes": build_iteration_nodes(iteration_entries),
             "current_direction": direction_text,
         },
         "settings": settings,
-        "git_diff": collect_git_diff(project_root, diff_ref),
+        "git_diff": git_diff,
         "conflict_signals": build_conflict_signals(active_work_rows),
+        "cognition_summary": build_cognition_summary(issues),
     }
 
 
@@ -299,6 +519,8 @@ def record_template_zh(today: date | None = None) -> str:
 
 大白话：这里不是任务裁判，不替你排优先级；它负责把当前问题、历史问题、代码差异、证据和迭代路径展示出来。
 
+信息完整度说明：`证据` 表示问题是否可追溯、可核对、可复盘；`验证` 表示是否有测试、运行结果、截图或人工确认；`解释状态` 表示是否说清为什么这样改。它们都不是优先级。
+
 ## 保护说明
 
 - 不要改名这些标题：`## 问题池`、`## 当前工作`、`## 追问流程专项记录`、`## 迭代记录`。
@@ -314,9 +536,9 @@ def record_template_zh(today: date | None = None) -> str:
 
 ## 问题池
 
-| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 |
-|---|---|---|---|---|---|
-| VL-001 | 第一个需要复盘的问题 | operator | open | 把这一行替换成真实问题 | docs/iteration-record.md |
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-001 | 第一个需要复盘的问题 | operator | open | 把这一行替换成真实问题 | docs/iteration-record.md | 暂无 | 解释不足 |
 
 ## 当前工作
 
@@ -349,6 +571,11 @@ def record_template_zh(today: date | None = None) -> str:
 验证：
 - 运行 lens snapshot 脚本，确认它能读这个文件。
 
+认知变化：
+- 本轮之后更清楚了什么：
+- 仍然不清楚什么：
+- 下次接手前应该先看什么：
+
 未完成：
 - 把示例行替换成当前项目真实的问题和证据。
 """
@@ -362,6 +589,8 @@ This is the source record for Vibe Lens.
 The script combines this record with Git diff data to generate a visual review sandbox.
 
 Plain English: this file is not a task judge. It shows current questions, historical questions, code changes, evidence, and iteration path.
+
+Info completeness: `Evidence` means the issue is traceable, checkable, and reviewable; `Verification` means tests, runtime output, screenshots, or operator confirmation exist; `Explanation Status` means the reason for the change is recorded. These are not priorities.
 
 ## Guardrails
 
@@ -379,9 +608,9 @@ Plain English: this file is not a task judge. It shows current questions, histor
 
 ## Issue Pool
 
-| ID | Issue | Source | Status | Evidence | Related Files |
-|---|---|---|---|---|---|
-| VL-001 | First question to review | operator | open | Replace this row with a real question | docs/iteration-record.md |
+| ID | Issue | Source | Status | Evidence | Related Files | Verification | Explanation Status |
+|---|---|---|---|---|---|---|---|
+| VL-001 | First question to review | operator | open | Replace this row with a real question | docs/iteration-record.md | none | insufficient |
 
 ## Active Work
 
@@ -413,6 +642,11 @@ Completed:
 
 Verification:
 - Run the lens snapshot script and confirm it can read this file.
+
+Cognition Change:
+- What became clearer after this turn:
+- What is still unclear:
+- What to inspect before the next handoff:
 
 Unfinished:
 - Replace example rows with real project questions and evidence.

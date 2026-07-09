@@ -38,6 +38,12 @@ class LensSnapshotTest(unittest.TestCase):
         record.write_text(text, encoding="utf-8")
         return record
 
+    def test_placeholder_text_is_case_insensitive(self):
+        self.assertFalse(lens_snapshot.has_meaningful_text("Unknown"))
+        self.assertFalse(lens_snapshot.has_meaningful_text("NONE"))
+        self.assertFalse(lens_snapshot.has_meaningful_text("N/A"))
+        self.assertTrue(lens_snapshot.has_meaningful_text("用户给出明确现象"))
+
     def test_reads_record_as_neutral_question_display(self):
         self.write_record(
             """# Vibe Lens Record
@@ -248,6 +254,127 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertIn("settings.contains(event.target)", html)
         self.assertIn("settings.classList.remove(\"open\")", html)
 
+    def test_iteration_path_nodes_are_built_from_real_entries(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 |
+|---|---|---|---|---|---|
+| VL-301 | 路径图需要真实数据 | operator | open | 用户指出当前路径图像演示 | dl-vibe-lens-skill/assets/report_template.html |
+
+## 迭代记录
+### 2026-07-09: 记录可视化认知层
+验证：
+- 已运行 snapshot。
+未完成：
+- 路径图还需要节点展开。
+
+### 2026-07-08: 记录理解 coding 定位
+证据：
+- 用户明确纠正产品定位。
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        nodes = snapshot["iteration_direction"]["nodes"]
+
+        self.assertEqual(nodes[0]["title"], "2026-07-09: 记录可视化认知层")
+        self.assertIn("测试验证", nodes[0]["markers"])
+        self.assertIn("解释不足", nodes[0]["markers"])
+        self.assertEqual(nodes[1]["title"], "2026-07-08: 记录理解 coding 定位")
+        self.assertIn("记录事实", nodes[1]["markers"])
+
+    def test_html_report_renders_file_cognition_tags_and_fact_types(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-501 | 文件标记需要可追溯 | operator | open | 用户要求不猜文件关系 | app.py | python -m unittest tests.test_lens_snapshot | 已解释 |
+
+## 迭代记录
+### 2026-07-09: 文件标签
+验证：
+- 已运行测试。
+"""
+        )
+        self.run_git("init")
+        self.run_git("config", "user.email", "test@example.com")
+        self.run_git("config", "user.name", "Test User")
+        (self.tmp / "app.py").write_text("one\n", encoding="utf-8")
+        self.run_git("add", "app.py", "docs/iteration-record.md")
+        self.run_git("commit", "-m", "initial")
+        (self.tmp / "app.py").write_text("one\ntwo\n", encoding="utf-8")
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        output = self.tmp / "lens-report.html"
+        lens_snapshot.write_html_report(snapshot, output)
+        html = output.read_text(encoding="utf-8")
+
+        self.assertIn("file-cognition-tags", html)
+        self.assertIn("已解释", html)
+        self.assertIn("有验证", html)
+        self.assertIn("fact-chip", html)
+        self.assertIn("Git 事实", html)
+        self.assertIn("缺验证", html)
+        self.assertIn("linked_issue_ids", html)
+        self.assertNotIn("file.path.includes(part)", html)
+        self.assertIn("relation_status_key", html)
+        self.assertIn("verification_status_key", html)
+        self.assertIn("fileCognitionLabel", html)
+        self.assertIn("renderFileRow(file, true)", html)
+        self.assertIn("with-tags", html)
+        self.assertIn('verified: "Verified"', html)
+
+    def test_html_path_visualization_uses_real_iteration_nodes(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 |
+|---|---|---|---|---|---|
+| VL-601 | 路径图要来自记录 | operator | open | 用户要求路径图不再只是演示 | dl-vibe-lens-skill/assets/report_template.html |
+
+## 迭代记录
+### 2026-07-09: 真实节点一
+验证：
+- 已运行测试。
+
+### 2026-07-08: 真实节点二
+未完成：
+- 还有解释缺口。
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        output = self.tmp / "lens-report.html"
+        lens_snapshot.write_html_report(snapshot, output)
+        html = output.read_text(encoding="utf-8")
+
+        self.assertIn("renderPathViz", html)
+        self.assertIn("data-node-index", html)
+        self.assertIn("真实节点一", html)
+        self.assertIn("真实节点二", html)
+        self.assertNotIn("可展开节点：报告 UI、沙盘入口、代码差异展示等方向调整。", html)
+
+    def test_init_template_mentions_visual_cognition_fields(self):
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--project-root", str(self.tmp), "--init"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        record = self.tmp / "docs" / "iteration-record.md"
+        self.assertEqual(result.returncode, 0, result.stderr)
+        text = record.read_text(encoding="utf-8")
+        self.assertIn("验证", text)
+        self.assertIn("解释状态", text)
+        self.assertIn("认知变化", text)
+        self.assertIn("信息完整度", text)
+
     def test_skill_metadata_and_docs_use_dl_trigger(self):
         skill_md = (ROOT / "dl-vibe-lens-skill" / "SKILL.md").read_text(encoding="utf-8")
         openai_yaml = (ROOT / "dl-vibe-lens-skill" / "agents" / "openai.yaml").read_text(encoding="utf-8")
@@ -288,6 +415,171 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(snapshot["open_questions"][0]["编号"], "DL-001")
         self.assertEqual(snapshot["latest_iteration"], "2026-07-01：旧文档兼容")
         self.assertEqual(snapshot["follow_up_case_count"], 1)
+
+    def test_snapshot_builds_visual_cognition_signals(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-101 | 总览详情入口混乱 | operator | open | 用户指出四个指标跳到同一详情页 | dl-vibe-lens-skill/assets/report_template.html | python -m unittest tests.test_lens_snapshot | 已解释 |
+| VL-102 | 路径图还是演示图 | operator | open | 用户指出路径图落地残缺 | dl-vibe-lens-skill/assets/report_template.html |  | 解释不足 |
+| VL-103 | 解释状态要更严格 | operator | open | 需要确认未知值不会被当成已解释 | dl-vibe-lens-skill/scripts/lens_snapshot.py |  | 待解释 |
+
+## 当前工作
+| 会话 | 任务 | 涉及文件 | 状态 | 备注 |
+|---|---|---|---|---|
+| 2026-07-09 | 设计可视化认知层 | docs/ | discussing | 计划阶段 |
+
+## 迭代记录
+### 2026-07-09: 设计可视化认知层
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        first = snapshot["open_questions"][0]["__lens"]
+        second = snapshot["open_questions"][1]["__lens"]
+        third = snapshot["open_questions"][2]["__lens"]
+
+        self.assertEqual(first["evidence"]["complete"], 3)
+        self.assertEqual(first["evidence"]["total"], 3)
+        self.assertEqual(first["evidence"]["percent"], 100)
+        self.assertEqual(first["verification"]["percent"], 100)
+        self.assertEqual(first["explanation"]["label"], "已解释")
+        self.assertEqual(first["overall_percent"], 100)
+
+        self.assertEqual(second["verification"]["percent"], 0)
+        self.assertIn("验证", second["verification"]["missing"])
+        self.assertEqual(second["explanation"]["label"], "解释不足")
+        self.assertLess(second["overall_percent"], 100)
+
+        self.assertEqual(third["explanation"]["label"], "待解释")
+        self.assertEqual(third["explanation"]["complete"], 0)
+        self.assertEqual(third["explanation"]["percent"], 0)
+        self.assertIn("解释", third["explanation"]["missing"])
+        self.assertLess(third["overall_percent"], 100)
+
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_evidence"], 3)
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_verification"], 1)
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_full_explanation"], 1)
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_insufficient_explanation"], 2)
+
+    def test_html_fact_summary_counts_explanation_gaps_separately(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-301 | 已解释但未验证 | operator | open | 用户给出明确现象 | app.py |  | 已解释 |
+
+## 迭代记录
+### 2026-07-09: 汇总标签
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        output = self.tmp / "lens-report.html"
+        lens_snapshot.write_html_report(snapshot, output)
+        html = output.read_text(encoding="utf-8")
+
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_gaps"], 1)
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_insufficient_explanation"], 0)
+        self.assertIn('"issues_with_insufficient_explanation": 0', html)
+        self.assertIn("summary.issues_with_insufficient_explanation", html)
+        self.assertNotIn("summary.issues_with_gaps || 0)}</span>", html)
+
+    def test_html_report_renders_visual_cognition_signals_without_new_card(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-401 | 当前问题需要信息信号 | operator | open | 用户要求可视化减轻负担 | README.md | python -m unittest tests.test_lens_snapshot | 已解释 |
+
+## 迭代记录
+### 2026-07-09: HTML 信息信号
+验证：
+- 已生成 HTML。
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        output = self.tmp / "lens-report.html"
+        lens_snapshot.write_html_report(snapshot, output)
+        html = output.read_text(encoding="utf-8")
+
+        self.assertIn("signal-row", html)
+        self.assertIn("evidenceSignal", html)
+        self.assertIn("verificationSignal", html)
+        self.assertIn("explanationSignal", html)
+        self.assertIn("信息完整度", html)
+        self.assertNotIn(">理解 Coding<", html)
+
+    def test_file_cognition_marks_only_explicitly_linked_files(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-201 | 脚本需要认知信号 | operator | open | 用户要求可视化减轻负担 | app.py | python -m unittest tests.test_lens_snapshot | 已解释 |
+| VL-202 | 同名片段不该误连 | operator | open | 用户要求严格按路径匹配 | myapp.py |  | 解释不足 |
+| VL-203 | 目录前缀应可关联 | operator | open | 用户要求显式目录引用 | src/ |  | 部分解释 |
+
+## 迭代记录
+### 2026-07-09: 文件认知标记
+"""
+        )
+        self.run_git("init")
+        self.run_git("config", "user.email", "test@example.com")
+        self.run_git("config", "user.name", "Test User")
+        (self.tmp / "app.py").write_text("one\n", encoding="utf-8")
+        (self.tmp / "other.py").write_text("base\n", encoding="utf-8")
+        (self.tmp / "src").mkdir()
+        (self.tmp / "src" / "tool.py").write_text("tool\n", encoding="utf-8")
+        self.run_git(
+            "add",
+            "app.py",
+            "other.py",
+            "src/tool.py",
+            "docs/iteration-record.md",
+        )
+        self.run_git("commit", "-m", "initial")
+        (self.tmp / "app.py").write_text("one\ntwo\n", encoding="utf-8")
+        (self.tmp / "other.py").write_text("base\nchanged\n", encoding="utf-8")
+        (self.tmp / "src" / "tool.py").write_text("tool\nupdated\n", encoding="utf-8")
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        by_path = {row["path"]: row for row in snapshot["git_diff"]["file_cognition"]}
+
+        self.assertEqual(by_path["app.py"]["relation_status"], "已关联")
+        self.assertEqual(by_path["app.py"]["explanation_status"], "已解释")
+        self.assertEqual(by_path["app.py"]["verification_status"], "有验证")
+        self.assertEqual(by_path["app.py"]["relation_status_key"], "linked")
+        self.assertEqual(by_path["app.py"]["explanation_status_key"], "explained")
+        self.assertEqual(by_path["app.py"]["verification_status_key"], "verified")
+        self.assertEqual(by_path["app.py"]["linked_issue_ids"], ["VL-201"])
+
+        self.assertNotIn("VL-202", by_path["app.py"]["linked_issue_ids"])
+
+        self.assertEqual(by_path["src/tool.py"]["relation_status"], "已关联")
+        self.assertEqual(by_path["src/tool.py"]["explanation_status"], "部分解释")
+        self.assertEqual(by_path["src/tool.py"]["verification_status"], "缺验证")
+        self.assertEqual(by_path["src/tool.py"]["relation_status_key"], "linked")
+        self.assertEqual(by_path["src/tool.py"]["explanation_status_key"], "partial_explanation")
+        self.assertEqual(by_path["src/tool.py"]["verification_status_key"], "missing_verification")
+        self.assertEqual(by_path["src/tool.py"]["linked_issue_ids"], ["VL-203"])
+
+        self.assertEqual(by_path["other.py"]["relation_status"], "未关联")
+        self.assertEqual(by_path["other.py"]["explanation_status"], "未关联")
+        self.assertEqual(by_path["other.py"]["verification_status"], "未关联")
+        self.assertEqual(by_path["other.py"]["relation_status_key"], "unlinked")
+        self.assertEqual(by_path["other.py"]["explanation_status_key"], "unlinked")
+        self.assertEqual(by_path["other.py"]["verification_status_key"], "unlinked")
+        self.assertEqual(by_path["other.py"]["linked_issue_ids"], [])
 
     def run_git(self, *args: str) -> None:
         subprocess.run(

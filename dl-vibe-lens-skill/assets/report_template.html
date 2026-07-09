@@ -253,6 +253,47 @@
     .seg-green { background: var(--green); }
     .seg-orange { background: var(--orange); }
 
+    .signal-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .signal-chip {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 6px;
+      background: rgba(255,255,255,.68);
+    }
+
+    .signal-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .signal-bar {
+      height: 5px;
+      margin-top: 5px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .signal-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: var(--blue);
+    }
+
+    .signal-fill.verify { background: var(--green); }
+    .signal-fill.explain { background: var(--orange); }
+
     .file-row {
       display: grid;
       grid-template-columns: 1fr 70px 70px;
@@ -265,7 +306,12 @@
       font-size: 12px;
     }
 
+    .file-row.with-tags {
+      grid-template-columns: minmax(0, 1fr) 64px 64px minmax(96px, auto);
+    }
+
     .file-row strong { text-align: right; }
+    .file-row .mono { min-width: 0; overflow-wrap: anywhere; }
     .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
 
     .diff-card {
@@ -327,6 +373,37 @@
     .diff-file-list::-webkit-scrollbar { width: 6px; }
     .diff-file-list::-webkit-scrollbar-track { background: transparent; }
     .diff-file-list::-webkit-scrollbar-thumb { background: rgba(100,116,139,.26); border-radius: 999px; }
+
+    .file-cognition-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 4px;
+      min-width: 96px;
+    }
+
+    .mini-tag, .fact-chip {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: var(--muted);
+      background: rgba(255,255,255,.72);
+      white-space: nowrap;
+    }
+
+    .mini-tag.good, .fact-chip.good { color: #166534; background: #dcfce7; border-color: #bbf7d0; }
+    .mini-tag.warn, .fact-chip.warn { color: #92400e; background: #fef3c7; border-color: #fde68a; }
+    .mini-tag.muted, .fact-chip.muted { color: #64748b; background: #f1f5f9; }
+
+    .fact-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
 
     .sandbox-mini { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
     .steps { display: grid; gap: 8px; }
@@ -720,12 +797,7 @@
             <path class="dash" d="M520 44 H664 Q680 44 680 60 V86"></path>
             <path class="dash" d="M536 86 H698 Q714 86 714 102 V126 H884"></path>
           </svg>
-          <span class="node done" style="left:7.1%;top:55.1%" data-tip-zh="起点：问题开始进入复盘记录。" data-tip-en="Start: questions entered the review record."></span>
-          <span class="node choice expandable" style="left:30.4%;top:28.2%" data-tip-zh="可展开节点：一次方向选择，详细页显示背后的选择。" data-tip-en="Expandable node: a direction choice; the detail page shows choices behind it."></span>
-          <span class="node choice expandable" style="left:54.7%;top:55.1%" data-tip-zh="可展开节点：报告 UI、沙盘入口、代码差异展示等方向调整。" data-tip-en="Expandable node: report UI, sandbox gateway, and code diff display changed here."></span>
-          <span class="node abandon" style="left:69.4%;top:55.1%" data-tip-zh="放弃路径：与第一阶段只展示事实的定位冲突。" data-tip-en="Abandoned path: conflicted with the stage-one principle of displaying facts only."></span>
-          <span class="node pending" style="left:90.2%;top:80.8%" data-tip-zh="待定节点：后续优化方向。" data-tip-en="Pending node: later optimization direction."></span>
-          <span class="node current" style="left:91.8%;top:55.1%" data-tip-zh="当前节点：生成可发布的 Skill 和项目介绍。" data-tip-en="Current node: package the publishable skill and project intro."></span>
+          <div id="timelineNodes"></div>
         </div>
       </a>
     </section>
@@ -882,8 +954,25 @@
         evidence: "证据",
         files: "关联文件",
         none: "暂无记录",
+        infoCompleteness: "信息完整度",
+        evidenceSignal: "证据",
+        verificationSignal: "验证",
+        explanationSignal: "解释",
         latestEvidence: "最新证据",
         conflictSignals: "冲突线索",
+        gitFact: "Git 事实",
+        recordFact: "记录事实",
+        testVerification: "测试验证",
+        operatorConfirmed: "操作者确认",
+        agentJudgment: "Agent 判断",
+        missingEvidence: "缺证据",
+        missingVerification: "缺验证",
+        insufficientExplanation: "解释不足",
+        linked: "已关联",
+        unlinked: "未关联",
+        verified: "有验证",
+        explained: "已解释",
+        partialExplanation: "部分解释",
         total: "total",
         signals: "signals",
         currentFocus: "当前聚焦",
@@ -952,8 +1041,25 @@
         evidence: "Evidence",
         files: "Files",
         none: "No record",
+        infoCompleteness: "Info completeness",
+        evidenceSignal: "Evidence",
+        verificationSignal: "Verification",
+        explanationSignal: "Explanation",
         latestEvidence: "Latest evidence",
         conflictSignals: "Conflict signals",
+        gitFact: "Git fact",
+        recordFact: "Record fact",
+        testVerification: "Test verification",
+        operatorConfirmed: "Operator confirmed",
+        agentJudgment: "Agent judgment",
+        missingEvidence: "Missing evidence",
+        missingVerification: "Missing verification",
+        insufficientExplanation: "Insufficient explanation",
+        linked: "Linked",
+        unlinked: "Unlinked",
+        verified: "Verified",
+        explained: "Explained",
+        partialExplanation: "Partial explanation",
         total: "total",
         signals: "signals",
         currentFocus: "Current focus",
@@ -998,17 +1104,90 @@
       return Math.round((checks.filter(Boolean).length / checks.length) * 100);
     }
 
+    const lensSignals = (row) => row.__lens || {
+      evidence: { percent: issueCompleteness(row), missing: [] },
+      verification: { percent: 0, missing: ["验证"] },
+      explanation: { percent: 0, label: "未记录", missing: ["解释"] },
+      overall_percent: issueCompleteness(row),
+    };
+
+    function renderSignalChip(label, percentValue, className, tip) {
+      const width = Math.max(0, Math.min(100, Number(percentValue || 0)));
+      const fillClass = className ? ` ${esc(className)}` : "";
+      return `
+        <div class="signal-chip" data-tip-zh="${esc(tip.zh)}" data-tip-en="${esc(tip.en)}">
+          <div class="signal-label"><span>${esc(label)}</span><strong>${width}%</strong></div>
+          <div class="signal-bar"><div class="signal-fill${fillClass}" style="width:${width}%"></div></div>
+        </div>
+      `;
+    }
+
     function relatedDiff(row) {
-      const raw = issueFiles(row);
-      const parts = raw.split(/[,，]/).map((part) => part.trim()).filter(Boolean);
+      const relatedPaths = new Set((data.git_diff?.file_cognition || [])
+        .filter((item) => (item.linked_issue_ids || []).includes(issueId(row)))
+        .map((item) => item.path));
       const files = data.git_diff?.files || [];
-      const matches = files.filter((file) => parts.some((part) => file.path.includes(part) || part.includes(file.path)));
+      const matches = files.filter((file) => relatedPaths.has(file.path));
       return matches.reduce((acc, file) => {
         acc.added += Number(file.added || 0);
         acc.deleted += Number(file.deleted || 0);
         acc.count += 1;
         return acc;
       }, { added: 0, deleted: 0, count: matches.length });
+    }
+
+    function cognitionByPath(path) {
+      const rows = data.git_diff?.file_cognition || [];
+      return rows.find((row) => row.path === path) || {
+        relation_status: t("unlinked"),
+        relation_status_key: "unlinked",
+        explanation_status: t("unlinked"),
+        explanation_status_key: "unlinked",
+        verification_status: t("unlinked"),
+        verification_status_key: "unlinked",
+        linked_issue_ids: []
+      };
+    }
+
+    function fileCognitionLabel(kind, fallback) {
+      const map = {
+        linked: t("linked"),
+        unlinked: t("unlinked"),
+        verified: t("verified"),
+        missing_verification: t("missingVerification"),
+        explained: t("explained"),
+        partial_explanation: t("partialExplanation"),
+        insufficient_explanation: t("insufficientExplanation")
+      };
+      return map[kind] || fallback || t("unlinked");
+    }
+
+    function tagClass(value) {
+      if (["explained", "verified", "linked", "已解释", "有验证", "已关联", "记录事实", "测试验证", "Linked", "Verified", "Explained"].includes(value)) return "good";
+      if (["partial_explanation", "insufficient_explanation", "missing_verification", "部分解释", "解释不足", "缺验证", "风险线索", "Partial explanation", "Insufficient explanation", "Missing verification"].includes(value)) return "warn";
+      return "muted";
+    }
+
+    function renderMiniTag(value, kind) {
+      return `<span class="mini-tag ${esc(tagClass(kind || value))}">${esc(value)}</span>`;
+    }
+
+    function renderFileRow(file, withTags = false) {
+      const cognition = cognitionByPath(file.path);
+      const tags = withTags ? `
+        <span class="file-cognition-tags">
+          ${renderMiniTag(fileCognitionLabel(cognition.explanation_status_key, cognition.explanation_status), cognition.explanation_status_key)}
+          ${renderMiniTag(fileCognitionLabel(cognition.verification_status_key, cognition.verification_status), cognition.verification_status_key)}
+        </span>
+      ` : "";
+      return `
+        <div class="file-row${withTags ? " with-tags" : ""}">
+          <span class="mono">${esc(file.path)}</span>
+          <strong class="added">+${esc(file.added ?? "bin")}</strong>
+          <strong class="deleted">-${esc(file.deleted ?? "bin")}</strong>
+          ${tags}
+        </div>
+      `;
     }
 
     function renderOverview() {
@@ -1035,6 +1214,7 @@
         const green = pct(diff.added, total);
         const red = pct(diff.deleted, total);
         const completeness = issueCompleteness(row);
+        const signals = lensSignals(row);
         const donut = diff.count
           ? `conic-gradient(var(--green) 0 ${green}, var(--red) ${green} calc(${green} + ${red}), #cbd5e1 0 100%)`
           : "#cbd5e1";
@@ -1046,13 +1226,20 @@
             <div>
               <div class="q-title">${esc(issueId(row))}: ${esc(issueTitle(row))}</div>
               <div class="q-sub">${esc(t("status"))}: ${esc(issueStatus(row))} ｜ ${esc(t("evidence"))}: ${esc(issueEvidence(row))}</div>
-              <div class="meter-label"><span>${esc(t("evidence"))}</span><span>${completeness}%</span></div>
-              <div class="meter" data-tip-zh="证据完整度：按 ID、问题、状态、证据、关联文件是否存在粗略估算，为展示信号，不是质量评分。" data-tip-en="Evidence completeness: a rough display signal based on ID, issue, status, evidence, and related files. It is not a quality score.">
-                <div class="meter-fill" style="width:${completeness}%">
-                  <span class="seg-blue" style="width:35%"></span>
-                  <span class="seg-green" style="width:40%"></span>
-                  <span class="seg-orange" style="width:25%"></span>
-                </div>
+              <div class="meter-label"><span>${esc(t("infoCompleteness"))}</span><span>${esc(signals.overall_percent ?? completeness)}%</span></div>
+              <div class="signal-row">
+                ${renderSignalChip(t("evidenceSignal"), signals.evidence?.percent ?? 0, "", {
+                  zh: `证据完整度：表示来源、证据和关联文件是否清楚；不是优先级或质量评分。缺口：${(signals.evidence?.missing || []).join("、") || "无"}`,
+                  en: `Evidence signal: source, evidence, and related files. It is not priority or quality scoring. Missing: ${(signals.evidence?.missing || []).join(", ") || "none"}`
+                })}
+                ${renderSignalChip(t("verificationSignal"), signals.verification?.percent ?? 0, "verify", {
+                  zh: `验证信号：表示是否有测试、运行结果、截图或人工确认。缺口：${(signals.verification?.missing || []).join("、") || "无"}`,
+                  en: `Verification signal: tests, runtime result, screenshot, or operator confirmation. Missing: ${(signals.verification?.missing || []).join(", ") || "none"}`
+                })}
+                ${renderSignalChip(t("explanationSignal"), signals.explanation?.percent ?? 0, "explain", {
+                  zh: `解释信号：${signals.explanation?.label || "未记录"}。它表示是否写清为什么这样改，不展示 Agent 的认知模型。`,
+                  en: `Explanation signal: ${signals.explanation?.label || "not recorded"}. It shows whether the reason is recorded, not the agent cognition model.`
+                })}
               </div>
             </div>
           </div>
@@ -1076,13 +1263,7 @@
         <div class="diff-stat files"><span>${esc(t("changedFiles"))}</span><strong>${esc(diff.changed_file_count || 0)}</strong></div>
       `;
       const files = diff.files || [];
-      byId("diffFiles").innerHTML = files.length ? files.map((file) => `
-        <div class="file-row">
-          <span class="mono">${esc(file.path)}</span>
-          <strong class="added">+${esc(file.added ?? "bin")}</strong>
-          <strong class="deleted">-${esc(file.deleted ?? "bin")}</strong>
-        </div>
-      `).join("") : `<div class="detail-item">${esc(t("noDiff"))}</div>`;
+      byId("diffFiles").innerHTML = files.length ? files.map((file) => renderFileRow(file, true)).join("") : `<div class="detail-item">${esc(t("noDiff"))}</div>`;
     }
 
     function renderSandboxAndEvidence() {
@@ -1094,11 +1275,44 @@
         <div class="mini-link"><span class="mini-dot orange"></span><span>${esc(t("code"))}: +${esc(diff.total_added || 0)} / -${esc(diff.total_deleted || 0)}</span></div>
         <div class="mini-link"><span class="mini-dot red"></span><span>${esc(t("gap"))}: ${esc((data.conflict_signals || []).length)} ${esc(t("conflictSignals"))}</span></div>
       `;
+      const summary = data.cognition_summary || {};
       byId("evidenceSummary").innerHTML = `
+        <div class="fact-row">
+          <span class="fact-chip good">${esc(t("gitFact"))}: ${esc(diff.changed_file_count || 0)}</span>
+          <span class="fact-chip good">${esc(t("recordFact"))}: ${esc(data.issue_count || 0)}</span>
+          <span class="fact-chip good">${esc(t("testVerification"))}: ${esc(summary.issues_with_verification || 0)}</span>
+          <span class="fact-chip warn">${esc(t("missingVerification"))}: ${esc((data.issue_count || 0) - (summary.issues_with_verification || 0))}</span>
+          <span class="fact-chip warn">${esc(t("insufficientExplanation"))}: ${esc(summary.issues_with_insufficient_explanation || 0)}</span>
+        </div>
         <div class="file-row"><span>${esc(t("latestEvidence"))}</span><strong>${esc(latest)}</strong><strong></strong></div>
-        <div class="file-row"><span>${esc(t("totalQuestions"))}</span><strong>${esc(data.issue_count)}</strong><strong>${esc(t("total"))}</strong></div>
         <div class="file-row"><span>${esc(t("conflictSignals"))}</span><strong>${esc((data.conflict_signals || []).length)}</strong><strong>${esc(t("signals"))}</strong></div>
       `;
+    }
+
+    function markerClass(markers) {
+      if ((markers || []).includes("风险线索")) return "abandon";
+      if ((markers || []).includes("解释不足")) return "choice";
+      if ((markers || []).includes("测试验证")) return "done";
+      return "done";
+    }
+
+    function renderPathViz() {
+      const nodes = data.iteration_direction?.nodes || [];
+      const container = byId("timelineNodes");
+      if (!container) return;
+      if (!nodes.length) {
+        container.innerHTML = "";
+        return;
+      }
+      const count = Math.max(1, nodes.length - 1);
+      container.innerHTML = nodes.map((node, index) => {
+        const left = 7 + (index / count) * 86;
+        const top = index % 2 === 0 ? 55 : 28;
+        const markers = node.markers || [];
+        const tipZh = `${node.title}｜${markers.join("、") || "记录事实"}`;
+        const tipEn = `${node.title} | ${markers.join(", ") || "record fact"}`;
+        return `<span class="node ${esc(markerClass(markers))}" data-node-index="${esc(index)}" style="left:${left.toFixed(1)}%;top:${top.toFixed(1)}%" data-tip-zh="${esc(tipZh)}" data-tip-en="${esc(tipEn)}"></span>`;
+      }).join("");
     }
 
     function renderDetails() {
@@ -1128,7 +1342,7 @@
       byId("filesDetailGrid").innerHTML = `
         <div class="card">
           <h2>${esc(t("changedFiles"))}</h2>
-          ${files.map((file) => `<div class="file-row"><span class="mono">${esc(file.path)}</span><strong class="added">+${esc(file.added ?? "bin")}</strong><strong class="deleted">-${esc(file.deleted ?? "bin")}</strong></div>`).join("") || `<div class="detail-item">${esc(t("noDiff"))}</div>`}
+          ${files.map((file) => renderFileRow(file, true)).join("") || `<div class="detail-item">${esc(t("noDiff"))}</div>`}
         </div>
         <div class="card">
           <h2>${esc(t("untrackedFiles"))}</h2>
@@ -1162,11 +1376,12 @@
         </div>
       `;
 
-      const headings = data.iteration_direction?.headings || [];
-      byId("pathDetailList").innerHTML = headings.length ? headings.map((title, index) => `
+      const nodes = data.iteration_direction?.nodes || [];
+      byId("pathDetailList").innerHTML = nodes.length ? nodes.map((node, index) => `
         <div class="path-node-detail ${index > 3 ? "abandoned" : ""}">
-          <h3>${esc(index + 1)}. ${esc(title)}</h3>
-          <div class="detail-item">${esc(index === 0 ? (data.iteration_direction?.current_direction || t("pathScaleText")) : t("pathScaleText"))}</div>
+          <h3>${esc(index + 1)}. ${esc(node.title)}</h3>
+          <div class="fact-row">${(node.markers || []).map((marker) => `<span class="fact-chip ${esc(tagClass(marker))}">${esc(marker)}</span>`).join("")}</div>
+          <div class="detail-item">${esc(index === 0 ? (data.iteration_direction?.current_direction || t("pathScaleText")) : (node.summary || t("pathScaleText")))}</div>
         </div>
       `).join("") : `<div class="detail-item">${esc(t("none"))}</div>`;
     }
@@ -1267,6 +1482,7 @@
       renderQuestions();
       renderDiff();
       renderSandboxAndEvidence();
+      renderPathViz();
       renderDetails();
     }
 
