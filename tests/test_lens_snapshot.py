@@ -347,6 +347,22 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertIn("真实节点二", html)
         self.assertNotIn("可展开节点：报告 UI、沙盘入口、代码差异展示等方向调整。", html)
 
+    def test_init_template_mentions_visual_cognition_fields(self):
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--project-root", str(self.tmp), "--init"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        record = self.tmp / "docs" / "iteration-record.md"
+        self.assertEqual(result.returncode, 0, result.stderr)
+        text = record.read_text(encoding="utf-8")
+        self.assertIn("验证", text)
+        self.assertIn("解释状态", text)
+        self.assertIn("认知变化", text)
+        self.assertIn("信息完整度", text)
+
     def test_skill_metadata_and_docs_use_dl_trigger(self):
         skill_md = (ROOT / "dl-vibe-lens-skill" / "SKILL.md").read_text(encoding="utf-8")
         openai_yaml = (ROOT / "dl-vibe-lens-skill" / "agents" / "openai.yaml").read_text(encoding="utf-8")

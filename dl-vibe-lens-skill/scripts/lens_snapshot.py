@@ -509,6 +509,8 @@ def record_template_zh(today: date | None = None) -> str:
 
 大白话：这里不是任务裁判，不替你排优先级；它负责把当前问题、历史问题、代码差异、证据和迭代路径展示出来。
 
+信息完整度说明：`证据` 表示问题是否可追溯、可核对、可复盘；`验证` 表示是否有测试、运行结果、截图或人工确认；`解释状态` 表示是否说清为什么这样改。它们都不是优先级。
+
 ## 保护说明
 
 - 不要改名这些标题：`## 问题池`、`## 当前工作`、`## 追问流程专项记录`、`## 迭代记录`。
@@ -524,9 +526,9 @@ def record_template_zh(today: date | None = None) -> str:
 
 ## 问题池
 
-| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 |
-|---|---|---|---|---|---|
-| VL-001 | 第一个需要复盘的问题 | operator | open | 把这一行替换成真实问题 | docs/iteration-record.md |
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-001 | 第一个需要复盘的问题 | operator | open | 把这一行替换成真实问题 | docs/iteration-record.md | 暂无 | 解释不足 |
 
 ## 当前工作
 
@@ -559,6 +561,11 @@ def record_template_zh(today: date | None = None) -> str:
 验证：
 - 运行 lens snapshot 脚本，确认它能读这个文件。
 
+认知变化：
+- 本轮之后更清楚了什么：
+- 仍然不清楚什么：
+- 下次接手前应该先看什么：
+
 未完成：
 - 把示例行替换成当前项目真实的问题和证据。
 """
@@ -572,6 +579,8 @@ This is the source record for Vibe Lens.
 The script combines this record with Git diff data to generate a visual review sandbox.
 
 Plain English: this file is not a task judge. It shows current questions, historical questions, code changes, evidence, and iteration path.
+
+Info completeness: `Evidence` means the issue is traceable, checkable, and reviewable; `Verification` means tests, runtime output, screenshots, or operator confirmation exist; `Explanation Status` means the reason for the change is recorded. These are not priorities.
 
 ## Guardrails
 
@@ -589,9 +598,9 @@ Plain English: this file is not a task judge. It shows current questions, histor
 
 ## Issue Pool
 
-| ID | Issue | Source | Status | Evidence | Related Files |
-|---|---|---|---|---|---|
-| VL-001 | First question to review | operator | open | Replace this row with a real question | docs/iteration-record.md |
+| ID | Issue | Source | Status | Evidence | Related Files | Verification | Explanation Status |
+|---|---|---|---|---|---|---|---|
+| VL-001 | First question to review | operator | open | Replace this row with a real question | docs/iteration-record.md | none | insufficient |
 
 ## Active Work
 
@@ -623,6 +632,11 @@ Completed:
 
 Verification:
 - Run the lens snapshot script and confirm it can read this file.
+
+Cognition Change:
+- What became clearer after this turn:
+- What is still unclear:
+- What to inspect before the next handoff:
 
 Unfinished:
 - Replace example rows with real project questions and evidence.

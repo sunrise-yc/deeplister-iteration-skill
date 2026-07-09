@@ -108,6 +108,10 @@ Use $dl-vibe-lens-skill to initialize or inspect this project, generate the visu
 - `中英文切换`：报告默认中文，可切换英文。
 - `对话入口设置`：展示 `reply_entry_mode` 的三种模式：每轮显示、使用时显示、关闭。真正持续生效以 `docs/vibe-lens-settings.json` 或用户提示词为准。
 
+## 信息完整度不是评分
+
+Vibe Lens 0.2 的进度条和标签只表示复盘信息是否充分：问题是否有证据、改动是否验证过、原因是否解释清楚。它们不是质量评分、优先级评分，也不会替你安排下一步。
+
 代码差异来自 Git，不是 AI 猜的。脚本会读取：
 
 ```powershell
