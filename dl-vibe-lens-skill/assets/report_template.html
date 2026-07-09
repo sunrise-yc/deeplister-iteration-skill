@@ -306,7 +306,12 @@
       font-size: 12px;
     }
 
+    .file-row.with-tags {
+      grid-template-columns: minmax(0, 1fr) 64px 64px minmax(96px, auto);
+    }
+
     .file-row strong { text-align: right; }
+    .file-row .mono { min-width: 0; overflow-wrap: anywhere; }
     .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
 
     .diff-card {
@@ -965,6 +970,9 @@
         insufficientExplanation: "解释不足",
         linked: "已关联",
         unlinked: "未关联",
+        verified: "有验证",
+        explained: "已解释",
+        partialExplanation: "部分解释",
         total: "total",
         signals: "signals",
         currentFocus: "当前聚焦",
@@ -1049,6 +1057,9 @@
         insufficientExplanation: "Insufficient explanation",
         linked: "Linked",
         unlinked: "Unlinked",
+        verified: "Verified",
+        explained: "Explained",
+        partialExplanation: "Partial explanation",
         total: "total",
         signals: "signals",
         currentFocus: "Current focus",
@@ -1129,20 +1140,54 @@
       const rows = data.git_diff?.file_cognition || [];
       return rows.find((row) => row.path === path) || {
         relation_status: t("unlinked"),
+        relation_status_key: "unlinked",
         explanation_status: t("unlinked"),
+        explanation_status_key: "unlinked",
         verification_status: t("unlinked"),
+        verification_status_key: "unlinked",
         linked_issue_ids: []
       };
     }
 
+    function fileCognitionLabel(kind, fallback) {
+      const map = {
+        linked: t("linked"),
+        unlinked: t("unlinked"),
+        verified: t("verified"),
+        missing_verification: t("missingVerification"),
+        explained: t("explained"),
+        partial_explanation: t("partialExplanation"),
+        insufficient_explanation: t("insufficientExplanation")
+      };
+      return map[kind] || fallback || t("unlinked");
+    }
+
     function tagClass(value) {
-      if (["已解释", "有验证", "已关联", "记录事实", "测试验证", "Linked"].includes(value)) return "good";
-      if (["部分解释", "解释不足", "缺验证", "风险线索", "Partial explanation", "Insufficient explanation", "Missing verification"].includes(value)) return "warn";
+      if (["explained", "verified", "linked", "已解释", "有验证", "已关联", "记录事实", "测试验证", "Linked", "Verified", "Explained"].includes(value)) return "good";
+      if (["partial_explanation", "insufficient_explanation", "missing_verification", "部分解释", "解释不足", "缺验证", "风险线索", "Partial explanation", "Insufficient explanation", "Missing verification"].includes(value)) return "warn";
       return "muted";
     }
 
-    function renderMiniTag(value) {
-      return `<span class="mini-tag ${esc(tagClass(value))}">${esc(value)}</span>`;
+    function renderMiniTag(value, kind) {
+      return `<span class="mini-tag ${esc(tagClass(kind || value))}">${esc(value)}</span>`;
+    }
+
+    function renderFileRow(file, withTags = false) {
+      const cognition = cognitionByPath(file.path);
+      const tags = withTags ? `
+        <span class="file-cognition-tags">
+          ${renderMiniTag(fileCognitionLabel(cognition.explanation_status_key, cognition.explanation_status), cognition.explanation_status_key)}
+          ${renderMiniTag(fileCognitionLabel(cognition.verification_status_key, cognition.verification_status), cognition.verification_status_key)}
+        </span>
+      ` : "";
+      return `
+        <div class="file-row${withTags ? " with-tags" : ""}">
+          <span class="mono">${esc(file.path)}</span>
+          <strong class="added">+${esc(file.added ?? "bin")}</strong>
+          <strong class="deleted">-${esc(file.deleted ?? "bin")}</strong>
+          ${tags}
+        </div>
+      `;
     }
 
     function renderOverview() {
@@ -1218,17 +1263,7 @@
         <div class="diff-stat files"><span>${esc(t("changedFiles"))}</span><strong>${esc(diff.changed_file_count || 0)}</strong></div>
       `;
       const files = diff.files || [];
-      byId("diffFiles").innerHTML = files.length ? files.map((file) => `
-        <div class="file-row">
-          <span class="mono">${esc(file.path)}</span>
-          <strong class="added">+${esc(file.added ?? "bin")}</strong>
-          <strong class="deleted">-${esc(file.deleted ?? "bin")}</strong>
-          <span class="file-cognition-tags">
-            ${renderMiniTag(cognitionByPath(file.path).explanation_status)}
-            ${renderMiniTag(cognitionByPath(file.path).verification_status)}
-          </span>
-        </div>
-      `).join("") : `<div class="detail-item">${esc(t("noDiff"))}</div>`;
+      byId("diffFiles").innerHTML = files.length ? files.map((file) => renderFileRow(file, true)).join("") : `<div class="detail-item">${esc(t("noDiff"))}</div>`;
     }
 
     function renderSandboxAndEvidence() {
@@ -1247,7 +1282,7 @@
           <span class="fact-chip good">${esc(t("recordFact"))}: ${esc(data.issue_count || 0)}</span>
           <span class="fact-chip good">${esc(t("testVerification"))}: ${esc(summary.issues_with_verification || 0)}</span>
           <span class="fact-chip warn">${esc(t("missingVerification"))}: ${esc((data.issue_count || 0) - (summary.issues_with_verification || 0))}</span>
-          <span class="fact-chip warn">${esc(t("insufficientExplanation"))}: ${esc(summary.issues_with_gaps || 0)}</span>
+          <span class="fact-chip warn">${esc(t("insufficientExplanation"))}: ${esc(summary.issues_with_insufficient_explanation || 0)}</span>
         </div>
         <div class="file-row"><span>${esc(t("latestEvidence"))}</span><strong>${esc(latest)}</strong><strong></strong></div>
         <div class="file-row"><span>${esc(t("conflictSignals"))}</span><strong>${esc((data.conflict_signals || []).length)}</strong><strong>${esc(t("signals"))}</strong></div>
@@ -1307,7 +1342,7 @@
       byId("filesDetailGrid").innerHTML = `
         <div class="card">
           <h2>${esc(t("changedFiles"))}</h2>
-          ${files.map((file) => `<div class="file-row"><span class="mono">${esc(file.path)}</span><strong class="added">+${esc(file.added ?? "bin")}</strong><strong class="deleted">-${esc(file.deleted ?? "bin")}</strong></div>`).join("") || `<div class="detail-item">${esc(t("noDiff"))}</div>`}
+          ${files.map((file) => renderFileRow(file, true)).join("") || `<div class="detail-item">${esc(t("noDiff"))}</div>`}
         </div>
         <div class="card">
           <h2>${esc(t("untrackedFiles"))}</h2>

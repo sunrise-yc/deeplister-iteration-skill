@@ -148,14 +148,14 @@ def is_open_issue(issue: dict[str, str]) -> bool:
     return value(issue, "status").strip().lower() not in DONE_STATUSES
 
 
-EMPTY_VALUES = {"", "-", "none", "None", "NONE", "n/a", "N/A", "无", "暂无", "未记录", "unknown"}
+EMPTY_VALUES = {"", "-", "none", "n/a", "无", "暂无", "未记录", "unknown"}
 FULL_EXPLANATION_VALUES = {"explained", "full", "complete", "已解释", "完整解释"}
 PARTIAL_EXPLANATION_VALUES = {"partial", "部分解释"}
 WEAK_EXPLANATION_VALUES = {"insufficient", "missing", "解释不足", "缺解释", "未解释"}
 
 
 def has_meaningful_text(raw: str) -> bool:
-    return raw.strip() not in EMPTY_VALUES
+    return normalize_text(raw) not in EMPTY_VALUES
 
 
 def normalize_text(raw: str) -> str:
@@ -245,6 +245,9 @@ def build_cognition_summary(issues: list[dict[str, Any]]) -> dict[str, int]:
         "issues_with_evidence": sum(1 for issue in issues if issue["__lens"]["evidence"]["percent"] > 0),
         "issues_with_verification": sum(1 for issue in issues if issue["__lens"]["verification"]["percent"] > 0),
         "issues_with_full_explanation": sum(1 for issue in issues if issue["__lens"]["explanation"]["complete"] > 0),
+        "issues_with_insufficient_explanation": sum(
+            1 for issue in issues if issue["__lens"]["explanation"]["percent"] < 100
+        ),
         "issues_with_gaps": sum(1 for issue in issues if issue["__lens"]["overall_percent"] < 100),
     }
 
@@ -280,8 +283,11 @@ def build_file_cognition(issues: list[dict[str, Any]], files: list[dict[str, Any
                 {
                     "path": path,
                     "relation_status": "未关联",
+                    "relation_status_key": "unlinked",
                     "explanation_status": "未关联",
+                    "explanation_status_key": "unlinked",
                     "verification_status": "未关联",
+                    "verification_status_key": "unlinked",
                     "linked_issue_ids": [],
                 }
             )
@@ -290,23 +296,27 @@ def build_file_cognition(issues: list[dict[str, Any]], files: list[dict[str, Any
         explanations = [issue["__lens"]["explanation"]["label"] for issue in linked]
         if "已解释" in explanations:
             explanation_status = "已解释"
+            explanation_status_key = "explained"
         elif "部分解释" in explanations:
             explanation_status = "部分解释"
+            explanation_status_key = "partial_explanation"
         else:
             explanation_status = "解释不足"
+            explanation_status_key = "insufficient_explanation"
 
-        verification_status = (
-            "有验证"
-            if any(issue["__lens"]["verification"]["percent"] > 0 for issue in linked)
-            else "缺验证"
-        )
+        has_verification = any(issue["__lens"]["verification"]["percent"] > 0 for issue in linked)
+        verification_status = "有验证" if has_verification else "缺验证"
+        verification_status_key = "verified" if has_verification else "missing_verification"
 
         rows.append(
             {
                 "path": path,
                 "relation_status": "已关联",
+                "relation_status_key": "linked",
                 "explanation_status": explanation_status,
+                "explanation_status_key": explanation_status_key,
                 "verification_status": verification_status,
+                "verification_status_key": verification_status_key,
                 "linked_issue_ids": [value(issue, "id", "-") for issue in linked],
             }
         )

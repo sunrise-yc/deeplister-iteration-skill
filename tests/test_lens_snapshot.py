@@ -38,6 +38,12 @@ class LensSnapshotTest(unittest.TestCase):
         record.write_text(text, encoding="utf-8")
         return record
 
+    def test_placeholder_text_is_case_insensitive(self):
+        self.assertFalse(lens_snapshot.has_meaningful_text("Unknown"))
+        self.assertFalse(lens_snapshot.has_meaningful_text("NONE"))
+        self.assertFalse(lens_snapshot.has_meaningful_text("N/A"))
+        self.assertTrue(lens_snapshot.has_meaningful_text("用户给出明确现象"))
+
     def test_reads_record_as_neutral_question_display(self):
         self.write_record(
             """# Vibe Lens Record
@@ -315,6 +321,12 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertIn("缺验证", html)
         self.assertIn("linked_issue_ids", html)
         self.assertNotIn("file.path.includes(part)", html)
+        self.assertIn("relation_status_key", html)
+        self.assertIn("verification_status_key", html)
+        self.assertIn("fileCognitionLabel", html)
+        self.assertIn("renderFileRow(file, true)", html)
+        self.assertIn("with-tags", html)
+        self.assertIn('verified: "Verified"', html)
 
     def test_html_path_visualization_uses_real_iteration_nodes(self):
         self.write_record(
@@ -451,6 +463,32 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(snapshot["cognition_summary"]["issues_with_evidence"], 3)
         self.assertEqual(snapshot["cognition_summary"]["issues_with_verification"], 1)
         self.assertEqual(snapshot["cognition_summary"]["issues_with_full_explanation"], 1)
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_insufficient_explanation"], 2)
+
+    def test_html_fact_summary_counts_explanation_gaps_separately(self):
+        self.write_record(
+            """# Vibe Lens 记录
+
+## 问题池
+| 编号 | 问题 | 来源 | 状态 | 证据 | 关联文件 | 验证 | 解释状态 |
+|---|---|---|---|---|---|---|---|
+| VL-301 | 已解释但未验证 | operator | open | 用户给出明确现象 | app.py |  | 已解释 |
+
+## 迭代记录
+### 2026-07-09: 汇总标签
+"""
+        )
+
+        snapshot = lens_snapshot.build_snapshot(self.tmp)
+        output = self.tmp / "lens-report.html"
+        lens_snapshot.write_html_report(snapshot, output)
+        html = output.read_text(encoding="utf-8")
+
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_gaps"], 1)
+        self.assertEqual(snapshot["cognition_summary"]["issues_with_insufficient_explanation"], 0)
+        self.assertIn('"issues_with_insufficient_explanation": 0', html)
+        self.assertIn("summary.issues_with_insufficient_explanation", html)
+        self.assertNotIn("summary.issues_with_gaps || 0)}</span>", html)
 
     def test_html_report_renders_visual_cognition_signals_without_new_card(self):
         self.write_record(
@@ -520,6 +558,9 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(by_path["app.py"]["relation_status"], "已关联")
         self.assertEqual(by_path["app.py"]["explanation_status"], "已解释")
         self.assertEqual(by_path["app.py"]["verification_status"], "有验证")
+        self.assertEqual(by_path["app.py"]["relation_status_key"], "linked")
+        self.assertEqual(by_path["app.py"]["explanation_status_key"], "explained")
+        self.assertEqual(by_path["app.py"]["verification_status_key"], "verified")
         self.assertEqual(by_path["app.py"]["linked_issue_ids"], ["VL-201"])
 
         self.assertNotIn("VL-202", by_path["app.py"]["linked_issue_ids"])
@@ -527,11 +568,17 @@ class LensSnapshotTest(unittest.TestCase):
         self.assertEqual(by_path["src/tool.py"]["relation_status"], "已关联")
         self.assertEqual(by_path["src/tool.py"]["explanation_status"], "部分解释")
         self.assertEqual(by_path["src/tool.py"]["verification_status"], "缺验证")
+        self.assertEqual(by_path["src/tool.py"]["relation_status_key"], "linked")
+        self.assertEqual(by_path["src/tool.py"]["explanation_status_key"], "partial_explanation")
+        self.assertEqual(by_path["src/tool.py"]["verification_status_key"], "missing_verification")
         self.assertEqual(by_path["src/tool.py"]["linked_issue_ids"], ["VL-203"])
 
         self.assertEqual(by_path["other.py"]["relation_status"], "未关联")
         self.assertEqual(by_path["other.py"]["explanation_status"], "未关联")
         self.assertEqual(by_path["other.py"]["verification_status"], "未关联")
+        self.assertEqual(by_path["other.py"]["relation_status_key"], "unlinked")
+        self.assertEqual(by_path["other.py"]["explanation_status_key"], "unlinked")
+        self.assertEqual(by_path["other.py"]["verification_status_key"], "unlinked")
         self.assertEqual(by_path["other.py"]["linked_issue_ids"], [])
 
     def run_git(self, *args: str) -> None:
